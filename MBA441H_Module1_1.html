@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Module 1.1 — What is Compensation? | MBA 441H</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --green:#1B6B3A;--green-dark:#0F4A28;--green-light:#2E8B57;--green-pale:#EAF5EE;
+  --amber:#BA7517;--amber-dark:#8A5210;--amber-light:#D4911E;--amber-pale:#FEF3D8;
+  --cream:#F8F6F1;--cream-dark:#EDE9E0;
+  --text:#1A1A2A;--text-mid:#4A4A6A;--text-light:#7A7A9A;
+  --success:#1B6B3A;--danger:#8B1A1A;--white:#FFFFFF;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:#E6E4DE;color:var(--text);overflow-x:hidden;}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--white);position:relative;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* TOP BAR */
+.top-bar{background:var(--green-dark);padding:11px 15px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.module-chip{background:var(--amber);color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+.bar-text{color:#fff;flex:1;min-width:0;}
+.bar-title{font-family:'Cormorant Garamond',serif;font-size:13.5px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-sub{font-size:10px;opacity:0.65;}
+.prog-pill{background:rgba(255,255,255,0.15);border-radius:20px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,0.88);white-space:nowrap;flex-shrink:0;}
+.prog-bar{height:3px;background:rgba(186,117,23,0.25);flex-shrink:0;}
+.prog-fill{height:3px;background:var(--amber);transition:width 0.5s ease;}
+
+/* HERO */
+.hero{background:linear-gradient(150deg,var(--green-dark) 45%,var(--green) 100%);padding:26px 20px 22px;color:#fff;position:relative;overflow:hidden;flex-shrink:0;}
+.hero-glow{position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(186,117,23,0.13);pointer-events:none;}
+.hero-glow2{position:absolute;left:-30px;bottom:-50px;width:140px;height:140px;border-radius:50%;background:rgba(186,117,23,0.07);pointer-events:none;}
+.hero-tag{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber-light);margin-bottom:7px;font-weight:500;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;line-height:1.2;margin-bottom:7px;}
+.hero-sub{font-size:12px;opacity:0.82;line-height:1.6;margin-bottom:16px;}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap;}
+.hero-badge{font-size:11px;opacity:0.88;display:flex;align-items:center;gap:5px;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--amber-light);flex-shrink:0;}
+
+/* SECTION HERO */
+.sec-hero{padding:15px 17px 12px;color:#fff;flex-shrink:0;}
+.sh-green{background:linear-gradient(135deg,var(--green-dark),var(--green));}
+.sh-amber{background:linear-gradient(135deg,var(--amber-dark),var(--amber));}
+.sh-split{background:linear-gradient(135deg,var(--green-dark) 50%,var(--amber-dark) 50%);}
+.sec-num{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;line-height:1.2;}
+.sec-sub{font-size:11px;opacity:0.72;margin-top:3px;}
+
+/* CONTENT */
+.content-body{padding:15px 15px 4px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid #E5E5EE;border-radius:13px;padding:13px 15px;margin-bottom:11px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.card-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.card-icon{width:33px;height:33px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+.ic-green{background:var(--green-dark);}
+.ic-amber{background:var(--amber);}
+.card-label{font-size:13px;font-weight:600;color:var(--green-dark);}
+.card-label.amber{color:var(--amber-dark);}
+.card p{font-size:12.5px;line-height:1.65;color:var(--text-mid);}
+.card strong{color:var(--text);}
+
+.hl-green{background:var(--green-dark);border-radius:13px;padding:15px 17px;margin-bottom:11px;color:#fff;}
+.hl-amber{background:var(--amber-dark);border-radius:13px;padding:15px 17px;margin-bottom:11px;color:#fff;}
+.hl-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:5px;}
+.hl-green p,.hl-amber p{font-size:12.5px;line-height:1.6;opacity:0.93;}
+
+.quote-block{border-left:3px solid var(--amber);padding:10px 13px;margin-bottom:11px;background:var(--amber-pale);border-radius:0 10px 10px 0;}
+.quote-block p{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--green-dark);line-height:1.5;}
+.quote-block cite{display:block;font-size:10px;color:var(--text-mid);margin-top:4px;font-style:normal;}
+
+/* PERSPECTIVE CARDS (tappable) */
+.persp-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+.persp-card{border-radius:12px;padding:13px 11px;cursor:pointer;transition:transform 0.15s;border:2px solid transparent;}
+.persp-card:active{transform:scale(0.97);}
+.persp-card.green-card{background:linear-gradient(145deg,var(--green-dark),var(--green));}
+.persp-card.amber-card{background:linear-gradient(145deg,var(--amber-dark),var(--amber));}
+.persp-card .pc-tag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:4px;}
+.persp-card .pc-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#fff;margin-bottom:5px;line-height:1.2;}
+.persp-card .pc-preview{font-size:10.5px;color:rgba(255,255,255,0.75);line-height:1.4;}
+.persp-card .pc-arrow{font-size:13px;color:var(--amber-light);margin-top:5px;}
+.persp-card.amber-card .pc-arrow{color:rgba(255,255,255,0.8);}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--white);border:1px solid #E5E5EE;border-radius:13px;overflow:hidden;margin-bottom:11px;}
+.dp-header{padding:12px 14px 9px;}
+.dp-hg{background:linear-gradient(135deg,var(--green-dark),var(--green));}
+.dp-ha{background:linear-gradient(135deg,var(--amber-dark),var(--amber));}
+.dp-tag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:2px;}
+.dp-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#fff;}
+.dp-body{padding:12px 14px;}
+.dp-item{display:flex;gap:8px;margin-bottom:9px;align-items:flex-start;}
+.dp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dot-g{background:var(--green-dark);}
+.dot-a{background:var(--amber-dark);}
+.dp-text{font-size:12.5px;line-height:1.55;color:var(--text-mid);}
+.dp-text strong{color:var(--text);}
+.dp-close{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--green-dark);font-weight:500;cursor:pointer;padding:8px 14px;border-top:1px solid #F0EEE8;background:none;border-bottom:none;border-left:none;border-right:none;width:100%;font-family:'DM Sans',sans-serif;}
+
+/* PAY MODEL VISUAL */
+.pay-model{margin-bottom:11px;}
+.pm-label{font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.pm-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.pm-col{border-radius:11px;overflow:hidden;}
+.pm-col-head{padding:9px 8px 7px;text-align:center;}
+.pm-g{background:var(--green-dark);}
+.pm-a{background:var(--amber);}
+.pm-col-head p{font-size:11px;font-weight:600;color:#fff;}
+.pm-col-head small{font-size:10px;color:rgba(255,255,255,0.65);}
+.pm-items{background:var(--cream);padding:8px;}
+.pm-item{font-size:11px;color:var(--text-mid);padding:4px 0;border-bottom:0.5px solid #E5E5EE;line-height:1.3;}
+.pm-item:last-child{border:none;}
+.pm-item strong{color:var(--text);display:block;font-size:10.5px;}
+
+/* FORMS OF PAY TABLE */
+.pay-table{width:100%;border-collapse:collapse;margin-bottom:11px;font-size:11.5px;border-radius:11px;overflow:hidden;border:1px solid #E5E5EE;}
+.pay-table th{background:var(--green-dark);color:#fff;padding:9px 10px;text-align:left;font-weight:600;font-size:11px;}
+.pay-table td{padding:8px 10px;border-bottom:0.5px solid #F0EEE8;color:var(--text-mid);vertical-align:top;}
+.pay-table tr:last-child td{border:none;}
+.pay-table tr:nth-child(even) td{background:var(--green-pale);}
+.pay-table .tag-cash{background:var(--green-pale);color:var(--green-dark);font-size:9.5px;padding:2px 6px;border-radius:10px;font-weight:600;}
+.pay-table .tag-rel{background:var(--amber-pale);color:var(--amber-dark);font-size:9.5px;padding:2px 6px;border-radius:10px;font-weight:600;}
+
+/* MENTIMETER SIMULATION */
+.poll-wrap{background:var(--cream);border-radius:13px;padding:14px;margin-bottom:11px;}
+.poll-label{font-size:12px;font-weight:600;color:var(--green-dark);margin-bottom:4px;}
+.poll-q{font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.4;}
+.poll-options{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+.poll-opt{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.poll-opt input[type=checkbox]{width:18px;height:18px;accent-color:var(--green-dark);flex-shrink:0;}
+.poll-opt-label{font-size:12.5px;color:var(--text);}
+.poll-btn{background:var(--green-dark);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;width:100%;}
+.poll-results{display:none;}
+.poll-bar-wrap{margin-bottom:8px;}
+.poll-bar-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-mid);margin-bottom:4px;}
+.poll-bar-bg{height:10px;background:#E5E5EE;border-radius:20px;overflow:hidden;}
+.poll-bar-fill{height:100%;border-radius:20px;transition:width 1s ease;}
+.poll-insight{background:var(--amber-pale);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--amber-dark);line-height:1.5;margin-top:10px;}
+
+/* NAV */
+.nav-row{display:flex;gap:8px;padding:11px 15px 15px;border-top:1px solid #F0EEE8;flex-shrink:0;}
+.btn-back{flex:0 0 auto;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:1.5px solid var(--green-dark);background:var(--white);color:var(--green-dark);}
+.btn-next{flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:var(--green-dark);color:#fff;}
+.btn-amber{background:var(--amber);color:#fff;border:none;}
+
+/* WELCOME */
+.welcome-body{padding:20px 15px;flex:1;}
+.form-label{font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.name-input{width:100%;border:1.5px solid #DDD;border-radius:10px;padding:12px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border 0.2s;-webkit-appearance:none;}
+.name-input:focus{border-color:var(--green-dark);}
+.role-sel{width:100%;border:1.5px solid #DDD;border-radius:10px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;background:var(--white);-webkit-appearance:none;margin-top:12px;}
+.role-sel:focus{border-color:var(--green-dark);}
+.welcome-note{background:var(--green-pale);border-left:3px solid var(--green-dark);border-radius:0 9px 9px 0;padding:10px 12px;margin-top:13px;font-size:12px;color:var(--green-dark);line-height:1.55;}
+.btn-start{display:block;width:100%;background:var(--amber);color:#fff;border:none;border-radius:11px;padding:14px;font-size:14.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:15px;}
+.btn-start:disabled{background:#BBB;cursor:not-allowed;}
+.design-credit{text-align:center;font-size:10px;color:var(--text-light);padding:10px 0 4px;}
+
+/* REFLECTION */
+.reflect-wrap{background:var(--cream);border-radius:13px;padding:14px;margin-bottom:11px;}
+.reflect-q{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px;line-height:1.4;}
+.reflect-opts{display:flex;flex-direction:column;gap:7px;}
+.reflect-opt{border:1.5px solid #DDD;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--text);cursor:pointer;background:var(--white);font-family:'DM Sans',sans-serif;text-align:left;width:100%;line-height:1.4;transition:all 0.15s;}
+.reflect-opt.sel-g{border-color:var(--green-dark);background:var(--green-pale);color:var(--green-dark);}
+.reflect-opt.sel-a{border-color:var(--amber);background:var(--amber-pale);color:var(--amber-dark);}
+.reflect-reveal{margin-top:11px;padding:11px 13px;border-radius:10px;font-size:12.5px;line-height:1.55;background:var(--green-pale);border-left:3px solid var(--green-dark);color:var(--green-dark);display:none;}
+
+/* QUIZ */
+.q-counter{font-size:11px;color:var(--text-mid);margin-bottom:11px;display:flex;justify-content:space-between;align-items:center;}
+.q-dots{display:flex;gap:5px;}
+.q-dot-el{width:8px;height:8px;border-radius:50%;background:#DDD;}
+.q-dot-el.done{background:var(--amber);}
+.q-dot-el.active{background:var(--green-dark);}
+.scenario-box{background:var(--cream);border-radius:12px;padding:13px;margin-bottom:12px;border:1px solid #E0DDD8;}
+.scenario-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:3px;}
+.scenario-context{font-size:12.5px;color:var(--text);line-height:1.6;}
+.scenario-q{font-size:13px;font-weight:600;color:var(--green-dark);margin-top:8px;line-height:1.4;}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.option{border:1.5px solid #DDD;border-radius:10px;padding:11px 12px;font-size:12.5px;color:var(--text);cursor:pointer;line-height:1.45;background:var(--white);font-family:'DM Sans',sans-serif;text-align:left;width:100%;transition:all 0.15s;}
+.option.correct{border-color:var(--success);background:var(--green-pale);color:var(--success);}
+.option.wrong{border-color:var(--danger);background:#FBEEE0;color:var(--danger);}
+.option.reveal-correct{border-color:var(--success);background:var(--green-pale);}
+.feedback{border-radius:10px;padding:11px 13px;margin-bottom:10px;font-size:12.5px;line-height:1.55;}
+.feedback.correct{background:var(--green-pale);border-left:3px solid var(--success);color:#174D2A;}
+.feedback.wrong{background:#FBEEE0;border-left:3px solid var(--danger);color:#6B1010;}
+.q-lens{background:var(--amber-pale);border-radius:8px;padding:4px 10px;font-size:10.5px;color:var(--amber-dark);font-weight:600;margin-bottom:10px;display:inline-block;}
+
+/* RESULTS */
+.result-hero{background:linear-gradient(145deg,var(--green-dark),var(--green));padding:28px 18px;text-align:center;color:#fff;flex-shrink:0;}
+.score-ring{width:105px;height:105px;border-radius:50%;border:4px solid var(--amber-light);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 12px;}
+.score-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;color:var(--amber-light);line-height:1;}
+.score-denom{font-size:10.5px;opacity:0.7;margin-top:2px;}
+.result-title{font-family:'Cormorant Garamond',serif;font-size:21px;margin-bottom:4px;}
+.result-sub{font-size:12px;opacity:0.78;}
+.result-body{padding:15px;flex:1;overflow-y:auto;}
+.brow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid #F0EEE8;font-size:12.5px;}
+.brow:last-child{border:none;}
+.brow .lbl{color:var(--text-mid);}
+.pass-badge{background:var(--green-pale);color:var(--success);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;}
+.fail-badge{background:#FBEEE0;color:var(--danger);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;}
+.btn-amber-full{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:var(--amber);color:#fff;border:none;border-radius:10px;padding:13px;font-size:13.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:11px;}
+.btn-outline-g{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--white);color:var(--green-dark);border:1.5px solid var(--green-dark);border-radius:10px;padding:12px;font-size:13.5px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px;}
+.key-takeaway{background:var(--green-pale);border-radius:12px;padding:13px 15px;margin-top:10px;}
+.kt-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--green-dark);font-weight:600;margin-bottom:7px;}
+.kt-item{display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:var(--text-mid);line-height:1.45;}
+.kt-item:last-child{margin:0;}
+.kt-dot{width:6px;height:6px;border-radius:50%;background:var(--green-dark);flex-shrink:0;margin-top:4px;}
+
+/* CERT */
+.cert-wrap{padding:14px;background:var(--cream-dark);flex:1;overflow-y:auto;}
+.cert{background:var(--white);border:2px solid var(--green-dark);border-radius:14px;overflow:hidden;}
+.cert-top{background:linear-gradient(135deg,var(--green-dark),var(--green));padding:16px 18px 12px;}
+.cert-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.cert-ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+.cert-amber-dot{width:32px;height:32px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.cert-top-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#fff;line-height:1.3;}
+.cert-ribbon{background:var(--amber);padding:5px 16px;text-align:center;}
+.cert-ribbon p{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#fff;font-weight:600;}
+.cert-body{padding:15px 17px;text-align:center;}
+.cert-presents{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);margin-bottom:5px;}
+.cert-recipient{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--green-dark);border-bottom:2px solid var(--amber);padding-bottom:5px;margin-bottom:8px;display:inline-block;min-width:170px;}
+.cert-role-line{font-size:11px;color:var(--text-mid);margin-bottom:8px;}
+.cert-mod-name{font-size:11.5px;color:var(--text-mid);line-height:1.5;margin-bottom:5px;}
+.cert-mod-name strong{color:var(--green-dark);font-size:13px;display:block;font-weight:600;margin-bottom:2px;}
+.cert-score-line{font-size:10.5px;color:var(--text-mid);margin-bottom:10px;}
+.cert-score-line strong{color:var(--success);}
+.cert-tags{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.cert-tag{background:var(--amber-pale);color:var(--amber-dark);font-size:9px;padding:2px 7px;border-radius:20px;}
+.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;padding:0 15px 13px;}
+.cert-sig{text-align:center;}
+.cert-sig-italic{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--green-dark);font-style:italic;margin-bottom:3px;}
+.cert-sig-line{width:80px;height:1px;background:var(--green-dark);margin:3px auto;}
+.cert-sig-role{font-size:8.5px;color:var(--text-mid);font-weight:500;line-height:1.4;}
+.cert-bottom-bar{height:5px;background:linear-gradient(90deg,var(--green-dark),var(--amber));}
+.btn-dw-wrap{padding:0 14px 15px;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ════════ WELCOME ════════ -->
+<div class="screen active" id="screen-welcome">
+  <div class="top-bar">
+    <div class="module-chip">MBA 441H</div>
+    <div class="bar-text"><div class="bar-title">Compensation Management</div><div class="bar-sub">Module 1.1 · Foundations</div></div>
+  </div>
+  <div class="hero">
+    <div class="hero-glow"></div><div class="hero-glow2"></div>
+    <div class="hero-tag">Bite-Size Learning · 15–20 Minutes</div>
+    <div class="hero-title">What Is Compensation?<br>Perspectives, Definitions &amp; the Pay Model</div>
+    <p class="hero-sub">Discover why compensation is far more than a salary slip — and how it shapes behaviour, strategy, and competitive advantage.</p>
+    <div class="hero-meta">
+      <div class="hero-badge"><div class="badge-dot"></div>4 interactive sections</div>
+      <div class="hero-badge"><div class="badge-dot"></div>Mentimeter poll</div>
+      <div class="hero-badge"><div class="badge-dot"></div>5-question MCQ</div>
+      <div class="hero-badge"><div class="badge-dot"></div>Certificate</div>
+    </div>
+  </div>
+  <div class="welcome-body">
+    <label class="form-label" for="uname">Your Full Name</label>
+    <input class="name-input" type="text" id="uname" placeholder="e.g. Priya Raghunathan" maxlength="60" autocomplete="name">
+    <label class="form-label" style="margin-top:13px;" for="urole">Your Role</label>
+    <select class="role-sel" id="urole">
+      <option value="">Select your role</option>
+      <option value="MBA Student — HR Specialisation">MBA Student — HR Specialisation</option>
+      <option value="MBA Student — General Management">MBA Student — General Management</option>
+      <option value="HR Professional">HR Professional</option>
+      <option value="Line Manager">Line Manager</option>
+      <option value="Business Leader">Business Leader</option>
+    </select>
+    <div class="welcome-note">
+      <strong>CLO 1 · CO1-PO1.</strong> By the end of this module you will be able to explain the meaning and scope of compensation, compare employer and employee perspectives on pay, and apply the Pay Model framework to real organisational scenarios.
+    </div>
+    <button class="btn-start" id="btn-start" onclick="startModule()" disabled>Start Module &#8594;</button>
+    <p class="design-credit">MBA 441H · Compensation Management · CHRIST University · School of Business &amp; Management</p>
+  </div>
+</div>
+
+<!-- ════════ SECTION 1: WHAT IS COMPENSATION ════════ -->
+<div class="screen" id="screen-s1">
+  <div class="top-bar">
+    <div class="module-chip">1.1</div>
+    <div class="bar-text"><div class="bar-title">What Is Compensation?</div><div class="bar-sub">Section 1 of 4</div></div>
+    <div class="prog-pill">1/4</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:25%"></div></div>
+  <div class="sec-hero sh-green">
+    <div class="sec-num">Section 01</div>
+    <div class="sec-title">Defining Compensation</div>
+    <div class="sec-sub">More than money — a system of returns</div>
+  </div>
+  <div class="content-body">
+    <div class="hl-green">
+      <div class="hl-label">The Core Definition</div>
+      <p>Compensation refers to <strong style="color:#fff">all forms of financial returns and tangible services and benefits</strong> that employees receive as part of an employment relationship. It is the primary mechanism through which organisations translate strategy into employee behaviour.</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-icon ic-green">&#128218;</div><div class="card-label">Milkovich, Newman &amp; Venkata Ratnam (2017)</div></div>
+      <p>In most organisations, compensation costs represent the <strong>single largest expense on the balance sheet</strong> — often 40–70% of total operating costs. HR practitioners managing compensation therefore carry a strategic responsibility that extends well beyond salary administration.</p>
+    </div>
+    <div class="quote-block">
+      <p>"Pay systems are more than just a reward mechanism — they communicate what the organisation values, what behaviours it expects, and what kind of employer it is."</p>
+      <cite>— Milkovich, Newman &amp; Venkata Ratnam, Compensation, 9e (2017)</cite>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-icon ic-amber">&#128269;</div><div class="card-label amber">Why This Course Is Interdisciplinary</div></div>
+      <p>Compensation management draws on <strong>labour economics</strong> (wage theory), <strong>psychology</strong> (motivation, equity, expectancy), <strong>finance</strong> (cost management, ESOPs), <strong>law</strong> (minimum wage, equal pay), and <strong>actuarial science</strong> (benefits valuation). No single discipline is sufficient.</p>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo('screen-welcome')">&#8592;</button>
+    <button class="btn-next" onclick="goTo('screen-s2')">Next: Forms of Pay &#8594;</button>
+  </div>
+</div>
+
+<!-- ════════ SECTION 2: FORMS OF PAY ════════ -->
+<div class="screen" id="screen-s2">
+  <div class="top-bar">
+    <div class="module-chip">1.1</div>
+    <div class="bar-text"><div class="bar-title">Forms of Pay</div><div class="bar-sub">Section 2 of 4</div></div>
+    <div class="prog-pill">2/4</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:50%"></div></div>
+  <div class="sec-hero sh-amber">
+    <div class="sec-num">Section 02</div>
+    <div class="sec-title">The Taxonomy of Pay</div>
+    <div class="sec-sub">Cash compensation, benefits &amp; relational returns</div>
+  </div>
+  <div class="content-body">
+    <div class="hl-amber">
+      <div class="hl-label">Total Earnings Opportunity</div>
+      <p>Compensation is not a single number — it is a <strong style="color:#fff">portfolio of returns</strong>. Understanding the full taxonomy helps HR professionals design packages that attract the right talent for the right reasons.</p>
+    </div>
+    <table class="pay-table">
+      <thead><tr><th>Category</th><th>Type</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Base Pay</strong></td><td><span class="tag-cash">Cash</span></td><td>Fixed salary, hourly wages</td></tr>
+        <tr><td><strong>Merit Pay</strong></td><td><span class="tag-cash">Cash</span></td><td>Annual increment linked to performance rating</td></tr>
+        <tr><td><strong>Short-Term Incentives</strong></td><td><span class="tag-cash">Cash</span></td><td>Quarterly bonus, sales commission, gainsharing</td></tr>
+        <tr><td><strong>Long-Term Incentives</strong></td><td><span class="tag-cash">Cash/Equity</span></td><td>ESOPs, stock grants, BBOPs</td></tr>
+        <tr><td><strong>Benefits</strong></td><td><span class="tag-rel">Non-cash</span></td><td>Health insurance, PF, gratuity, leave encashment</td></tr>
+        <tr><td><strong>Work-Life Balance</strong></td><td><span class="tag-rel">Relational</span></td><td>Flexible hours, WFH, sabbaticals, childcare</td></tr>
+        <tr><td><strong>Relational Returns</strong></td><td><span class="tag-rel">Relational</span></td><td>Recognition, status, meaningful work, learning</td></tr>
+      </tbody>
+    </table>
+    <div class="card">
+      <div class="card-head"><div class="card-icon ic-green">&#128161;</div><div class="card-label">Why Relational Returns Matter</div></div>
+      <p>Research consistently shows that <strong>relational returns — purpose, autonomy, recognition, and growth</strong> — predict long-term retention and engagement better than cash compensation alone. The Towers Perrin Total Rewards model explicitly includes these as core components of the employee value proposition.</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-icon ic-amber">&#9888;</div><div class="card-label amber">The Kerr Paradox</div></div>
+      <p>Steven Kerr's classic 1975 article <em>"On the Folly of Rewarding A while Hoping for B"</em> warns that organisations often design reward systems that incentivise the wrong behaviours. <strong>What you pay for is what you get.</strong> This is why compensation design must be intentional, not accidental.</p>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo('screen-s1')">&#8592;</button>
+    <button class="btn-next" onclick="goTo('screen-s3')">Next: Perspectives &#8594;</button>
+  </div>
+</div>
+
+<!-- ════════ SECTION 3: PERSPECTIVES + PAY MODEL ════════ -->
+<div class="screen" id="screen-s3">
+  <div class="top-bar">
+    <div class="module-chip">1.1</div>
+    <div class="bar-text"><div class="bar-title">Perspectives &amp; The Pay Model</div><div class="bar-sub">Section 3 of 4</div></div>
+    <div class="prog-pill">3/4</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:75%"></div></div>
+  <div class="sec-hero sh-split">
+    <div class="sec-num">Section 03</div>
+    <div class="sec-title">Who Sees What — &amp; Milkovich's Pay Model</div>
+    <div class="sec-sub">Tap each card to explore both perspectives</div>
+  </div>
+  <div class="content-body">
+    <p style="font-size:12.5px;color:var(--text-mid);margin-bottom:12px;line-height:1.6;">Compensation looks very different depending on which side of the table you are on. Effective HR professionals must understand <em>both</em> perspectives simultaneously — and design systems that serve both.</p>
+    <div class="persp-grid">
+      <div class="persp-card green-card" onclick="showPanel(1)">
+        <div class="pc-tag">Employer</div>
+        <div class="pc-title">Cost &amp; Investment</div>
+        <div class="pc-preview">Labour cost, talent strategy, behaviour alignment</div>
+        <div class="pc-arrow">Tap to explore &#8250;</div>
+      </div>
+      <div class="persp-card amber-card" onclick="showPanel(2)">
+        <div class="pc-tag">Employee</div>
+        <div class="pc-title">Security &amp; Recognition</div>
+        <div class="pc-preview">Income, equity, relational returns, career signal</div>
+        <div class="pc-arrow">Tap to explore &#8250;</div>
+      </div>
+    </div>
+    <div id="persp-detail" style="display:none;"></div>
+
+    <div class="pay-model">
+      <div class="pm-label">Milkovich's Pay Model — The Course Framework</div>
+      <div class="pm-grid">
+        <div class="pm-col">
+          <div class="pm-col-head pm-g"><p>Policies</p><small>Strategic choices</small></div>
+          <div class="pm-items">
+            <div class="pm-item"><strong>Internal alignment</strong>Pay structure within the org</div>
+            <div class="pm-item"><strong>External competitive</strong>Pay vs the market</div>
+            <div class="pm-item"><strong>Employee contribution</strong>Pay for performance</div>
+            <div class="pm-item"><strong>Management</strong>Admin &amp; governance</div>
+          </div>
+        </div>
+        <div class="pm-col">
+          <div class="pm-col-head pm-a"><p>Techniques</p><small>How to do it</small></div>
+          <div class="pm-items">
+            <div class="pm-item"><strong>Job analysis &amp; evaluation</strong>Internal worth</div>
+            <div class="pm-item"><strong>Salary surveys</strong>Market benchmarking</div>
+            <div class="pm-item"><strong>Merit grids, incentives</strong>Performance linkage</div>
+            <div class="pm-item"><strong>HR systems</strong>Payroll, compliance</div>
+          </div>
+        </div>
+        <div class="pm-col">
+          <div class="pm-col-head pm-g"><p>Objectives</p><small>Why it matters</small></div>
+          <div class="pm-items">
+            <div class="pm-item"><strong>Efficiency</strong>Performance &amp; cost</div>
+            <div class="pm-item"><strong>Equity</strong>Fairness — internal &amp; external</div>
+            <div class="pm-item"><strong>Compliance</strong>Legal obligations</div>
+            <div class="pm-item"><strong>Ethics</strong>Fair &amp; transparent pay</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-icon ic-amber">&#128200;</div><div class="card-label amber">Towers Perrin Total Rewards Model</div></div>
+      <p>The Towers Perrin model extends Milkovich's framework by explicitly including <strong>individual growth</strong> (learning, career development) and <strong>compelling future</strong> (vision, purpose) alongside pay and benefits. It anchors compensation within a broader employee value proposition — the complete package of what an organisation offers in exchange for talent.</p>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo('screen-s2')">&#8592;</button>
+    <button class="btn-next" onclick="goTo('screen-s4')">Next: Class Activity &#8594;</button>
+  </div>
+</div>
+
+<!-- ════════ SECTION 4: POLL + REFLECTION ════════ -->
+<div class="screen" id="screen-s4">
+  <div class="top-bar">
+    <div class="module-chip">1.1</div>
+    <div class="bar-text"><div class="bar-title">Class Activity</div><div class="bar-sub">Section 4 of 4</div></div>
+    <div class="prog-pill">4/4</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  <div class="sec-hero sh-green">
+    <div class="sec-num">Section 04</div>
+    <div class="sec-title">What Do Employees Value?</div>
+    <div class="sec-sub">Mentimeter-style poll + critical reflection</div>
+  </div>
+  <div class="content-body">
+
+    <!-- POLL -->
+    <div class="poll-wrap">
+      <div class="poll-label">&#127897; Interactive Poll</div>
+      <div class="poll-q">Which factors matter most to you in a compensation package? Select all that apply.</div>
+      <div id="poll-opts-wrap" class="poll-options">
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Salary &amp; cash compensation</span></label>
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Job security &amp; stability</span></label>
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Learning &amp; career growth</span></label>
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Flexible work arrangements</span></label>
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Health &amp; insurance benefits</span></label>
+        <label class="poll-opt"><input type="checkbox" class="poll-check"> <span class="poll-opt-label">Recognition &amp; appreciation</span></label>
+      </div>
+      <button class="poll-btn" id="poll-btn" onclick="submitPoll()">Submit &amp; See Class Results</button>
+      <div id="poll-results-wrap"></div>
+    </div>
+
+    <!-- REFLECTION -->
+    <div class="reflect-wrap">
+      <div class="poll-label">&#129488; Critical Reflection</div>
+      <div class="reflect-q">A startup offers you ₹8 LPA — 20% below market — but with stock options, full remote flexibility, and a mission you believe in. You have a competing offer at ₹12 LPA with no equity. Which theoretical lens best explains why a talented candidate might choose the startup?</div>
+      <div class="reflect-opts">
+        <button class="reflect-opt" onclick="selectReflect(0,this)">Equity Theory — the candidate weighs inputs vs outputs relative to peers at each firm</button>
+        <button class="reflect-opt" onclick="selectReflect(1,this)">Tournament Theory — the startup offers a bigger prize if the equity vests</button>
+        <button class="reflect-opt" onclick="selectReflect(2,this)">Efficiency Wage Theory — the startup's mission signals it will be a high-productivity environment</button>
+        <button class="reflect-opt" onclick="selectReflect(3,this)">Best Fit vs Best Practice — no single answer; it depends entirely on the candidate's personal strategy</button>
+      </div>
+      <div class="reflect-reveal" id="reflect-reveal"></div>
+    </div>
+
+    <div class="quote-block">
+      <p>"The same pay level can attract a stellar performer or a disengaged underachiever — it all depends on what the pay system signals, rewards, and communicates."</p>
+      <cite>— Adapted from Milkovich, Newman &amp; Venkata Ratnam (2017)</cite>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo('screen-s3')">&#8592;</button>
+    <button class="btn-next btn-amber" onclick="goTo('screen-quiz')">Start Assessment &#8594;</button>
+  </div>
+</div>
+
+<!-- ════════ QUIZ ════════ -->
+<div class="screen" id="screen-quiz">
+  <div class="top-bar">
+    <div class="module-chip">Quiz</div>
+    <div class="bar-text"><div class="bar-title">Module 1.1 Assessment</div><div class="bar-sub">5 scenario-based questions</div></div>
+    <div class="prog-pill" id="quiz-pill">Q1/5</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="quiz-prog" style="width:0%"></div></div>
+  <div class="sec-hero sh-green" style="padding:12px 17px 10px;">
+    <div class="sec-num">Assessment · CLO1</div>
+    <div class="sec-title" style="font-size:17px;">Apply Your Learning</div>
+  </div>
+  <div class="content-body" id="quiz-body"></div>
+</div>
+
+<!-- ════════ RESULTS ════════ -->
+<div class="screen" id="screen-result">
+  <div class="top-bar">
+    <div class="module-chip">Results</div>
+    <div class="bar-text"><div class="bar-title">Your Results</div><div class="bar-sub">Module 1.1 Complete</div></div>
+  </div>
+  <div class="result-hero">
+    <div class="score-ring"><div class="score-num" id="res-score">0</div><div class="score-denom" id="res-denom">out of 5</div></div>
+    <div class="result-title" id="res-title"></div>
+    <div class="result-sub" id="res-sub"></div>
+  </div>
+  <div class="result-body">
+    <div class="brow"><span class="lbl">Correct answers</span><span id="res-correct">—</span></div>
+    <div class="brow"><span class="lbl">Score</span><span id="res-pct">—</span></div>
+    <div class="brow"><span class="lbl">Pass mark</span><span>80% (4 of 5)</span></div>
+    <div class="brow"><span class="lbl">Status</span><span id="res-status"></span></div>
+    <div id="res-cert-section"></div>
+    <div class="key-takeaway" style="margin-top:12px;">
+      <div class="kt-label">Key Takeaways — Module 1.1</div>
+      <div class="kt-item"><div class="kt-dot"></div><span>Compensation = all financial returns + tangible services + benefits received in an employment relationship</span></div>
+      <div class="kt-item"><div class="kt-dot"></div><span>Pay is the single largest balance sheet item — making it a strategic, not just administrative, function</span></div>
+      <div class="kt-item"><div class="kt-dot"></div><span>Milkovich's Pay Model: Policies &#8594; Techniques &#8594; Objectives (Efficiency, Equity, Compliance)</span></div>
+      <div class="kt-item"><div class="kt-dot"></div><span>Relational returns (purpose, flexibility, recognition) often predict retention better than cash</span></div>
+      <div class="kt-item"><div class="kt-dot"></div><span>What you reward is what you get — compensation design must align with strategic intent (Kerr, 1975)</span></div>
+    </div>
+    <button class="btn-outline-g" onclick="retryQuiz()" style="margin-top:10px;">&#8635; Retake Assessment</button>
+    <button class="btn-outline-g" onclick="goTo('screen-s1')">&#128218; Review Module</button>
+    <p class="design-credit" style="margin-top:12px;">MBA 441H · Compensation Management · CHRIST University</p>
+  </div>
+</div>
+
+<!-- ════════ CERTIFICATE ════════ -->
+<div class="screen" id="screen-cert">
+  <div class="top-bar">
+    <div class="module-chip">Cert</div>
+    <div class="bar-text"><div class="bar-title">Certificate of Completion</div><div class="bar-sub">Module 1.1</div></div>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-el">
+      <div class="cert-top">
+        <div class="cert-top-row">
+          <div>
+            <div class="cert-ml">MBA 441H · Compensation Management</div>
+            <div class="cert-top-title">Module 1.1 — What Is Compensation?<br>Perspectives, Definitions &amp; the Pay Model</div>
+          </div>
+          <div class="cert-amber-dot">&#128218;</div>
+        </div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:11px;color:rgba(255,255,255,0.62);font-style:italic;">School of Business &amp; Management · CHRIST University · Trimester IV 2026</p>
+      </div>
+      <div class="cert-ribbon"><p>Certificate of Completion</p></div>
+      <div class="cert-body">
+        <div class="cert-presents">This certifies that</div>
+        <div class="cert-recipient" id="cert-name">—</div>
+        <div class="cert-role-line" id="cert-role-line">—</div>
+        <div class="cert-mod-name">has successfully completed<strong>Module 1.1 — What Is Compensation? Perspectives, Definitions &amp; the Pay Model</strong></div>
+        <div class="cert-score-line">Assessment Score: <strong id="cert-score-val">—</strong> &nbsp;&middot;&nbsp; Pass: 80% and above</div>
+        <div class="cert-tags">
+          <span class="cert-tag">Compensation Definition</span>
+          <span class="cert-tag">Forms of Pay</span>
+          <span class="cert-tag">Milkovich's Pay Model</span>
+          <span class="cert-tag">Total Rewards</span>
+          <span class="cert-tag">CLO1 · CO1-PO1</span>
+        </div>
+      </div>
+      <div class="cert-footer">
+        <div class="cert-sig">
+          <div class="cert-sig-italic">Dr. Fr. Joseph C C</div>
+          <div class="cert-sig-line"></div>
+          <div class="cert-sig-role">Vice Chancellor<br>CHRIST University</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:9px;color:var(--text-mid);margin-top:2px;" id="cert-date">—</div>
+        </div>
+        <div class="cert-sig">
+          <div class="cert-sig-italic">Dr. Georgy P Kurien</div>
+          <div class="cert-sig-line"></div>
+          <div class="cert-sig-role">Chief Human Resources Officer<br>CHRIST University</div>
+        </div>
+      </div>
+      <div class="cert-bottom-bar"></div>
+    </div>
+    <p class="design-credit" style="margin:9px 0 5px;">MBA 441H · Compensation Management · CHRIST University</p>
+  </div>
+  <div class="btn-dw-wrap">
+    <button class="btn-amber-full" onclick="downloadCert()">&#11015; Download Certificate (PDF)</button>
+    <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:7px;">Save or share via WhatsApp / Email</p>
+    <button class="btn-outline-g" onclick="goTo('screen-result')" style="margin-top:7px;">&#8592; Back to Results</button>
+  </div>
+</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+var userName='', userRole='', currentQ=0, quizScore=0, quizAnswered=false;
+var pollDone=false, reflectDone=false;
+var openPanel=0;
+
+// ── QUIZ DATA ─────────────────────────────────────────────────────────────
+var questions=[
+  {ctx:'Aarav, an MBA graduate, joins a tech startup. His offer includes a fixed salary of ₹12 LPA, a variable bonus of up to 20% based on product milestones, stock options vesting over 4 years, and a flexible work-from-home policy.',
+   lens:'Forms of Pay',
+   q:'Which component of Aarav\'s compensation represents a "relational return from work" rather than a cash payment?',
+   opts:['The fixed salary of ₹12 LPA',
+         'The variable bonus tied to milestones',
+         'The stock options vesting over 4 years',
+         'The flexible work-from-home policy'],
+   correct:3,
+   fb:'Correct. Flexible work-from-home is a relational return — a non-cash benefit that affects quality of work life. It cannot be quantified as a direct cash equivalent, unlike salary, bonus, or stock options which all have clear monetary value.'},
+  {ctx:'Meera is the Head of HR at a mid-sized manufacturing firm. She is reviewing the compensation philosophy. The MD wants to know: "Why should we pay above market? Isn\'t that just wasting money?"',
+   lens:'Employer Perspective on Compensation',
+   q:'Which response best reflects the employer\'s strategic perspective on compensation?',
+   opts:['Compensation above market is legally required in most states.',
+         'Paying above market signals strong financial health to investors.',
+         'Above-market pay can reduce turnover, attract higher-quality talent, and improve productivity — converting a cost into a competitive asset.',
+         'The employer perspective focuses only on keeping labour costs as low as possible.'],
+   correct:2,
+   fb:'Correct. From the employer\'s perspective, compensation is not merely a cost but a strategic investment. Milkovich\'s Pay Model shows that pay levels affect employee behaviours — attraction, retention, and performance — which in turn drive organisational effectiveness.'},
+  {ctx:'A logistics company pays all drivers the same base salary regardless of performance. Drivers who deliver faster or handle more complex routes receive no additional pay. The company is losing its best drivers to competitors who offer performance bonuses.',
+   lens:'The Pay Model — Objectives',
+   q:'Which objective of the Pay Model is this company failing to achieve?',
+   opts:['Compliance — the company is violating minimum wage laws.',
+         'Efficiency — the pay system is not motivating the behaviours that drive performance and is contributing to talent loss.',
+         'Equity — the company is paying men and women differently.',
+         'Cost control — the company is overspending on driver salaries.'],
+   correct:1,
+   fb:'Correct. Milkovich\'s Pay Model has three objectives: Efficiency, Equity, and Compliance. This company\'s flat-rate structure fails on Efficiency — it does not motivate high performance or retain productive employees, directly affecting operational results.'},
+  {ctx:'Priya works at an IT services firm. She receives: ₹18 LPA base, 10% annual merit increase, ₹50,000 certification bonus, company-paid health insurance (family cover), and an Employee Stock Purchase Plan at 15% discount. She also has access to a Learning & Development budget of ₹1 LPA.',
+   lens:'Total Rewards — Classification',
+   q:'Which element of Priya\'s package best represents a "long-term incentive" in the Towers Perrin Total Rewards framework?',
+   opts:['The ₹18 LPA base salary',
+         'The 10% annual merit increase',
+         'The Employee Stock Purchase Plan',
+         'The ₹50,000 certification bonus'],
+   correct:2,
+   fb:'Correct. The Employee Stock Purchase Plan is a long-term incentive — its value accrues over time and is tied to the company\'s stock performance, aligning employee interests with organisational success over multiple years. The certification bonus and merit increase are short-term rewards.'},
+  {ctx:'During a class discussion, two students debate. Ravi says: "Compensation is simple — just pay people what the market says they\'re worth." Sunita responds: "That ignores how pay shapes behaviour — the same salary can attract a great candidate or drive a mediocre one depending on how it\'s structured."',
+   lens:'Perspectives on Compensation',
+   q:'Whose view is more aligned with the contemporary strategic compensation perspective?',
+   opts:['Ravi — market benchmarking is the only valid basis for pay decisions.',
+         'Sunita — pay structure, design, and context all influence employee behaviour and organisational outcomes beyond just the market rate.',
+         'Both are equally valid — market rate and pay structure have the same strategic importance.',
+         'Neither — compensation decisions should be made by finance, not HR.'],
+   correct:1,
+   fb:'Correct. Sunita\'s view reflects the contemporary strategic perspective articulated by Milkovich et al. Compensation is not merely a market-matching exercise. How pay is designed — what it rewards, how it is communicated, and what behaviours it incentivises — shapes employee motivation and organisational performance as much as the pay level itself.'}
+];
+
+// ── POLL DATA ─────────────────────────────────────────────────────────────
+var pollOptions=[
+  {label:'Salary & cash compensation',pct:72},
+  {label:'Job security & stability',pct:58},
+  {label:'Learning & career growth',pct:65},
+  {label:'Flexible work arrangements',pct:61},
+  {label:'Health & insurance benefits',pct:54},
+  {label:'Recognition & appreciation',pct:49}
+];
+var pollColors=['#1B6B3A','#2E8B57','#BA7517','#D4911E','#0F4A28','#8A5210'];
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+document.getElementById('uname').addEventListener('input',function(){ updateStart(); });
+document.getElementById('urole').addEventListener('change',function(){ updateStart(); });
+function updateStart(){
+  var n=document.getElementById('uname').value.trim();
+  var r=document.getElementById('urole').value;
+  document.getElementById('btn-start').disabled=(n.length<2||r==='');
+}
+
+function startModule(){
+  userName=document.getElementById('uname').value.trim();
+  userRole=document.getElementById('urole').value;
+  goTo('screen-s1');
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  var el=document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-quiz'){currentQ=0;quizScore=0;quizAnswered=false;renderQ();}
+}
+
+// ── PERSPECTIVES PANEL ─────────────────────────────────────────────────────
+function showPanel(n){
+  if(openPanel===n){closePanel();return;}
+  openPanel=n;
+  var panels={
+    1:{bg:'dp-hg',tag:'Employer Perspective',title:'Compensation as a Strategic Investment',dot:'dot-g',
+       items:[
+         {t:'Labour cost management',d:'Compensation is often the single largest line item on the balance sheet. HR must justify every rupee through productivity, retention, and competitive outcomes.'},
+         {t:'Attraction & retention tool',d:'Pay levels and structures signal to the labour market what kind of employer you are. Above-market pay attracts higher-quality talent; below-market pay drives turnover.'},
+         {t:'Behaviour shaper',d:'What you pay for is what you get. Incentive structures directly shape which behaviours employees prioritise — research, client service, safety, or innovation.'},
+         {t:'Legal & regulatory compliance',d:'Employers must navigate minimum wages, equal pay legislation, PF/ESI contributions, and sector-specific regulations — compensation is a compliance function as much as a strategic one.'}
+       ]},
+    2:{bg:'dp-ha',tag:'Employee Perspective',title:'Compensation as Security, Recognition & Growth',dot:'dot-a',
+       items:[
+         {t:'Economic security',d:'For most employees, salary is the foundation of financial planning — housing, dependents, savings, and retirement. Pay stability matters as much as pay level.'},
+         {t:'Signal of worth',d:'Employees interpret pay relative to peers, market rates, and their own contribution. Perceived inequity — even with objectively "good" pay — causes disengagement.'},
+         {t:'Relational returns',d:'Beyond cash, employees value what the job gives them: purpose, flexibility, learning, relationships, and recognition. These relational returns often predict retention better than salary alone.'},
+         {t:'Career signal',d:'Pay progression communicates growth, status, and future opportunity. Stagnant pay signals a dead end, regardless of job title or role scope.'}
+       ]}
+  };
+  var p=panels[n];
+  var itemsHtml=p.items.map(function(it){
+    return '<div class="dp-item"><div class="dp-dot '+p.dot+'"></div><div class="dp-text"><strong>'+it.t+'</strong><br>'+it.d+'</div></div>';
+  }).join('');
+  document.getElementById('persp-detail').innerHTML=
+    '<div class="detail-panel">'+
+    '<div class="dp-header '+p.bg+'"><div class="dp-tag">'+p.tag+'</div><div class="dp-title">'+p.title+'</div></div>'+
+    '<div class="dp-body">'+itemsHtml+'</div>'+
+    '<button class="dp-close" onclick="closePanel()">&#10005; Close</button>'+
+    '</div>';
+  document.getElementById('persp-detail').style.display='block';
+  setTimeout(function(){document.getElementById('persp-detail').scrollIntoView({behavior:'smooth',block:'nearest'});},100);
+}
+function closePanel(){
+  openPanel=0;
+  document.getElementById('persp-detail').style.display='none';
+  document.getElementById('persp-detail').innerHTML='';
+}
+
+// ── POLL ───────────────────────────────────────────────────────────────────
+function submitPoll(){
+  if(pollDone) return;
+  var checked=document.querySelectorAll('.poll-check:checked');
+  if(checked.length===0){alert('Please select at least one option.');return;}
+  pollDone=true;
+  document.getElementById('poll-opts-wrap').style.display='none';
+  document.getElementById('poll-btn').style.display='none';
+  var html='<div class="poll-results" style="display:block;">';
+  pollOptions.forEach(function(opt,i){
+    html+='<div class="poll-bar-wrap">'+
+      '<div class="poll-bar-label"><span>'+opt.label+'</span><span>'+opt.pct+'%</span></div>'+
+      '<div class="poll-bar-bg"><div class="poll-bar-fill" id="pb-'+i+'" style="width:0%;background:'+pollColors[i]+'"></div></div>'+
+      '</div>';
+  });
+  html+='<div class="poll-insight">&#128161; <strong>Class insight:</strong> Employees consistently rate salary as their top stated priority — but research (Milkovich et al., 2017) shows that relational returns like flexibility and growth often predict actual retention better than cash. This gap between what employees <em>say</em> they want and what actually <em>keeps</em> them is central to compensation strategy.</div></div>';
+  document.getElementById('poll-results-wrap').innerHTML=html;
+  setTimeout(function(){
+    pollOptions.forEach(function(opt,i){
+      var el=document.getElementById('pb-'+i);
+      if(el)el.style.width=opt.pct+'%';
+    });
+  },200);
+}
+
+// ── REFLECTION ─────────────────────────────────────────────────────────────
+var reflectSel=null;
+function selectReflect(idx,btn){
+  document.querySelectorAll('.reflect-opt').forEach(function(o){o.classList.remove('sel-g','sel-a');});
+  btn.classList.add(idx<2?'sel-g':'sel-a');
+  reflectSel=idx;
+  var reveals=[
+    'Good instinct. Equity Theory (Adams, 1965) underpins this — employees compare their input-output ratio to peers. Perceived inequity drives disengagement even when pay is objectively competitive.',
+    'Interesting choice. Tournament Theory (Lazear & Rosen, 1981) suggests that large pay gaps between levels can motivate employees to compete for promotion. This is common in sales and executive roles.',
+    'Astute observation. This reflects the Efficiency Wage Theory — paying above market can increase productivity by attracting better talent, reducing turnover costs, and increasing employee commitment to the job.',
+    'Valid point. This connects to the debate between Best Practice (universal good pay practices) and Best Fit (aligning pay to specific business strategy). Neither approach alone is sufficient — context always matters.'
+  ];
+  var reveal=document.getElementById('reflect-reveal');
+  reveal.textContent=reveals[idx];
+  reveal.style.display='block';
+}
+
+// ── QUIZ ───────────────────────────────────────────────────────────────────
+function renderQ(){
+  quizAnswered=false;
+  var q=questions[currentQ];
+  var pct=Math.round((currentQ+1)/questions.length*100);
+  document.getElementById('quiz-prog').style.width=pct+'%';
+  document.getElementById('quiz-pill').textContent='Q'+(currentQ+1)+'/'+questions.length;
+  var dots=questions.map(function(_,i){
+    return '<div class="q-dot-el '+(i<currentQ?'done':i===currentQ?'active':'')+'"></div>';
+  }).join('');
+  var opts=q.opts.map(function(o,i){
+    return '<button class="option" id="opt-'+i+'" onclick="selectOpt('+i+')">'+o+'</button>';
+  }).join('');
+  document.getElementById('quiz-body').innerHTML=
+    '<div class="q-counter"><span>Question '+(currentQ+1)+' of '+questions.length+'</span><div class="q-dots">'+dots+'</div></div>'+
+    '<span class="q-lens">&#128270; '+q.lens+'</span>'+
+    '<div class="scenario-box"><div class="scenario-label">Scenario</div><div class="scenario-context">'+q.ctx+'</div><div class="scenario-q">'+q.q+'</div></div>'+
+    '<div class="options">'+opts+'</div>'+
+    '<div id="fb-area"></div><div id="next-area"></div>';
+}
+
+function selectOpt(idx){
+  if(quizAnswered)return;
+  quizAnswered=true;
+  var q=questions[currentQ];
+  var ok=idx===q.correct;
+  if(ok)quizScore++;
+  q.opts.forEach(function(_,i){
+    var el=document.getElementById('opt-'+i);
+    el.style.pointerEvents='none';
+    if(i===q.correct)el.classList.add('reveal-correct');
+    if(i===idx&&!ok)el.classList.add('wrong');
+    if(i===idx&&ok)el.classList.add('correct');
+  });
+  document.getElementById('fb-area').innerHTML=
+    '<div class="feedback '+(ok?'correct':'wrong')+'">'+(ok?'&#10003; <strong>Correct!</strong> ':'&#10007; <strong>Not quite.</strong> ')+q.fb+'</div>';
+  var isLast=currentQ===questions.length-1;
+  document.getElementById('next-area').innerHTML=
+    '<button class="btn-next" style="width:100%;margin-top:4px;" onclick="'+(isLast?'showResults()':'nextQ()')+'">'+
+    (isLast?'See My Results &#8594;':'Next Question &#8594;')+'</button>';
+}
+
+function nextQ(){currentQ++;renderQ();document.getElementById('screen-quiz').scrollTop=0;}
+
+// ── RESULTS ─────────────────────────────────────────────────────────────────
+function showResults(){
+  var total=questions.length;
+  var pct=Math.round(quizScore/total*100);
+  var passed=pct>=80;
+  document.getElementById('res-score').textContent=quizScore;
+  document.getElementById('res-denom').textContent='out of '+total;
+  document.getElementById('res-title').textContent=passed?'Well done, '+userName.split(' ')[0]+'!':'Good effort!';
+  document.getElementById('res-sub').textContent=passed?'You have passed Module 1.1.':'Score 80% to earn your certificate.';
+  document.getElementById('res-correct').textContent=quizScore+' of '+total;
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-status').innerHTML=passed?
+    '<span class="pass-badge">&#10003; Passed</span>':'<span class="fail-badge">&#10007; Not yet</span>';
+  document.getElementById('res-cert-section').innerHTML=passed?
+    '<button class="btn-amber-full" onclick="showCert()">&#127885; View &amp; Download Certificate</button>':
+    '<div style="background:var(--amber-pale);border-left:3px solid var(--amber);border-radius:0 9px 9px 0;padding:10px 12px;font-size:12px;color:var(--amber-dark);margin-top:8px;line-height:1.5;">You scored '+pct+'%. Review the module and retake to earn your certificate.</div>';
+  goTo('screen-result');
+}
+
+function showCert(){
+  var pct=Math.round(quizScore/questions.length*100);
+  document.getElementById('cert-name').textContent=userName;
+  document.getElementById('cert-role-line').textContent=userRole;
+  document.getElementById('cert-score-val').textContent=quizScore+'/'+questions.length+' ('+pct+'%)';
+  var now=new Date();
+  document.getElementById('cert-date').textContent=now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  goTo('screen-cert');
+}
+
+function retryQuiz(){currentQ=0;quizScore=0;quizAnswered=false;goTo('screen-quiz');}
+
+async function downloadCert(){
+  var btn=document.querySelector('.btn-dw-wrap .btn-amber-full');
+  btn.textContent='Generating PDF...';btn.disabled=true;
+  try{
+    var cert=document.getElementById('cert-el');
+    var canvas=await html2canvas(cert,{scale:2,useCORS:true,backgroundColor:'#FFFFFF',logging:false});
+    var imgData=canvas.toDataURL('image/png');
+    var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a5'});
+    var w=pdf.internal.pageSize.getWidth();
+    var h=(canvas.height/canvas.width)*w;
+    pdf.addImage(imgData,'PNG',0,0,w,h);
+    pdf.save('MBA441H_Mod1_1_Certificate_'+userName.replace(/\s+/g,'_')+'.pdf');
+  }catch(e){alert('Please screenshot the certificate to save it.');}
+  btn.innerHTML='&#11015; Download Certificate (PDF)';btn.disabled=false;
+}
+</script>
+</body>
+</html>
