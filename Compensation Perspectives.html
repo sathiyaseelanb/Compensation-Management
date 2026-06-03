@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Price of Work | Compensation Simulation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap');
+:root{--ink:#1A1208;--paper:#FAF7F2;--newsprint:#F0EBE1;--rule:#D6CFC3;--crimson:#B5192A;--amber:#C47C0A;--forest:#1E5C3A;--muted:#8A8278;--card:#FDFCFA;--shadow:rgba(26,18,8,0.10);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--paper);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh;overflow-x:hidden;background-image:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(180,170,155,0.08) 31px,rgba(180,170,155,0.08) 32px);}
+.masthead{background:var(--ink);border-bottom:4px double var(--amber);position:sticky;top:0;z-index:200;}
+.masthead-inner{max-width:1140px;margin:0 auto;padding:10px 32px;display:flex;align-items:center;justify-content:space-between;}
+.m-brand{display:flex;flex-direction:column;gap:2px;}
+.m-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;color:#fff;letter-spacing:0.5px;line-height:1;}
+.m-title span{color:var(--amber);}
+.m-sub{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.m-right{display:flex;align-items:center;gap:20px;}
+.timer-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:5px 12px;}
+.t-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+#timer{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--amber);min-width:46px;text-align:right;}
+#timer.urgent{color:#E53E3E;}
+.phase-pill{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;background:var(--crimson);color:#fff;padding:4px 10px;border-radius:3px;}
+.progress-rail{background:rgba(255,255,255,0.07);height:2px;}
+.progress-fill{background:linear-gradient(90deg,var(--crimson),var(--amber));height:100%;transition:width 0.5s ease;}
+.sim-wrap{max-width:1140px;margin:0 auto;padding:36px 32px 100px;}
+.screen{display:none;animation:rise 0.4s ease both;}
+.screen.active{display:block;}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* COVER */
+.cover-bar{display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin-bottom:28px;}
+.c-edition{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.c-tag{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);}
+.cover-hero{display:grid;grid-template-columns:1fr 360px;gap:48px;border-bottom:2px solid var(--ink);padding-bottom:36px;margin-bottom:32px;align-items:start;}
+.cover-hed{font-family:'Cormorant Garamond',serif;font-size:3.6rem;font-weight:700;line-height:1.05;letter-spacing:-0.5px;margin-bottom:14px;}
+.cover-hed em{color:var(--crimson);font-style:italic;}
+.cover-dek{font-size:1.05rem;line-height:1.7;color:#3A3328;margin-bottom:24px;border-left:3px solid var(--amber);padding-left:16px;font-style:italic;}
+.cover-body p{font-size:0.92rem;line-height:1.85;color:#4A4438;margin-bottom:14px;}
+.cover-body strong{color:var(--ink);}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:24px 0;}
+.cmi{padding:12px 14px;border-right:1px solid var(--rule);}
+.cmi:last-child{border-right:none;}
+.cmi-lbl{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.cmi-val{font-size:0.88rem;font-weight:500;color:var(--ink);}
+.role-banner{background:var(--ink);color:#fff;border-radius:6px;padding:22px;margin-bottom:16px;}
+.rb-k{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.rb-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:6px;}
+.rb-desc{font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.55;}
+.lo-card{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px;}
+.lo-k{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.lo-list{list-style:none;}
+.lo-list li{font-size:0.82rem;line-height:1.55;color:#4A4438;padding:6px 0;border-bottom:1px solid var(--rule);display:flex;gap:8px;align-items:flex-start;}
+.lo-list li:last-child{border-bottom:none;}
+.lo-list li::before{content:'→';color:var(--amber);flex-shrink:0;margin-top:1px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;border-radius:3px;transition:all 0.2s;}
+.btn-p{background:var(--ink);color:#fff;}
+.btn-p:hover{background:#2E2618;transform:translateY(-1px);box-shadow:0 4px 14px var(--shadow);}
+.btn-g{background:transparent;color:var(--ink);border:1.5px solid var(--rule);}
+.btn-g:hover{border-color:var(--ink);}
+
+/* BRIEFING */
+.two-col{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start;}
+.sticky-side{position:sticky;top:76px;}
+.sec-k{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;}
+.sec-h{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;line-height:1.2;margin-bottom:22px;}
+.prose p{font-size:0.92rem;line-height:1.88;color:#3A3328;margin-bottom:14px;}
+.prose strong{color:var(--ink);}
+.pull{border-left:4px solid var(--amber);background:var(--newsprint);padding:14px 18px;margin:20px 0;border-radius:0 4px 4px 0;}
+.pull p{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;color:var(--ink)!important;margin:0!important;line-height:1.6;}
+.dtbl{width:100%;border-collapse:collapse;margin:18px 0;font-size:0.83rem;}
+.dtbl th{background:var(--ink);color:#fff;padding:9px 13px;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;font-weight:400;}
+.dtbl td{padding:9px 13px;border-bottom:1px solid var(--rule);color:#4A4438;}
+.dtbl tr:nth-child(even) td{background:rgba(0,0,0,0.018);}
+.rc{color:var(--crimson);font-weight:600;}
+.gc{color:var(--forest);font-weight:600;}
+.aside-card{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin-bottom:14px;box-shadow:0 1px 6px var(--shadow);}
+.aside-k{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+/* VOICE SCREENS */
+.v-head{display:flex;align-items:center;gap:20px;padding-bottom:22px;border-bottom:2px solid var(--ink);margin-bottom:28px;}
+.v-icon{width:58px;height:58px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.v-name{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;line-height:1.1;}
+.v-sub{font-size:0.82rem;color:var(--muted);margin-top:3px;}
+.vblock{background:var(--newsprint);border:1px solid var(--rule);border-left:5px solid var(--amber);border-radius:0 6px 6px 0;padding:22px 26px;margin-bottom:26px;box-shadow:0 2px 8px var(--shadow);}
+.vtext{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;line-height:1.75;color:var(--ink);}
+.vcite{display:block;margin-top:12px;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-style:normal;}
+.two-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;}
+.pcard{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;box-shadow:0 1px 6px var(--shadow);}
+.pcard h4{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pcard ul{list-style:none;}
+.pcard ul li{font-size:0.85rem;line-height:1.6;color:#4A4438;padding:5px 0;border-bottom:1px solid var(--rule);display:flex;gap:8px;align-items:flex-start;}
+.pcard ul li:last-child{border-bottom:none;}
+.pcard ul li::before{content:'▸';color:var(--amber);flex-shrink:0;font-size:0.7rem;margin-top:3px;}
+.nav-row{display:flex;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--rule);}
+
+/* DECISION */
+.dec-banner{background:var(--ink);border-radius:6px;padding:26px 30px;margin-bottom:28px;color:#fff;}
+.dec-banner .dk{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;}
+.dec-banner h2{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;margin-bottom:10px;}
+.dec-banner p{font-size:0.88rem;color:rgba(255,255,255,0.65);line-height:1.7;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.opt{background:var(--card);border:2px solid var(--rule);border-radius:6px;padding:20px;cursor:pointer;transition:all 0.22s;position:relative;box-shadow:0 1px 6px var(--shadow);}
+.opt:hover{border-color:var(--crimson);transform:translateY(-2px);box-shadow:0 5px 18px rgba(181,25,42,0.14);}
+.opt.chosen{border-color:var(--crimson);background:#FFF8F8;}
+.opt-ltr{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--rule);position:absolute;top:14px;right:16px;transition:color 0.22s;}
+.opt.chosen .opt-ltr,.opt:hover .opt-ltr{color:var(--crimson);}
+.opt-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:7px;padding-right:30px;line-height:1.3;}
+.opt-desc{font-size:0.82rem;color:#4A4438;line-height:1.6;}
+.rat-wrap{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin-bottom:20px;}
+.rat-wrap label{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+.rat-wrap textarea{width:100%;height:95px;border:1px solid var(--rule);border-radius:4px;padding:11px;font-family:'DM Sans',sans-serif;font-size:0.87rem;color:var(--ink);background:#fff;resize:vertical;outline:none;transition:border-color 0.2s;}
+.rat-wrap textarea:focus{border-color:var(--crimson);}
+
+/* DEBRIEF */
+.db-hero{background:linear-gradient(140deg,var(--ink) 0%,#2E2010 100%);border-radius:8px;padding:36px 38px 30px;color:#fff;margin-bottom:30px;position:relative;overflow:hidden;}
+.db-hero::after{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(196,124,10,0.18) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.db-hero .dk{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.db-hero h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;margin-bottom:12px;}
+.chosen-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:9px 16px;margin-top:4px;}
+.ch-lbl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);}
+.ch-val{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-weight:600;color:var(--amber);}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px;}
+.ccard{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px;box-shadow:0 1px 6px var(--shadow);}
+.ccard h3{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.clist{list-style:none;}
+.clist li{font-size:0.84rem;line-height:1.6;color:#4A4438;padding:6px 0;border-bottom:1px solid var(--rule);display:flex;gap:8px;align-items:flex-start;}
+.clist li:last-child{border-bottom:none;}
+.ci{font-size:0.82rem;flex-shrink:0;margin-top:1px;}
+.verdict{grid-column:1/-1;background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--amber);border-radius:0 6px 6px 0;padding:20px 24px;box-shadow:0 1px 6px var(--shadow);}
+.verdict h3{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.verdict p{font-size:0.88rem;line-height:1.7;color:#3A3328;}
+.fw-block{background:var(--ink);border-radius:6px;padding:26px 28px;margin-bottom:26px;color:#fff;}
+.fw-block .dk{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.fw-block h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:6px;}
+.fw-block .sub{font-size:0.83rem;color:rgba(255,255,255,0.55);margin-bottom:18px;line-height:1.55;}
+.lgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.litem{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:5px;padding:14px;}
+.lname{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
+.lrep{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:6px;font-style:italic;}
+.ldesc{font-size:0.8rem;color:rgba(255,255,255,0.68);line-height:1.5;}
+.dq-box{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:26px 28px;margin-bottom:24px;box-shadow:0 1px 6px var(--shadow);}
+.dq-box h3{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;margin-bottom:18px;}
+.dq{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--rule);align-items:flex-start;}
+.dq:last-child{border-bottom:none;}
+.dqn{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--crimson);flex-shrink:0;width:22px;line-height:1.3;}
+.dqt{font-size:0.88rem;line-height:1.65;color:#3A3328;}
+.rbox{background:var(--newsprint);border:1px solid var(--rule);border-radius:6px;padding:20px 24px;margin-bottom:24px;}
+.rbox .dk{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.rbox p{font-size:0.83rem;color:#4A4438;line-height:1.9;}
+.restart-bar{text-align:center;padding:22px;border-top:1px solid var(--rule);}
+
+.ic-a{background:#FAF0E8;}
+.ic-b{background:#EAF0FA;}
+.ic-c{background:#EAF5ED;}
+.ic-d{background:#FFF6E8;}
+
+@media(max-width:800px){
+  .cover-hero,.two-col,.two-cards,.opts,.cgrid,.lgrid{grid-template-columns:1fr;}
+  .cover-meta{grid-template-columns:1fr 1fr;}
+  .cover-hed{font-size:2.2rem;}
+  .sticky-side{position:static;}
+  .verdict{grid-column:auto;}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="m-brand">
+      <div class="m-title">The Price of <span>Work</span></div>
+      <div class="m-sub">SBM MBA &middot; Human Resources &amp; Organisational Behaviour</div>
+    </div>
+    <div class="m-right">
+      <div class="timer-chip"><span class="t-lbl">Elapsed</span><span id="timer">00:00</span></div>
+      <span class="phase-pill" id="phase-lbl">Orientation</span>
+    </div>
+  </div>
+  <div class="progress-rail"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+</header>
+
+<div class="sim-wrap">
+
+<!-- COVER -->
+<div class="screen active" id="s-cover">
+  <div class="cover-bar">
+    <span class="c-edition">Decision-Forcing Case &middot; 30 Minutes</span>
+    <span class="c-tag">Human Resources Management</span>
+  </div>
+  <div class="cover-hero">
+    <div>
+      <h1 class="cover-hed">When the Numbers<br><em>Went Public</em></h1>
+      <p class="cover-dek">A compensation crisis at Vasanta Retail — and the voices that will not be easily reconciled.</p>
+      <div class="cover-body">
+        <p><strong>Vasanta Retail</strong> is an Indian omnichannel retail chain with 68 stores across Tier 1 and Tier 2 cities, selling apparel, footwear, and home goods. Founded in 2009, Vasanta grew steadily until a 2021 private equity acquisition accelerated its expansion. Today it employs 3,200 people — a mix of salaried corporate staff and hourly contract workers on the shop floor.</p>
+        <p>Three months ago, a disgruntled departing employee posted an anonymised salary spreadsheet on a WhatsApp group that spans multiple stores. The leak went viral internally within hours. It revealed stark disparities: corporate managers earning 6–8&times; what floor associates earn, wide pay gaps between male and female employees at the same grade, and a new-hire premium that long-serving staff resented deeply.</p>
+        <p><strong>You are Kavya Menon</strong>, People Operations Manager at Vasanta's Head Office. The CHRO has asked you to prepare a recommendation before the Emergency Compensation Task Force meeting on Friday. You have no budget authority — but your note will shape what happens next. Before you can write a single line, you must understand what the people most directly affected by these numbers believe they mean.</p>
+      </div>
+      <div class="cover-meta">
+        <div class="cmi"><div class="cmi-lbl">Duration</div><div class="cmi-val">30 Minutes</div></div>
+        <div class="cmi"><div class="cmi-lbl">Format</div><div class="cmi-val">Decision-Forcing Case</div></div>
+        <div class="cmi"><div class="cmi-lbl">Difficulty</div><div class="cmi-val">Intermediate+</div></div>
+      </div>
+      <button class="btn btn-p" onclick="go('s-briefing')">Enter the Simulation &rarr;</button>
+    </div>
+    <div>
+      <div class="role-banner">
+        <div class="rb-k">Your Role</div>
+        <div class="rb-name">Kavya Menon</div>
+        <div class="rb-desc">People Operations Manager, Vasanta Retail HQ. Reports to the CHRO. Six years in HR across retail and FMCG. Known for bridging field and corporate. No budget authority — but full credibility with leadership.</div>
+      </div>
+      <div class="lo-card">
+        <div class="lo-k">Learning Outcomes</div>
+        <ul class="lo-list">
+          <li>Analyse how the same compensation data can be read through fundamentally different legitimacy frameworks</li>
+          <li>Distinguish between pay equity, pay equality, and market-clearing wages as competing normative concepts</li>
+          <li>Evaluate how pay transparency — voluntary or forced — reshapes organisational trust and culture</li>
+          <li>Practise principled recommendation-making when stakeholder interests are structurally opposed</li>
+          <li>Apply competing ethical and economic frameworks to a real HR dilemma in the Indian retail context</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BRIEFING -->
+<div class="screen" id="s-briefing">
+  <div class="two-col">
+    <div>
+      <div class="sec-k">Case Background</div>
+      <h2 class="sec-h">Vasanta Retail: The Leak and Its Aftermath</h2>
+      <div class="prose">
+        <p>Vasanta Retail's 68 stores employ roughly 2,400 front-line workers — sales associates, cashiers, stockroom staff, and security personnel. Most are on fixed-term contracts, earning between &#8377;12,000 and &#8377;18,000 per month. Above them sits a corporate layer of approximately 800 salaried employees in buying, logistics, marketing, finance, and HR. At the top, a 12-person senior leadership team including expatriate hires brought in post-acquisition.</p>
+        <p>The leaked spreadsheet — believed to be authentic — covered 340 employees across six stores and HQ. Key findings that spread through WhatsApp groups and Telegram channels within 48 hours:</p>
+        <table class="dtbl">
+          <thead><tr><th>Employee Group</th><th>Avg Monthly CTC</th><th>Min</th><th>Max</th><th>Gender Pay Gap</th></tr></thead>
+          <tbody>
+            <tr><td>Floor Associates (contract)</td><td>&#8377;14,200</td><td>&#8377;11,800</td><td>&#8377;17,500</td><td class="rc">18% (M&gt;F)</td></tr>
+            <tr><td>Store Supervisors</td><td>&#8377;28,500</td><td>&#8377;22,000</td><td>&#8377;36,000</td><td class="rc">12% (M&gt;F)</td></tr>
+            <tr><td>Area Managers</td><td>&#8377;72,000</td><td>&#8377;58,000</td><td>&#8377;94,000</td><td>6% (M&gt;F)</td></tr>
+            <tr><td>HQ Managers (mid-level)</td><td>&#8377;1,04,000</td><td>&#8377;78,000</td><td>&#8377;1,62,000</td><td>8% (M&gt;F)</td></tr>
+            <tr><td>Senior Leadership</td><td>&#8377;4,80,000</td><td>&#8377;2,20,000</td><td>&#8377;9,50,000</td><td class="gc">3% (F&gt;M)</td></tr>
+          </tbody>
+        </table>
+        <div class="pull"><p>"The numbers didn't lie. But the numbers didn't tell you why either. That was the problem — everyone read their own story into them." — CHRO Sunita Rao, internal memo</p></div>
+        <p>The leak triggered three simultaneous crises: a wildcat work-to-rule by floor associates in four Chennai stores, a shareholder query letter from the Singapore-based PE fund questioning legal and reputational exposure, and a consumer boycott call on social media by a labour rights coalition that reached 140,000 signatures within a week.</p>
+        <p>The CHRO convened an Emergency Compensation Task Force and asked Kavya to hear from those most directly involved before preparing her recommendation. In the pages that follow, you will meet them one by one.</p>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-g" onclick="go('s-cover')">&larr; Back</button>
+        <button class="btn btn-p" onclick="go('s-v1')">Continue &rarr;</button>
+      </div>
+    </div>
+    <div class="sticky-side">
+      <div class="aside-card">
+        <div class="aside-k">Key Figures</div>
+        <div style="font-size:0.83rem;color:#4A4438;line-height:1.7;">
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);"><strong>Sunita Rao</strong> &mdash; CHRO, Vasanta Retail</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);"><strong>Amara Krishnan</strong> &mdash; Floor Associate, Anna Nagar</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);"><strong>Dev Khanna</strong> &mdash; Regional Manager, North</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);"><strong>Priyanka Sood</strong> &mdash; Meridian Growth Partners</div>
+          <div style="padding:4px 0;"><strong>Fr. Jacob Thomas</strong> &mdash; Centre for Fair Labour Practice</div>
+        </div>
+      </div>
+      <div class="aside-card">
+        <div class="aside-k">Context at a Glance</div>
+        <div style="font-size:0.82rem;color:#4A4438;line-height:1.75;">
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);">68 stores &middot; 3,200 employees</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);">PE-owned since 2021</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);">Leaked data: 340 employees</div>
+          <div style="padding:4px 0;border-bottom:1px solid var(--rule);">4 stores on work-to-rule</div>
+          <div style="padding:4px 0;">140K boycott signatures</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOICE 1: AMARA -->
+<div class="screen" id="s-v1">
+  <div class="v-head">
+    <div class="v-icon ic-a">&#128119;</div>
+    <div>
+      <div class="v-name">Amara Krishnan</div>
+      <div class="v-sub">Floor Associate, Anna Nagar Store &middot; 4 years tenure &middot; &#8377;14,500/month</div>
+    </div>
+  </div>
+  <div class="vblock">
+    <div class="vtext">"Four years I have worked here. I have not taken a sick day without calling in. I trained new girls every season. My supervisor said I am the best on the floor. And I am earning &#8377;14,500. I saw the sheet — male associates at &#8377;17,000 doing the same job. I saw the manager's number. &#8377;1 lakh. For sitting in an air-conditioned office. We are the ones standing for eight hours, handling customers, making this company's face. When you say 'Vasanta', you mean us. Not them. And we are earning this? It is not about jealousy. It is about what is right."</div>
+    <cite class="vcite">&mdash; Amara Krishnan, informal interview with Kavya Menon, November 2024</cite>
+  </div>
+  <div class="two-cards">
+    <div class="pcard">
+      <h4>What Amara Raised</h4>
+      <ul>
+        <li>Gender pay gap: female associates earning 18% less than male associates in identical roles at the same store</li>
+        <li>Pay ratio between a floor associate and a mid-level HQ manager is approximately 1:7.3 — experienced as a dignity violation, not merely an economic one</li>
+        <li>New-hire associates in some stores earn more than three-year veterans due to offer inflation during rapid expansion</li>
+        <li>Floor workers carry the highest customer-interaction load but have no variable pay component whatsoever</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4>Kavya's Notes</h4>
+      <ul>
+        <li>Amara's gender gap concern may not survive an Equal Remuneration Act (1976) audit — the legal exposure is real and immediate</li>
+        <li>Work-to-rule in four stores has already cost an estimated &#8377;18 lakh in lost weekend revenue</li>
+        <li>Employee sentiment scores for "fairness" dropped 31 points post-leak across all stores surveyed</li>
+        <li>Floor associates are not covered by ESOP or any profit-sharing mechanism — they have no stake in Vasanta's growth story</li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-g" onclick="go('s-briefing')">&larr; Back</button>
+    <button class="btn btn-p" onclick="go('s-v2')">Continue &rarr;</button>
+  </div>
+</div>
+
+<!-- VOICE 2: DEV -->
+<div class="screen" id="s-v2">
+  <div class="v-head">
+    <div class="v-icon ic-b">&#128203;</div>
+    <div>
+      <div class="v-name">Dev Khanna</div>
+      <div class="v-sub">Regional Manager, North &middot; 7 years in retail management &middot; &#8377;94,000/month</div>
+    </div>
+  </div>
+  <div class="vblock">
+    <div class="vtext">"I understand the optics look bad. But let me tell you what that spreadsheet doesn't say. The &#8377;94,000 I earn includes performance variable. My base is &#8377;68,000. I manage 12 stores, 400 people, &#8377;280 crore of annual turnover. One wrong buy decision costs more than my entire annual compensation. The associates earn &#8377;14,000 for a clearly scoped, supervised role. That's not exploitation — that's market pricing. If we raise base pay across the floor by 30%, we lose price competitiveness in markets where Reliance Retail is undercutting us. You can't run emotion-based compensation. You run sustainable compensation."</div>
+    <cite class="vcite">&mdash; Dev Khanna, conversation with Kavya Menon at Delhi RSO, November 2024</cite>
+  </div>
+  <div class="two-cards">
+    <div class="pcard">
+      <h4>What Dev Argued</h4>
+      <ul>
+        <li>Pay differentials reflect genuine differences in decision-making scope, accountability, and market scarcity — not arbitrary hierarchy</li>
+        <li>Floor associate pay is at or near market rate; the issue, in his view, is not underpayment but the sudden visibility of differentials that were always there</li>
+        <li>Raising wages without productivity offsets will compress margins at a time when PE ownership demands EBITDA improvement</li>
+        <li>The gender gap at associate level is a legacy of franchisee-era stores absorbed during acquisition — not a deliberate current policy</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4>Kavya's Notes</h4>
+      <ul>
+        <li>Dev's productivity argument is structurally coherent — but sidesteps the Equal Remuneration Act exposure entirely</li>
+        <li>His "market pricing" claim is only partially accurate: market P50 for associates in Chennai is &#8377;15,800, not &#8377;14,200</li>
+        <li>Middle managers like Dev have a structural stake in the current system — their variable pay becomes legible under full transparency</li>
+        <li>The "legacy franchisee" explanation for the gender gap may not hold legally: Vasanta acquired those stores and their employment obligations</li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-g" onclick="go('s-v1')">&larr; Back</button>
+    <button class="btn btn-p" onclick="go('s-v3')">Continue &rarr;</button>
+  </div>
+</div>
+
+<!-- VOICE 3: PRIYANKA -->
+<div class="screen" id="s-v3">
+  <div class="v-head">
+    <div class="v-icon ic-c">&#128200;</div>
+    <div>
+      <div class="v-name">Priyanka Sood</div>
+      <div class="v-sub">Director, Meridian Growth Partners &middot; PE Fund with 34% stake in Vasanta &middot; Singapore</div>
+    </div>
+  </div>
+  <div class="vblock">
+    <div class="vtext">"We invested in Vasanta because we believed in the omnichannel play and the management team's ability to professionalise the business. The leak is not a compensation problem — it's a governance problem. We now have legal exposure from the gender pay gap, reputational exposure from the boycott, and operational exposure from the work-to-rule. That is three simultaneous risks that were not in our investment thesis. We are not opposed to competitive wages. We are opposed to unmanaged people risk. We need a structured pay framework, disclosed proactively, with a clear equity correction roadmap — and we need it before our LP report in March."</div>
+    <cite class="vcite">&mdash; Priyanka Sood, letter to CHRO Sunita Rao, November 2024</cite>
+  </div>
+  <div class="two-cards">
+    <div class="pcard">
+      <h4>What Priyanka Raised</h4>
+      <ul>
+        <li>The compensation structure itself is less the concern than the absence of any governance framework — no pay bands, no disclosed ratios, no audit trail</li>
+        <li>The gender pay gap creates material legal liability and, if Vasanta pursues an IPO, potential SEBI disclosure obligations</li>
+        <li>Consumer boycott and operational disruption are quantifiable valuation risks — not abstract reputational concerns</li>
+        <li>Meridian's LP base includes ESG-screened funds; pay equity is now a portfolio-level reporting requirement, not optional</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4>Kavya's Notes</h4>
+      <ul>
+        <li>Priyanka's framing converts an HR problem into a risk management problem — which makes the budget case for reform significantly easier</li>
+        <li>The ESG angle opens a conversation that "doing the right thing" alone cannot — an important lever for Kavya's recommendation to leadership</li>
+        <li>Investors are not asking for pay equality across all grades; they are asking for a defensible, disclosed, auditable structure</li>
+        <li>Risk: this framing reduces workers to line items in a risk register — the solution may be correct, but the reasoning depersonalises the people affected</li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-g" onclick="go('s-v2')">&larr; Back</button>
+    <button class="btn btn-p" onclick="go('s-v4')">Continue &rarr;</button>
+  </div>
+</div>
+
+<!-- VOICE 4: FR. JACOB -->
+<div class="screen" id="s-v4">
+  <div class="v-head">
+    <div class="v-icon ic-d">&#9878;&#65039;</div>
+    <div>
+      <div class="v-name">Fr. Jacob Thomas</div>
+      <div class="v-sub">Director, Centre for Fair Labour Practice, Chennai &middot; 22 years in labour rights advocacy</div>
+    </div>
+  </div>
+  <div class="vblock">
+    <div class="vtext">"I have been in this work for twenty-two years. Every time a company says 'market rate', what they mean is: we pay what we can get away with paying. A woman in Anna Nagar earns &#8377;14,500. With that she pays rent, feeds children, covers transport. She cannot save. If she falls sick, she borrows. The company's EBITDA went up 14% last year. Who created that value? The shareholders did not stand on those floors. The managers did not fold those shirts. The floor worker's wage is not a market outcome — it is a power outcome. Vasanta must ask: what does a living wage look like in Chennai in 2024? That is the only legitimate starting point."</div>
+    <cite class="vcite">&mdash; Fr. Jacob Thomas, public statement, November 2024</cite>
+  </div>
+  <div class="two-cards">
+    <div class="pcard">
+      <h4>What Fr. Jacob Argued</h4>
+      <ul>
+        <li>Market wages in low-skill retail are not equilibrium outcomes — they reflect structural power asymmetry between large employers and contract workers with few alternatives</li>
+        <li>The living wage in Chennai (2024) is approximately &#8377;18,200/month for a family of three — Vasanta's floor associates earn 22% below this threshold</li>
+        <li>The CEO-to-floor-worker pay ratio of approximately 67:1 exceeds any defensible benchmark of distributive justice</li>
+        <li>The gender gap is not a "legacy issue" — it is a contemporary injustice the company has had the opportunity to correct and has not</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4>Kavya's Notes</h4>
+      <ul>
+        <li>Fr. Jacob introduces a normative floor that market benchmarking does not — and that no existing Indian legislation currently requires. That is precisely his point.</li>
+        <li>His framing of wages as "power outcomes" rather than market outcomes is theoretically grounded — organised retail is a near-monopsonistic employer in many Tier 2 cities</li>
+        <li>The boycott he helped organise reached 140,000 signatures — non-trivial consumer pressure in a brand-sensitive retail environment</li>
+        <li>His position is the hardest to institutionalise — but may be the standard Vasanta is ultimately judged by, not just legally, but historically</li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-g" onclick="go('s-v3')">&larr; Back</button>
+    <button class="btn btn-p" onclick="go('s-decision')">Proceed to Your Decision &rarr;</button>
+  </div>
+</div>
+
+<!-- DECISION -->
+<div class="screen" id="s-decision">
+  <div class="dec-banner">
+    <div class="dk">The Decision Point</div>
+    <h2>Friday's Task Force meeting is in two hours.</h2>
+    <p>You have now heard from each of the people most directly invested in this crisis. Their concerns are different. Their logic is different. Each believes they are telling you the most important truth about the numbers. You cannot satisfy all of them simultaneously — but your recommendation must demonstrate that you have taken each seriously. The CHRO will ask: <em>"Kavya, what do you recommend we do?"</em> Choose the approach that best reflects your professional judgement.</p>
+  </div>
+  <div class="opts">
+    <div class="opt" id="o-A" onclick="pick('A')">
+      <span class="opt-ltr">A</span>
+      <div class="opt-title">Correct the Gender Pay Gap Immediately — Then Build a Framework</div>
+      <div class="opt-desc">Recommend an immediate ERA-compliant audit and correction of all gender pay gaps across all grades. Argue this is non-negotiable legally and morally. Defer broader compensation structure reform to a 90-day process.</div>
+    </div>
+    <div class="opt" id="o-B" onclick="pick('B')">
+      <span class="opt-ltr">B</span>
+      <div class="opt-title">Adopt a Living Wage Floor Across All Contract Workers</div>
+      <div class="opt-desc">Recommend that Vasanta commit to a living wage (&#8377;18,200/month in Chennai-equivalent rates) as the new compensation floor for all floor associates. Frame it as a long-term licence to operate — not merely a cost item.</div>
+    </div>
+    <div class="opt" id="o-C" onclick="pick('C')">
+      <span class="opt-ltr">C</span>
+      <div class="opt-title">Commission a Full Pay Equity Audit &amp; Publish the Framework</div>
+      <div class="opt-desc">Recommend a structured, externally verified pay equity audit across all roles and grades. Commit to publishing a pay ratio and equity statement by Q2. Build the governance infrastructure that all subsequent reforms require.</div>
+    </div>
+    <div class="opt" id="o-D" onclick="pick('D')">
+      <span class="opt-ltr">D</span>
+      <div class="opt-title">Triage: Legal Fix + Floor Wage Roadmap + Communication Plan</div>
+      <div class="opt-desc">Recommend a three-track response: immediate gender gap correction (legal priority), a phased floor wage increase toward living wage over 18 months, and a proactive transparency communication to all employees. Sequence by urgency and cost.</div>
+    </div>
+  </div>
+  <div class="rat-wrap">
+    <label>Your Reasoning &mdash; What shaped your recommendation?</label>
+    <textarea id="rationale" placeholder="In 3–5 sentences, explain which concerns you found most compelling and how you weighed them against each other in arriving at your recommendation..."></textarea>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;">
+    <button class="btn btn-g" onclick="go('s-v4')">&larr; Back</button>
+    <button class="btn btn-p" id="submit-btn" onclick="submit()" style="opacity:0.4;pointer-events:none;">Submit Recommendation &rarr;</button>
+    <span id="hint" style="font-size:0.8rem;color:var(--muted);font-style:italic;">Select an option to continue</span>
+  </div>
+</div>
+
+<!-- DEBRIEF -->
+<div class="screen" id="s-debrief">
+  <div class="db-hero">
+    <div class="dk">Simulation Complete &middot; Faculty Debrief</div>
+    <h2>Analysis &amp; Theoretical Integration</h2>
+    <div class="chosen-badge">
+      <span class="ch-lbl">You chose</span>
+      <span class="ch-val" id="chosen-lbl">&mdash;</span>
+    </div>
+  </div>
+
+  <div class="cgrid" id="debrief-cards"></div>
+
+  <div class="fw-block">
+    <div class="dk">The Framework Behind the Voices</div>
+    <h3>Four Perspectives on the Same Numbers</h3>
+    <p class="sub">Each person you heard from was drawing on a coherent but partial theory of what fair compensation means. Identifying which framework each voice represents — and naming the theory behind it — is the core analytical task of this debrief.</p>
+    <div class="lgrid">
+      <div class="litem">
+        <div class="lname">Employee Lens</div>
+        <div class="lrep">Amara &middot; Distributive Justice</div>
+        <div class="ldesc">Asks: is my contribution fairly recognised relative to others? Core concepts: equity theory, psychological contract, pay ratio as dignity signal, ERA 1976.</div>
+      </div>
+      <div class="litem">
+        <div class="lname">Managerial Lens</div>
+        <div class="lrep">Dev &middot; Human Capital Theory</div>
+        <div class="ldesc">Asks: does the wage structure reward skills, accountability, and scarcity? Core concepts: efficiency wages, tournament theory, productivity-wage alignment.</div>
+      </div>
+      <div class="litem">
+        <div class="lname">Shareholder Lens</div>
+        <div class="lrep">Priyanka &middot; ESG &amp; Risk</div>
+        <div class="ldesc">Asks: does the structure create or mitigate financial, legal, and reputational risk? Core concepts: enlightened shareholder value, ESG materiality, stakeholder capitalism.</div>
+      </div>
+      <div class="litem">
+        <div class="lname">Societal Lens</div>
+        <div class="lrep">Fr. Jacob &middot; Rawlsian Ethics</div>
+        <div class="ldesc">Asks: is the wage floor compatible with human dignity? Core concepts: living wage, monopsony theory, Rawlsian veil of ignorance, value appropriation.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dq-box">
+    <h3>Discussion Questions for Classroom Debrief</h3>
+    <div class="dq"><span class="dqn">1</span><span class="dqt">Before reading the analysis above — which of the four people you heard from were you most persuaded by, and why? Now that you can see the framework each represents, does your answer change?</span></div>
+    <div class="dq"><span class="dqn">2</span><span class="dqt">Dev argues that pay differentials reflect "market pricing." Fr. Jacob argues they reflect "power outcomes." Who is theoretically correct — and does the distinction matter for what Vasanta should actually do?</span></div>
+    <div class="dq"><span class="dqn">3</span><span class="dqt">Priyanka's ESG argument may achieve the same practical outcome as Fr. Jacob's justice argument — but through a different legitimacy register. Is it acceptable to do the right thing for instrumental reasons? What are the second-order risks?</span></div>
+    <div class="dq"><span class="dqn">4</span><span class="dqt">Pay transparency was forced on Vasanta by a leak. Had the company voluntarily published pay ratios, would this crisis have unfolded differently? What does the research on pay transparency suggest?</span></div>
+    <div class="dq"><span class="dqn">5</span><span class="dqt">If you were writing Vasanta's compensation philosophy statement for the annual report, which framework would you foreground — and which would you subordinate? What does that choice reveal about your values as an HR professional?</span></div>
+  </div>
+
+  <div class="rbox">
+    <div class="dk">Suggested Readings</div>
+    <p>
+      Rawls, J. (1971). <em>A Theory of Justice.</em> Harvard University Press.<br>
+      Adams, J.S. (1963). Towards an understanding of inequity. <em>Journal of Abnormal and Social Psychology.</em><br>
+      Friedman, M. (1970). The social responsibility of business is to increase its profits. <em>New York Times Magazine.</em><br>
+      Freeman, R.E. (1984). <em>Strategic Management: A Stakeholder Approach.</em> Pitman.<br>
+      Manning, A. (2003). <em>Monopsony in Motion.</em> Princeton University Press.<br>
+      Greenberg, J. (1987). A taxonomy of organisational justice theories. <em>Academy of Management Review.</em>
+    </p>
+  </div>
+
+  <div class="restart-bar">
+    <button class="btn btn-g" onclick="restart()">&#8635; Restart Simulation</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+let cur='s-cover',chosen=null,elapsed=0,timerOn=false,timerInt=null;
+const prog={'s-cover':0,'s-briefing':8,'s-v1':24,'s-v2':42,'s-v3':60,'s-v4':78,'s-decision':88,'s-debrief':100};
+const phase={'s-cover':'Orientation','s-briefing':'Briefing','s-v1':'Voice I','s-v2':'Voice II','s-v3':'Voice III','s-v4':'Voice IV','s-decision':'Decision','s-debrief':'Debrief'};
+
+function go(id){
+  document.getElementById(cur).classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  cur=id;
+  document.getElementById('prog').style.width=prog[id]+'%';
+  document.getElementById('phase-lbl').textContent=phase[id];
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(!timerOn&&id==='s-briefing'){timerOn=true;startTimer();}
+}
+
+function startTimer(){
+  timerInt=setInterval(()=>{
+    elapsed++;
+    const el=document.getElementById('timer');
+    el.textContent=String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0');
+    if(elapsed>=1800)el.classList.add('urgent');
+  },1000);
+}
+
+function pick(l){
+  ['A','B','C','D'].forEach(x=>document.getElementById('o-'+x).classList.remove('chosen'));
+  document.getElementById('o-'+l).classList.add('chosen');
+  chosen=l;
+  document.getElementById('submit-btn').style.opacity='1';
+  document.getElementById('submit-btn').style.pointerEvents='auto';
+  document.getElementById('hint').style.display='none';
+}
+
+function submit(){
+  if(!chosen)return;
+  buildDebrief(chosen);
+  go('s-debrief');
+  clearInterval(timerInt);
+}
+
+const db={
+  A:{
+    label:'Option A — Correct the Gender Pay Gap First, Then Build a Framework',
+    str:[
+      {i:'&#10003;',t:'Legally non-negotiable: ERA 1976 compliance is a threshold obligation, not a trade-off. Acting first on the gender gap is the only defensible sequencing in a country with active labour enforcement.'},
+      {i:'&#10003;',t:'Moral clarity: anchoring the task force response to the most unambiguous injustice gives the entire reform process credibility with employees, the press, and labour advocates.'},
+      {i:'&#10003;',t:'Low relative cost: correcting the gender gap alone — raising female associate pay to male equivalents — is significantly less expensive than a full floor wage increase and can be executed within weeks.'}
+    ],
+    risk:[
+      {i:'&#9888;',t:'Does not address the living wage deficit: associates at gender-corrected rates still earn below the &#8377;18,200 living wage threshold. The structural injustice Fr. Jacob describes remains entirely intact.'},
+      {i:'&#9888;',t:'Does not satisfy investor governance requirements: a pay equity audit, published ratios, and disclosed pay bands remain outstanding — the fund\'s ESG and legal exposure is not resolved.'},
+      {i:'&#9888;',t:'Risk of perceived incrementalism: employees and advocates may read a narrow gender-gap fix as a way of avoiding the broader question of whether the overall compensation structure is just.'}
+    ],
+    verdict:'The most defensible legal starting point. Best positioned as Phase 1 of a multi-track response — but only if Vasanta commits explicitly and publicly to Phases 2 (floor wage trajectory) and 3 (governance framework) within a disclosed timeline. Without that commitment, this option will be seen as minimum-compliance, not genuine reform.'
+  },
+  B:{
+    label:'Option B — Adopt a Living Wage Floor Across All Contract Workers',
+    str:[
+      {i:'&#10003;',t:'The most ethically ambitious standalone option — directly addresses the structural critique that Vasanta has been appropriating worker-generated value while keeping wages below the dignity threshold.'},
+      {i:'&#10003;',t:'If implemented and communicated well, could reframe a reputational crisis as a market differentiator: Vasanta as the living wage retailer in a sector where that distinction is currently unclaimed.'},
+      {i:'&#10003;',t:'Addresses the most emotionally activated stakeholders simultaneously — floor associates see immediate material relief, and the boycott coalition loses its central grievance.'}
+    ],
+    risk:[
+      {i:'&#9888;',t:'Highest cost option: raising 2,400 associates from a current average of &#8377;14,200 to &#8377;18,200/month adds approximately &#8377;12 crore per annum to payroll — a significant EBITDA impact requiring board approval.'},
+      {i:'&#9888;',t:'Does not directly address the gender pay gap — a living wage floor without gender equity is still ERA non-compliant. Both issues must be resolved, not traded off against each other.'},
+      {i:'&#9888;',t:'Likely to face resistance on efficiency and competitiveness grounds, and initial investor caution about margin compression without a clear productivity or retention ROI case to accompany it.'}
+    ],
+    verdict:'The most principled standalone option — but also the most financially exposed. Strongest when paired with an immediate gender gap correction and presented to the board with a phased implementation plan, retention cost savings analysis, and an explicit brand equity argument for the PE fund.'
+  },
+  C:{
+    label:'Option C — Commission a Full Pay Equity Audit and Publish the Framework',
+    str:[
+      {i:'&#10003;',t:'Most directly aligned with investor governance requirements: a structured, externally verified audit with published pay ratios addresses the fund\'s ESG and legal exposure and satisfies LP reporting obligations.'},
+      {i:'&#10003;',t:'Provides a legitimate institutional architecture for all subsequent decisions — avoids ad hoc corrections that may resolve one inequity while creating another elsewhere in the structure.'},
+      {i:'&#10003;',t:'Signals long-term commitment to transparency — potentially the most durable trust-building mechanism across all constituencies, including employees who have learned not to trust informal assurances.'}
+    ],
+    risk:[
+      {i:'&#9888;',t:'Takes time: a credible external audit and published framework takes 60–90 days minimum. The work-to-rule, the boycott, and the ERA exposure are all active in real time.'},
+      {i:'&#9888;',t:'May read as delay to employees and the public — "another report" while Amara still earns &#8377;14,500 and the gender gap persists. Process legitimacy does not substitute for immediate material relief.'},
+      {i:'&#9888;',t:'An audit without immediate action on the gender gap continues active ERA legal exposure throughout the audit period — the company remains in violation while it studies the violation.'}
+    ],
+    verdict:'The correct long-term infrastructure — and ultimately unavoidable if Vasanta is serious about pay governance. But not a sufficient immediate response. Best sequenced as Phase 2, running concurrently with an immediate gender gap correction that demonstrates intent is genuine rather than procedural.'
+  },
+  D:{
+    label:'Option D — Pragmatic Triage: Three-Track Response',
+    str:[
+      {i:'&#10003;',t:'Most contextually intelligent: sequences actions by urgency (legal gap), ethics (living wage trajectory), and communication — without waiting for any single track to be complete before acting on the others.'},
+      {i:'&#10003;',t:'Demonstrates that Kavya has genuinely internalised all the voices she heard — no constituency is told their concern is irrelevant; each is addressed within a different time horizon and with a different instrument.'},
+      {i:'&#10003;',t:'Most likely to hold the organisation together through the immediate crisis: floor associates see action, investors see a governance roadmap, advocates see a trajectory rather than a final refusal.'}
+    ],
+    risk:[
+      {i:'&#9888;',t:'Complexity: managing three concurrent tracks requires coordination across legal, finance, HR, and communications — without a dedicated budget line and executive sponsor, it will stall in committee.'},
+      {i:'&#9888;',t:'The 18-month floor wage trajectory may be read as insufficient urgency — the boycott may continue if the commitment is seen as too distant or too conditional to be credible.'},
+      {i:'&#9888;',t:'Risk of sophisticated-sounding inaction: the communication strategy must not substitute for substantive change. The test is whether all three tracks are genuinely funded and monitored — not just the legally mandatory one.'}
+    ],
+    verdict:'The strongest overall recommendation for this context, and the one most likely to reflect how experienced HR leaders actually navigate multi-stakeholder crises. The triage logic is sound; the sequencing is defensible; and the multi-track structure means no legitimate concern is dismissed. The critical success condition is genuine commitment to all three tracks — not just the cheapest one.'
+  }
+};
+
+function buildDebrief(l){
+  const d=db[l];
+  document.getElementById('chosen-lbl').textContent=d.label;
+  document.getElementById('debrief-cards').innerHTML=`
+    <div class="ccard">
+      <h3>Strengths of Your Choice</h3>
+      <ul class="clist">${d.str.map(x=>`<li><span class="ci" style="color:var(--forest)">${x.i}</span>${x.t}</li>`).join('')}</ul>
+    </div>
+    <div class="ccard">
+      <h3>Risks &amp; Blind Spots</h3>
+      <ul class="clist">${d.risk.map(x=>`<li><span class="ci" style="color:var(--crimson)">${x.i}</span>${x.t}</li>`).join('')}</ul>
+    </div>
+    <div class="verdict">
+      <h3>Faculty Verdict</h3>
+      <p>${d.verdict}</p>
+    </div>`;
+}
+
+function restart(){
+  chosen=null;elapsed=0;timerOn=false;
+  clearInterval(timerInt);
+  document.getElementById('timer').textContent='00:00';
+  document.getElementById('timer').classList.remove('urgent');
+  document.getElementById('rationale').value='';
+  document.getElementById('submit-btn').style.opacity='0.4';
+  document.getElementById('submit-btn').style.pointerEvents='none';
+  document.getElementById('hint').style.display='inline';
+  ['A','B','C','D'].forEach(x=>document.getElementById('o-'+x).classList.remove('chosen'));
+  go('s-cover');
+}
+</script>
+</body>
+</html>
