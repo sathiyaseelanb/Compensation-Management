@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>The Précis — On Compensation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1612;
+    --ink-soft: #4a4138;
+    --ink-faint: #6b5f52;
+    --paper: #f7f2e8;
+    --paper-warm: #ede4d2;
+    --paper-deep: #1f1a14;
+    --paper-deep-soft: #2a241c;
+    --accent: #8b2c1e;
+    --accent-deep: #6b1f15;
+    --accent-soft: #b85842;
+    --gold: #b08442;
+    --rule: rgba(26, 22, 18, 0.18);
+    --rule-strong: rgba(26, 22, 18, 0.45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    font-weight: 400;
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(139, 44, 30, 0.035) 0%, transparent 38%),
+      radial-gradient(circle at 85% 92%, rgba(176, 132, 66, 0.05) 0%, transparent 45%);
+    transition: background 0.5s ease;
+  }
+
+  body.is-dark { background: var(--paper-deep); }
+
+  /* Paper texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Masthead */
+  .masthead {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 22px 28px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 50;
+    pointer-events: none;
+    transition: color 0.4s;
+  }
+
+  .masthead .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1;
+  }
+
+  .masthead .brand-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    transition: color 0.4s;
+  }
+
+  .masthead .brand-title .article {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--ink-faint);
+    margin-right: 4px;
+    letter-spacing: 0;
+    transition: color 0.4s;
+  }
+
+  body.is-dark .masthead .brand-title { color: var(--paper); }
+  body.is-dark .masthead .brand-title .article { color: rgba(247, 242, 232, 0.55); }
+
+  .masthead .brand-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 4px;
+    transition: color 0.4s;
+  }
+
+  body.is-dark .masthead .brand-sub { color: var(--gold); }
+
+  .masthead .counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    transition: color 0.4s;
+    text-align: right;
+  }
+
+  body.is-dark .masthead .counter { color: rgba(247, 242, 232, 0.6); }
+
+  .masthead .counter strong {
+    color: var(--accent);
+    font-weight: 500;
+    transition: color 0.4s;
+  }
+  body.is-dark .masthead .counter strong { color: var(--gold); }
+
+  .masthead .counter-label {
+    display: block;
+    font-size: 7px;
+    letter-spacing: 0.25em;
+    margin-top: 3px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  /* Deck */
+  .deck {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    transition: transform 0.7s cubic-bezier(0.65, 0, 0.2, 1);
+    will-change: transform;
+    z-index: 2;
+  }
+
+  /* Panel */
+  .panel {
+    flex: 0 0 100vw;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 90px 32px 120px;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    color: var(--ink);
+    transition: color 0.4s;
+  }
+
+  .panel-dark { color: var(--paper); }
+
+  .panel-inner {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease 0.2s, transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1) 0.2s;
+  }
+
+  .panel.active .panel-inner { opacity: 1; transform: translateY(0); }
+
+  .panel::-webkit-scrollbar { width: 0; }
+  .panel { scrollbar-width: none; }
+
+  /* Panel header */
+  .panel-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: uppercase;
+  }
+
+  .panel-dark .panel-num { color: rgba(247, 242, 232, 0.6); }
+
+  .panel-num strong { color: var(--accent); font-weight: 500; letter-spacing: 0.18em; }
+  .panel-dark .panel-num strong { color: var(--gold); }
+
+  .panel-num .roman {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    text-transform: none;
+  }
+  .panel-dark .panel-num .roman { color: var(--paper); }
+
+  .panel-num .rule-line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+    margin-left: 4px;
+  }
+
+  .panel-dark .panel-num .rule-line { background: rgba(247, 242, 232, 0.15); }
+
+  /* Hero */
+  .hero .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hero .eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  .hero .frontispiece {
+    text-align: center;
+    margin-bottom: 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(46px, 13vw, 78px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 36px;
+    text-align: left;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .hero h1 .ampersand {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .hero .deck-text {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 44px;
+    padding-left: 16px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .hero .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex;
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    flex-wrap: wrap;
+  }
+
+  .hero .meta span:first-child { color: var(--ink); font-weight: 500; }
+
+  /* Byline block */
+  .byline {
+    margin-bottom: 36px;
+    padding: 22px 0 24px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .byline-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .byline-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    letter-spacing: -0.005em;
+  }
+
+  .byline-role {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .byline-email {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    border-bottom: 1px dotted var(--accent);
+    padding-bottom: 1px;
+    transition: color 0.2s;
+    word-break: break-all;
+  }
+
+  .byline-email:hover { color: var(--accent-deep); border-bottom-style: solid; }
+
+  /* Colophon panel (last) */
+  .colophon-panel {
+    text-align: left;
+  }
+
+  .colophon-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .colophon-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(32px, 8vw, 44px);
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 28px;
+    letter-spacing: -0.015em;
+  }
+
+  .colophon-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    margin-top: 22px;
+  }
+
+  .colophon-label:first-of-type { margin-top: 0; }
+
+  .colophon-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+
+  .colophon-text em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .colophon-link {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent);
+    padding-bottom: 1px;
+    transition: color 0.2s, border-bottom-style 0.2s;
+    word-break: break-word;
+  }
+
+  .colophon-link:hover { color: var(--accent-deep); border-bottom-style: solid; }
+
+  .colophon-source {
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 24px;
+  }
+
+  .colophon-source-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .colophon-source-meta {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .colophon-closing {
+    text-align: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .colophon-mark {
+    color: var(--accent);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    letter-spacing: 0.4em;
+    margin-bottom: 12px;
+  }
+
+  .colophon-end {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+
+  /* Capabilities panel */
+  .cap-intro {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+    padding-left: 14px;
+    border-left: 1px solid var(--accent);
+  }
+
+  .cap-group {
+    margin-bottom: 22px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cap-group:last-of-type { border-bottom: none; }
+
+  .cap-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .cap-group-label .roman {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    color: var(--accent);
+  }
+
+  .cap-group-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 19px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.005em;
+  }
+
+  .cap-list {
+    list-style: none;
+    margin: 0;
+  }
+
+  .cap-list li {
+    padding: 8px 0 8px 18px;
+    position: relative;
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .cap-list li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    top: 7px;
+    color: var(--accent);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .cap-list li em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .cap-closing {
+    margin-top: 8px;
+    padding: 18px 0 0;
+    border-top: 1px solid var(--rule);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  .cap-closing strong {
+    color: var(--ink);
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  /* Pull quote */
+  .pull-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(34px, 9vw, 50px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 32px;
+    text-wrap: balance;
+  }
+
+  .panel-dark .pull-quote { color: var(--paper); }
+
+  .pull-quote .mark {
+    background: linear-gradient(180deg, transparent 60%, rgba(139, 44, 30, 0.16) 60%);
+    padding: 0 2px;
+  }
+
+  .panel-dark .pull-quote .mark {
+    background: linear-gradient(180deg, transparent 60%, rgba(176, 132, 66, 0.3) 60%);
+  }
+
+  .body-text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .panel-dark .body-text { color: rgba(247, 242, 232, 0.8); }
+
+  .body-text strong { color: var(--ink); font-weight: 600; }
+  .panel-dark .body-text strong { color: var(--gold); font-weight: 500; }
+
+  .body-text em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  .panel-dark .body-text em { color: var(--paper); }
+
+  /* Stat */
+  .stat-block { text-align: center; margin-bottom: 36px; }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(220px, 58vw, 340px);
+    line-height: 0.82;
+    color: var(--accent);
+    letter-spacing: -0.05em;
+    position: relative;
+    display: inline-block;
+  }
+
+  .stat-number::after {
+    content: '';
+    position: absolute;
+    bottom: 12%;
+    right: -18px;
+    width: 14px;
+    height: 14px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  .stat-caption {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 24px auto 0;
+    text-wrap: balance;
+  }
+
+  /* Equation */
+  .equation {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px, 7vw, 36px);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--ink);
+    text-align: center;
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .equation::before,
+  .equation::after {
+    content: '❦';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--accent);
+    font-size: 12px;
+    background: var(--paper);
+    padding: 0 12px;
+  }
+
+  .equation::before { top: -7px; }
+  .equation::after { bottom: -7px; }
+
+  .equation .plus {
+    color: var(--accent);
+    font-style: normal;
+    margin: 0 10px;
+    font-weight: 400;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .definition-pair { display: grid; gap: 22px; margin-bottom: 28px; }
+
+  .def-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: baseline;
+  }
+
+  .def-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink);
+    padding-right: 18px;
+    border-right: 1px solid var(--accent);
+  }
+
+  .def-text { font-size: 16px; line-height: 1.55; color: var(--ink-soft); font-family: 'EB Garamond', serif; }
+
+  /* Numbered list */
+  .num-list { list-style: none; counter-reset: item; margin: 8px 0 28px; }
+
+  .num-list li {
+    counter-increment: item;
+    padding: 18px 0 18px 52px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .num-list li:last-child { border-bottom: none; }
+
+  .num-list li::before {
+    content: counter(item, lower-roman) ".";
+    position: absolute;
+    left: 0;
+    top: 18px;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 500;
+    width: 40px;
+  }
+
+  .num-list .item-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+
+  .num-list .item-desc { font-size: 15px; color: var(--ink-soft); font-style: italic; font-family: 'EB Garamond', serif; }
+
+  /* Compact list */
+  .compact-list { list-style: none; margin: 8px 0 22px; }
+
+  .compact-list li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+
+  .compact-list li:last-child { border-bottom: none; }
+
+  .compact-list .marker {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  .compact-list .term {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--ink);
+    margin-right: 8px;
+  }
+
+  .compact-list .gloss {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* Questions */
+  .questions { list-style: none; margin: 12px 0; counter-reset: q; }
+
+  .questions li {
+    counter-increment: q;
+    padding: 20px 0 20px 40px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.35;
+    color: var(--ink);
+    font-weight: 400;
+    font-style: italic;
+    position: relative;
+  }
+
+  .questions li::before {
+    content: counter(q, lower-roman) ".";
+    position: absolute;
+    left: 0;
+    top: 21px;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .questions li:last-child { border-bottom: 1px solid var(--rule); }
+
+  /* Deeper dive */
+  .dive-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(30px, 7.5vw, 40px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 26px;
+    letter-spacing: -0.015em;
+  }
+
+  .dive-list { list-style: none; margin-bottom: 32px; counter-reset: chap; }
+
+  .dive-list li {
+    counter-increment: chap;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: color 0.2s, padding-left 0.2s;
+    position: relative;
+  }
+
+  .dive-list li::before {
+    content: counter(chap, lower-roman) ".";
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--accent);
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .dive-list li span:nth-child(2) {
+    flex: 1;
+    font-style: italic;
+  }
+
+  .dive-list li:hover { color: var(--accent); padding-left: 6px; }
+
+  .dive-list .arrow {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-faint);
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .dive-list li:hover .arrow { transform: translateX(4px); color: var(--accent); }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 26px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: background 0.2s;
+    border: 1px solid var(--ink);
+  }
+
+  .cta-button:hover { background: var(--accent); border-color: var(--accent); }
+  .cta-button .arrow { font-family: 'EB Garamond', serif; }
+
+  .ornament {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--accent);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    letter-spacing: 0.4em;
+  }
+
+  .dive-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--accent);
+    margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 22px 28px 32px;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    pointer-events: none;
+  }
+
+  .nav-arrow {
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--rule-strong);
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 20px;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+
+  .nav-arrow:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .nav-arrow:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  body.is-dark .nav-arrow {
+    background: var(--paper-deep);
+    color: var(--paper);
+    border-color: rgba(247, 242, 232, 0.3);
+  }
+
+  body.is-dark .nav-arrow:hover:not(:disabled) {
+    background: var(--gold);
+    color: var(--paper-deep);
+    border-color: var(--gold);
+  }
+
+  .dots {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 8px 4px;
+    max-width: calc(100vw - 150px);
+  }
+  .dots::-webkit-scrollbar { display: none; }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.6, 0.2, 1);
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .dot:hover { transform: scale(1.4); border-color: var(--accent); }
+
+  .dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    width: 30px;
+    border-radius: 4px;
+  }
+
+  body.is-dark .dot { border-color: rgba(247, 242, 232, 0.4); }
+  body.is-dark .dot.active { background: var(--gold); border-color: var(--gold); }
+  body.is-dark .dot:hover { border-color: var(--gold); }
+
+  /* Hint */
+  .swipe-hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 55;
+    transition: opacity 0.6s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .swipe-hint.show { opacity: 0.6; animation: nudge 1.8s ease-in-out infinite; }
+
+  @keyframes nudge {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(calc(-50% + 10px), 0); }
+  }
+
+  body.is-dark .swipe-hint { color: rgba(247, 242, 232, 0.7); }
+
+  /* Folio mark - bottom corner decoration on hero */
+  .folio {
+    position: absolute;
+    bottom: 130px;
+    right: 32px;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+
+  @media (min-width: 720px) {
+    .panel { padding: 110px 40px 140px; }
+    .hero h1 { font-size: 92px; }
+    .pull-quote { font-size: 56px; }
+  }
+
+  @media (max-height: 700px) {
+    .stat-number { font-size: clamp(160px, 42vw, 240px); }
+    .stat-block { margin-bottom: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand">
+    <span class="brand-title"><span class="article">The</span>Précis</span>
+    <span class="brand-sub">A briefing in essentials</span>
+  </div>
+  <div class="counter">
+    <strong id="currentNum">i</strong> <span style="opacity:0.5;">/</span> <span id="totalNum">xi</span>
+    <span class="counter-label">Folio</span>
+  </div>
+</header>
+
+<div class="deck" id="deck">
+
+  <!-- 0: Hero / Frontispiece -->
+  <section class="panel hero" data-theme="light">
+    <div class="panel-inner">
+      <div class="frontispiece">❦</div>
+      <div class="eyebrow">No. 01 — On Compensation</div>
+      <h1>What you <em>actually</em><br>pay for.</h1>
+      <p class="deck-text">A précis on compensation management — why it is strategy, not payroll. The essential argument across a few leaves; the larger work continues thereafter.</p>
+      <div class="byline">
+        <div class="byline-label">Developed by</div>
+        <div class="byline-name">Dr. Sathiyaseelan B</div>
+        <div class="byline-role">Professor — Human Resources Management<br>School of Business and Management<br>Christ University</div>
+        <a class="byline-email" href="mailto:sathiyaseelan.b@christuniversity.in">sathiyaseelan.b@christuniversity.in</a>
+      </div>
+      <div class="meta">
+        <span>Vol. I</span>
+        <span>HR · Strategy</span>
+      </div>
+    </div>
+    <div class="folio">— frontispiece —</div>
+  </section>
+
+  <!-- 1: Hook -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>I.</strong> <span class="roman">The Signal</span> <span class="rule-line"></span></div>
+      <p class="pull-quote">Pay is the <span class="mark">loudest signal</span> a company sends.</p>
+      <p class="body-text">Every other HR system whispers. Compensation announces — who matters, what is rewarded, and what the organisation actually believes.</p>
+      <p class="body-text">Get it wrong, and your best people read the signal before you do.</p>
+    </div>
+  </section>
+
+  <!-- 2: Anchor -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>II.</strong> <span class="roman">The Anchor</span> <span class="rule-line"></span></div>
+      <div class="stat-block">
+        <div class="stat-number">5</div>
+        <p class="stat-caption">The five offices compensation must hold — <em>at once.</em></p>
+      </div>
+      <p class="body-text"><strong>Attract. Retain. Motivate. Control cost. Stay legal.</strong> Most pay disputes inside firms are, in truth, arguments about which of these five is being prioritised this quarter.</p>
+    </div>
+  </section>
+
+  <!-- 3: Mental model -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>III.</strong> <span class="roman">The Mental Model</span> <span class="rule-line"></span></div>
+      <div class="equation">
+        Compensation <span class="plus">=</span> Direct <span class="plus">+</span> Indirect
+      </div>
+      <div class="definition-pair">
+        <div class="def-row">
+          <div class="def-label">Direct</div>
+          <div class="def-text">Base salary, variable pay, bonuses, commissions — the cash on the payslip.</div>
+        </div>
+        <div class="def-row">
+          <div class="def-label">Indirect</div>
+          <div class="def-text">Benefits, insurance, retirement, recognition, development — the value <em>off</em> the payslip.</div>
+        </div>
+      </div>
+      <p class="body-text">The mistake managers make: optimising only the direct half — then wondering why people leave for a smaller number.</p>
+    </div>
+  </section>
+
+  <!-- 4: Components -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>IV.</strong> <span class="roman">The Five Components</span> <span class="rule-line"></span></div>
+      <p class="pull-quote" style="font-size: clamp(28px, 7vw, 40px); margin-bottom: 24px;">A pay package is built of <span class="mark">five layers</span>.</p>
+      <ol class="num-list">
+        <li><span class="item-title">Base salary</span><span class="item-desc">Buys stability and signals worth.</span></li>
+        <li><span class="item-title">Variable pay</span><span class="item-desc">Buys performance.</span></li>
+        <li><span class="item-title">Benefits</span><span class="item-desc">Buy wellbeing and loyalty.</span></li>
+        <li><span class="item-title">Recognition</span><span class="item-desc">Buys belonging.</span></li>
+        <li><span class="item-title">Development</span><span class="item-desc">Buys the future.</span></li>
+      </ol>
+      <p class="body-text">Strip out any one layer, and the package begins to leak talent.</p>
+    </div>
+  </section>
+
+  <!-- 5: Tension DARK -->
+  <section class="panel panel-dark" data-theme="dark">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>V.</strong> <span class="roman">The Tension</span> <span class="rule-line"></span></div>
+      <p class="pull-quote">Competitive enough to <span class="mark">attract.</span> Sustainable enough to <span class="mark">survive.</span></p>
+      <p class="body-text">This is the central trade-off in compensation design. Pay too little — talent walks. Pay too much — margin walks.</p>
+      <p class="body-text">Every comp policy is an answer to <strong>this one question</strong>. Most are answered by accident.</p>
+    </div>
+  </section>
+
+  <!-- 6: Triangulation -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>VI.</strong> <span class="roman">What Sets the Number</span> <span class="rule-line"></span></div>
+      <p class="pull-quote" style="font-size: clamp(30px, 7.5vw, 42px); margin-bottom: 24px;">Compensation is not set. It is <em>triangulated.</em></p>
+      <ul class="compact-list">
+        <li><span class="marker">i.</span><span><span class="term">Industry standards</span><span class="gloss">what the market pays</span></span></li>
+        <li><span class="marker">ii.</span><span><span class="term">Geography</span><span class="gloss">what the location costs</span></span></li>
+        <li><span class="marker">iii.</span><span><span class="term">Company performance</span><span class="gloss">what the firm can afford</span></span></li>
+        <li><span class="marker">iv.</span><span><span class="term">Skill & experience</span><span class="gloss">what the role demands</span></span></li>
+        <li><span class="marker">v.</span><span><span class="term">Market demand</span><span class="gloss">what the talent can negotiate</span></span></li>
+      </ul>
+      <p class="body-text">The art lies in reading all five at once.</p>
+    </div>
+  </section>
+
+  <!-- 7: Work -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>VII.</strong> <span class="roman">The Work Itself</span> <span class="rule-line"></span></div>
+      <p class="pull-quote" style="font-size: clamp(28px, 7vw, 40px); margin-bottom: 24px;">Five moves separate <span class="mark">strategy</span> from payroll.</p>
+      <ol class="num-list">
+        <li><span class="item-title">Run market surveys</span><span class="item-desc">Annually, not anecdotally.</span></li>
+        <li><span class="item-title">Practise transparency</span><span class="item-desc">Explain the logic, not merely the number.</span></li>
+        <li><span class="item-title">Tie pay to performance</span><span class="item-desc">Credibly, not theatrically.</span></li>
+        <li><span class="item-title">Align with finance</span><span class="item-desc">Comp is a budget conversation too.</span></li>
+        <li><span class="item-title">Collect employee feedback</span><span class="item-desc">Perception matters as much as the payslip.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 8: Risk DARK -->
+  <section class="panel panel-dark" data-theme="dark">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>VIII.</strong> <span class="roman">The Risk</span> <span class="rule-line"></span></div>
+      <p class="pull-quote">No comp strategy <em>is</em> a comp strategy. <span class="mark">A poor one.</span></p>
+      <p class="body-text">Without an explicit policy, organisations drift into <strong>higher attrition, harder hiring, internal inequity, legal exposure</strong>, and a culture in which pay conversations occur in whispers.</p>
+      <p class="body-text">The cost of avoiding the conversation is always greater than the cost of having it.</p>
+    </div>
+  </section>
+
+  <!-- 9: So what -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>IX.</strong> <span class="roman">So What, for You</span> <span class="rule-line"></span></div>
+      <p class="pull-quote" style="font-size: clamp(28px, 7vw, 40px); margin-bottom: 20px;">Three questions for your <span class="mark">next review.</span></p>
+      <ol class="questions">
+        <li>Which of the five offices is your policy <em>actually</em> serving?</li>
+        <li>Where does the gap sit between what you pay and what your people <em>think</em> you pay?</li>
+        <li>Were a star to leave tomorrow citing pay, would you be surprised — or unsurprised but unprepared?</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 10: Capabilities -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="panel-num"><strong>X.</strong> <span class="roman">Capabilities</span> <span class="rule-line"></span></div>
+      <p class="pull-quote" style="font-size: clamp(28px, 7vw, 40px); margin-bottom: 22px;">What you take <span class="mark">away.</span></p>
+      <p class="cap-intro">On working through this précis, the reader is positioned to do the following — across four registers of capability.</p>
+
+      <div class="cap-group">
+        <div class="cap-group-label"><span class="roman">i.</span> Conceptual</div>
+        <div class="cap-group-title">What you now know</div>
+        <ul class="cap-list">
+          <li>Frame compensation as <em>strategy, not administration.</em></li>
+          <li>Recall the <em>five objectives</em> a comp policy must serve at once.</li>
+          <li>Distinguish <em>direct from indirect</em> compensation, and why the second matters.</li>
+          <li>Decompose a pay package into its <em>five components</em> and what each buys.</li>
+          <li>Name the <em>five forces</em> that triangulate the number.</li>
+          <li>Articulate the central <em>competitiveness–sustainability</em> trade-off.</li>
+        </ul>
+      </div>
+
+      <div class="cap-group">
+        <div class="cap-group-label"><span class="roman">ii.</span> Analytical</div>
+        <div class="cap-group-title">What you can do</div>
+        <ul class="cap-list">
+          <li><em>Audit</em> a compensation policy against the five objectives.</li>
+          <li><em>Diagnose</em> an HR problem — attrition, hiring friction — by tracing it to a missing layer or force.</li>
+          <li><em>Compare</em> two pay packages of similar headline value, and explain why one retains better.</li>
+          <li><em>Detect</em> the gap between actual and perceived compensation.</li>
+        </ul>
+      </div>
+
+      <div class="cap-group">
+        <div class="cap-group-label"><span class="roman">iii.</span> Managerial</div>
+        <div class="cap-group-title">What you can recommend</div>
+        <ul class="cap-list">
+          <li><em>Recommend</em> a compensation review cadence and benchmarking method.</li>
+          <li><em>Design</em> a performance-linkage mechanism that is credible, not theatrical.</li>
+          <li><em>Argue</em> the case — and the limits — of pay transparency.</li>
+          <li><em>Frame</em> a compensation conversation with finance, in terms both functions can hold.</li>
+        </ul>
+      </div>
+
+      <div class="cap-group">
+        <div class="cap-group-label"><span class="roman">iv.</span> Diagnostic</div>
+        <div class="cap-group-title">What you can ask of any organisation</div>
+        <ul class="cap-list">
+          <li>Which of the five jobs is the current policy <em>actually</em> optimising for?</li>
+          <li>Where sits the gap between what is paid and what is <em>perceived</em> to be paid?</li>
+          <li>Were a star to leave tomorrow citing pay — surprised, or unsurprised but unprepared?</li>
+        </ul>
+      </div>
+
+      <p class="cap-closing">In sum — to analyse a compensation policy as a <strong>strategic instrument</strong>, diagnose its gaps, and recommend evidence-based interventions across structure, transparency, and market alignment.</p>
+    </div>
+  </section>
+
+  <!-- 11: The larger work -->
+  <section class="panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="ornament">❦  ❦  ❦</div>
+      <div class="dive-eyebrow">— the larger work —</div>
+      <h2 class="dive-title">Eight chapters await the patient reader.</h2>
+      <ul class="dive-list">
+        <li><span>Components, in depth</span><span class="arrow">↗</span></li>
+        <li><span>How compensation is determined</span><span class="arrow">↗</span></li>
+        <li><span>Direct & indirect, revisited</span><span class="arrow">↗</span></li>
+        <li><span>Compensation management software</span><span class="arrow">↗</span></li>
+        <li><span>Legal compliance, in practice</span><span class="arrow">↗</span></li>
+        <li><span>Building a modern strategy</span><span class="arrow">↗</span></li>
+        <li><span>Inside the comp manager's office</span><span class="arrow">↗</span></li>
+        <li><span>Questions, frequently put</span><span class="arrow">↗</span></li>
+      </ul>
+      <a href="#" class="cta-button">Continue to the larger work <span class="arrow">↗</span></a>
+    </div>
+  </section>
+
+  <!-- 12: Colophon -->
+  <section class="panel colophon-panel" data-theme="light">
+    <div class="panel-inner">
+      <div class="colophon-rule"></div>
+      <div class="panel-num"><strong>XII.</strong> <span class="roman">Colophon</span> <span class="rule-line"></span></div>
+      <h2 class="colophon-title">On the making of this précis.</h2>
+
+      <div class="colophon-label">Source material</div>
+      <div class="colophon-source">
+        <div class="colophon-source-title">Compensation Management — Meaning, Objectives, Components and Types</div>
+        <div class="colophon-source-meta">GeeksforGeeks · Human Resources · Updated 10 January 2024</div>
+        <a class="colophon-link" href="https://www.geeksforgeeks.org/hr/compensation-management-meaning-objectives-components-and-types/" target="_blank" rel="noopener noreferrer">
+          geeksforgeeks.org/hr/compensation-management ↗
+        </a>
+      </div>
+
+      <div class="colophon-label">Method</div>
+      <p class="colophon-text">The argument, components, and frameworks above are drawn from the cited source and recast for an executive reader — compressed into a sequence of single-idea leaves after the manner of the briefing format. The reordering, framing, and editorial choices are the author's own.</p>
+
+      <div class="colophon-label">Format</div>
+      <p class="colophon-text"><em>The Précis</em> — a briefing in essentials. A short reading on a single idea; the larger work continues elsewhere.</p>
+
+      <div class="colophon-closing">
+        <div class="colophon-mark">❦  ❦  ❦</div>
+        <div class="colophon-end">— finis —</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="swipe-hint" id="swipeHint">
+  <span>turn the leaf →</span>
+</div>
+
+<nav class="nav">
+  <button class="nav-arrow" id="prevBtn" aria-label="Previous leaf">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-arrow" id="nextBtn" aria-label="Next leaf">›</button>
+</nav>
+
+<script>
+  const deck = document.getElementById('deck');
+  const panels = document.querySelectorAll('.panel');
+  const dotsContainer = document.getElementById('dots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const currentNum = document.getElementById('currentNum');
+  const totalNum = document.getElementById('totalNum');
+  const swipeHint = document.getElementById('swipeHint');
+  const total = panels.length;
+  let current = 0;
+
+  // Roman numeral converter
+  function toRoman(num) {
+    const values = [10, 9, 5, 4, 1];
+    const numerals = ['x', 'ix', 'v', 'iv', 'i'];
+    let result = '';
+    for (let i = 0; i < values.length; i++) {
+      while (num >= values[i]) {
+        result += numerals[i];
+        num -= values[i];
+      }
+    }
+    return result;
+  }
+
+  totalNum.textContent = toRoman(total);
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', `Go to leaf ${i + 1}`);
+    dot.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(dot);
+  }
+  const dots = dotsContainer.querySelectorAll('.dot');
+
+  function updateUI() {
+    deck.style.transform = `translateX(-${current * 100}vw)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    currentNum.textContent = toRoman(current + 1);
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+
+    const theme = panels[current].dataset.theme;
+    document.body.classList.toggle('is-dark', theme === 'dark');
+
+    panels.forEach((p, i) => p.classList.toggle('active', i === current));
+    panels[current].scrollTop = 0;
+
+    const activeDot = dots[current];
+    if (activeDot) {
+      activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
+  function goTo(index) {
+    current = Math.max(0, Math.min(total - 1, index));
+    updateUI();
+    hideHint();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  prevBtn.onclick = prev;
+  nextBtn.onclick = next;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { goTo(0); }
+    else if (e.key === 'End') { goTo(total - 1); }
+  });
+
+  let touchStartX = 0, touchStartY = 0;
+  const SWIPE_THRESHOLD = 50;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    const dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) next();
+      else prev();
+    }
+  }, { passive: true });
+
+  function hideHint() { swipeHint.classList.remove('show'); }
+  setTimeout(() => { if (current === 0) swipeHint.classList.add('show'); }, 1400);
+  setTimeout(hideHint, 5500);
+
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  updateUI();
+</script>
+
+</body>
+</html>
