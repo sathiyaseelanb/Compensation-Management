@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Compensation Management — A Diagnostic Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500;1,8..60,600&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f1e8;
+    --bg-panel: #ffffff;
+    --bg-dark: #0d1929;
+    --bg-dark-soft: #16243a;
+    --ink: #1a1f2e;
+    --ink-soft: #3a4258;
+    --ink-faint: #6b7388;
+    --paper: #ffffff;
+    --paper-dim: #faf7ef;
+    --hbr-red: #c8102e;
+    --hbr-red-deep: #9d0a23;
+    --gold: #b8862a;
+    --green: #1f7a4d;
+    --green-soft: #e3f0e8;
+    --red-soft: #fbe5e8;
+    --rule: rgba(26, 31, 46, 0.15);
+    --rule-strong: rgba(26, 31, 46, 0.35);
+    --shadow-sm: 0 1px 3px rgba(13, 25, 41, 0.08);
+    --shadow-md: 0 4px 16px rgba(13, 25, 41, 0.1);
+    --shadow-lg: 0 12px 40px rgba(13, 25, 41, 0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    font-weight: 400;
+    font-size: 17px;
+    min-height: 100vh;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    background: var(--bg-dark);
+    color: var(--paper);
+    padding: 14px 24px;
+    border-bottom: 4px solid var(--hbr-red);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+  }
+
+  .masthead-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--paper);
+    line-height: 1;
+  }
+
+  .brand-mark .red { color: var(--hbr-red); font-style: normal; font-weight: 700; }
+
+  .brand-sub {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    padding-left: 12px;
+  }
+
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.08em;
+  }
+
+  .progress-track {
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--hbr-red);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  /* ============ CONTAINER ============ */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ============ TYPOGRAPHY ============ */
+  .eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--hbr-red);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 2px;
+    background: var(--hbr-red);
+  }
+
+  /* ============ COVER ============ */
+  .cover {
+    padding: 40px 0;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .cover-title {
+    font-size: clamp(34px, 5.5vw, 50px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .cover-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+
+  .cover-deck {
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 28px;
+    padding-left: 18px;
+    border-left: 3px solid var(--hbr-red);
+    max-width: 680px;
+  }
+
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 18px;
+    padding: 20px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+
+  .cover-meta-label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+  }
+
+  .cover-meta-value {
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .cover-instructions {
+    margin: 28px 0;
+    padding: 22px 24px;
+    background: var(--paper);
+    border-left: 3px solid var(--bg-dark);
+  }
+
+  .cover-instructions h3 {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--hbr-red);
+    margin-bottom: 10px;
+  }
+
+  .cover-instructions p {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .cover-instructions p:last-child { margin-bottom: 0; }
+
+  .cover-instructions strong { color: var(--ink); font-weight: 600; }
+
+  /* ============ NAME INPUT ============ */
+  .name-input-wrap {
+    margin-bottom: 24px;
+  }
+
+  .name-input-wrap label {
+    display: block;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .name-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 17px;
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus {
+    outline: none;
+    border-color: var(--hbr-red);
+  }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--hbr-red);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--hbr-red-deep);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:disabled {
+    background: var(--ink-faint);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+
+  .btn-secondary:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .btn .arrow {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 16px;
+  }
+
+  /* ============ QUESTION CARD ============ */
+  .question {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 28px 28px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+
+  .question-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .question-num {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--hbr-red);
+  }
+
+  .question-tag {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--ink-faint);
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+  }
+
+  .question-stem {
+    font-family: 'Source Serif 4', serif;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+
+  .question-stem em { font-style: italic; }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--paper-dim);
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    line-height: 1.5;
+  }
+
+  .option:hover {
+    border-color: var(--hbr-red);
+    background: var(--paper);
+  }
+
+  .option-letter {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hbr-red);
+    letter-spacing: 0.08em;
+    width: 22px;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  .option-text {
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .option.selected {
+    background: var(--bg-dark);
+    border-color: var(--bg-dark);
+  }
+
+  .option.selected .option-letter { color: var(--hbr-red); }
+  .option.selected .option-text { color: var(--paper); }
+
+  /* Post-submit states */
+  .option.correct {
+    background: var(--green-soft);
+    border-color: var(--green);
+    border-left: 3px solid var(--green);
+    cursor: default;
+  }
+
+  .option.correct .option-letter { color: var(--green); }
+  .option.correct .option-text { color: var(--ink); }
+
+  .option.incorrect {
+    background: var(--red-soft);
+    border-color: var(--hbr-red);
+    border-left: 3px solid var(--hbr-red);
+    cursor: default;
+  }
+
+  .option.incorrect .option-letter { color: var(--hbr-red); }
+
+  .option.locked { cursor: default; }
+  .option.locked:hover { background: var(--paper-dim); border-color: var(--rule); }
+  .option.locked.selected:hover { background: var(--bg-dark); border-color: var(--bg-dark); }
+  .option.locked.correct:hover { background: var(--green-soft); border-color: var(--green); }
+  .option.locked.incorrect:hover { background: var(--red-soft); border-color: var(--hbr-red); }
+
+  .option-marker {
+    margin-left: auto;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .option-marker.correct { color: var(--green); }
+  .option-marker.incorrect { color: var(--hbr-red); }
+
+  /* Explanation block (revealed after submission) */
+  .explanation {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: var(--paper-dim);
+    border-left: 3px solid var(--hbr-red);
+    display: none;
+  }
+
+  .explanation.show { display: block; animation: fade-in 0.4s ease; }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .explanation-label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--hbr-red);
+    margin-bottom: 8px;
+  }
+
+  .explanation-text {
+    font-family: 'Source Serif 4', serif;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .explanation-text strong { color: var(--ink); font-style: normal; font-weight: 600; }
+  .explanation-text em { font-style: italic; color: var(--ink); }
+
+  /* ============ ACTION BAR ============ */
+  .action-bar {
+    margin-top: 32px;
+    padding: 24px 0;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .completion-counter {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .completion-counter strong {
+    color: var(--hbr-red);
+    font-weight: 700;
+  }
+
+  /* ============ RESULTS BAR (fixed, post-submission) ============ */
+  .results-banner {
+    background: var(--bg-dark);
+    color: var(--paper);
+    padding: 28px;
+    margin-bottom: 32px;
+    border-left: 4px solid var(--hbr-red);
+    display: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .results-banner.show { display: block; animation: fade-in 0.5s ease; }
+
+  .results-eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--hbr-red);
+    margin-bottom: 12px;
+  }
+
+  .results-score-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .results-score-number {
+    font-family: 'Source Serif 4', serif;
+    font-size: 60px;
+    font-weight: 300;
+    color: var(--paper);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .results-score-total {
+    font-family: 'Source Serif 4', serif;
+    font-size: 24px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .results-band {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--paper);
+    font-weight: 500;
+  }
+
+  .results-narrative {
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.85);
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 8px;
+  }
+
+  .results-narrative strong { color: var(--paper); font-weight: 600; }
+  .results-narrative em { color: var(--paper); font-style: italic; }
+
+  .results-actions {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .results-banner .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .results-banner .btn-secondary:hover {
+    background: var(--paper);
+    color: var(--bg-dark);
+    border-color: var(--paper);
+  }
+
+  /* ============ COMPLETION CERTIFICATE ============ */
+  .completion-summary {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    display: none;
+  }
+
+  .completion-summary.show { display: block; }
+
+  .summary-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--hbr-red);
+    margin-bottom: 14px;
+  }
+
+  .summary-rows {
+    display: grid;
+    gap: 12px;
+  }
+
+  .summary-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-row-num {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--hbr-red);
+    font-weight: 600;
+  }
+
+  .summary-row-tag {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .summary-row-tag.correct { color: var(--green); }
+  .summary-row-tag.incorrect { color: var(--hbr-red); }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .masthead, .action-bar, .results-actions, .cover, .name-input-wrap { display: none !important; }
+    .question { page-break-inside: avoid; box-shadow: none; }
+    .results-banner { background: white; color: var(--ink); border: 2px solid var(--hbr-red); }
+    .results-score-number, .results-band, .results-narrative { color: var(--ink) !important; }
+    .results-narrative strong, .results-narrative em { color: var(--ink) !important; }
+  }
+
+  /* Mobile */
+  @media (max-width: 720px) {
+    .container { padding: 28px 18px 60px; }
+    .question { padding: 22px 20px; }
+    .option { padding: 12px 14px; gap: 10px; }
+    .option-text { font-size: 15.5px; }
+    .question-stem { font-size: 17px; }
+    .results-score-number { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-mark">Compensation <span class="red">|</span> Diagnostic Quiz</span>
+      <span class="brand-sub">Executive Assessment</span>
+    </div>
+    <div class="progress-bar" id="progressContainer" style="display:none;">
+      <span id="progressLabel">0 / 10</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ============ COVER ============ -->
+  <section class="cover" id="cover">
+    <div class="eyebrow">A Diagnostic Quiz · 10 questions</div>
+    <h1 class="cover-title">Compensation <em>Management.</em></h1>
+    <p class="cover-deck">Ten questions on the architecture, trade-offs, and strategic judgement of compensation — designed to test conceptual command rather than recall. Pitched at the level of an executive who must advise on pay, not merely administer it.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Questions</div>
+        <div class="cover-meta-value">10 multiple-choice</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Duration</div>
+        <div class="cover-meta-value">15 minutes</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Level</div>
+        <div class="cover-meta-value">MBA · Executive</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Format</div>
+        <div class="cover-meta-value">Auto-scored · Explanations on submission</div>
+      </div>
+    </div>
+
+    <div class="cover-instructions">
+      <h3>How this works</h3>
+      <p><strong>One answer per question.</strong> Select the option you believe is most strongly defensible. You may change your selection until you submit.</p>
+      <p><strong>Explanations appear only after you submit the full quiz.</strong> This is deliberate — the questions are designed to be thought through, not guessed and verified one at a time.</p>
+      <p>You will receive a score out of ten, a brief verdict on the band you fall into, and a rationale for every question.</p>
+    </div>
+
+    <div class="name-input-wrap">
+      <label for="participantName">Your name (optional, for your records)</label>
+      <input type="text" id="participantName" class="name-input" placeholder="e.g., Anjali Mehta" autocomplete="name">
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">Begin the quiz <span class="arrow">→</span></button>
+  </section>
+
+  <!-- ============ RESULTS BANNER (post-submission) ============ -->
+  <div class="results-banner" id="resultsBanner">
+    <div class="results-eyebrow">Quiz complete · Auto-scored</div>
+    <div class="results-score-row">
+      <span class="results-score-number" id="finalScoreNumber">0</span>
+      <span class="results-score-total">/ 10</span>
+      <span class="results-band" id="finalBand"></span>
+    </div>
+    <div class="results-narrative" id="finalNarrative"></div>
+    <div class="results-actions">
+      <button class="btn btn-secondary" onclick="scrollToFirstError()">Review my errors</button>
+      <button class="btn btn-secondary" onclick="window.print()">Print or save as PDF</button>
+      <button class="btn btn-primary" onclick="restartQuiz()">Try again <span class="arrow">↻</span></button>
+    </div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="quizSection" style="display:none;">
+    <div id="questionsContainer"></div>
+
+    <div class="action-bar">
+      <div class="completion-counter">
+        <strong id="answeredCount">0</strong> of 10 answered
+      </div>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitQuiz()" disabled>Submit all 10 answers <span class="arrow">→</span></button>
+    </div>
+
+    <!-- Summary appears after submission -->
+    <div class="completion-summary" id="completionSummary">
+      <div class="summary-title">Question-by-question summary</div>
+      <div class="summary-rows" id="summaryRows"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   QUIZ DATA
+   ============================================================ */
+const QUIZ = [
+  {
+    num: 1,
+    tag: 'Recall',
+    stem: 'Which of the following is <em>not</em> generally considered a primary objective of a compensation system?',
+    options: [
+      'Attracting qualified talent',
+      'Retaining valued employees',
+      'Driving product innovation',
+      'Motivating performance',
+      'Ensuring legal compliance'
+    ],
+    correct: 2, // index 0-based, so option C
+    explanation: 'Innovation is an outcome of effective talent management overall, not a direct objective of compensation. The four conventional objectives — <em>attract, retain, motivate, comply</em> — together with cost control, define what a compensation system is designed to achieve. A pay system that produces innovation does so indirectly, by attracting and motivating people who innovate.'
+  },
+  {
+    num: 2,
+    tag: 'Apply',
+    stem: 'A senior employee with a market-competitive base salary leaves the organisation citing inadequate compensation. Which of the following is the <em>most likely</em> explanation?',
+    options: [
+      'The employee misjudged their market value',
+      'The organisation has under-invested in indirect compensation — benefits, recognition, and development',
+      'The base salary benchmark was outdated',
+      'The departure was unrelated to pay',
+      'Variable pay was insufficient'
+    ],
+    correct: 1,
+    explanation: 'Total compensation comprises both <strong>direct</strong> (cash) and <strong>indirect</strong> (benefits, recognition, development) elements. Organisations that optimise only the direct component often discover that the indirect side carries more retention weight than they had assumed. The departing employee is unlikely to be misjudging their value; they are reading a signal the firm has not noticed it was sending.'
+  },
+  {
+    num: 3,
+    tag: 'Recall',
+    stem: 'Recognition programmes within a compensation system most directly support which of the following organisational outcomes?',
+    options: [
+      'Cost containment',
+      'Legal compliance',
+      'A sense of belonging and engagement',
+      'Market competitiveness',
+      'Variable pay differentiation'
+    ],
+    correct: 2,
+    explanation: 'Recognition is the component of total rewards most closely associated with employees\' sense of being valued — distinct from cash, benefits, or career investment. It is also the component most often underused relative to its cost-effectiveness: it costs comparatively little and addresses a need cash cannot fully meet.'
+  },
+  {
+    num: 4,
+    tag: 'Apply',
+    stem: 'A regional retail chain operating only in Tier-2 Indian cities benchmarks its store-manager pay against compensation data from a global e-commerce company. Which factor in pay determination is this organisation most clearly misreading?',
+    options: [
+      'Industry standards',
+      'Geographic and local labour market conditions',
+      'Company performance',
+      'Skill and experience requirements',
+      'Internal pay equity'
+    ],
+    correct: 1,
+    explanation: '<strong>Geography</strong> is one of the foundational variables in pay determination — what the location costs to live in and what local labour markets pay. Benchmarking across radically different geographies without adjustment produces unusable data. Industry is also relevant, but the cleanest mismatch here is between Tier-2 city economics and global e-commerce comparators.'
+  },
+  {
+    num: 5,
+    tag: 'Evaluate',
+    stem: 'A founder argues: "We have resolved the competitiveness–sustainability tension in our pay strategy by offering modest cash and generous equity." The <em>most analytically sound</em> response is —',
+    options: [
+      'The tension is genuinely resolved; equity converts the trade-off into a partnership model',
+      'The tension has been deferred rather than resolved; the trade-off resurfaces if a liquidity event does not materialise',
+      'Equity-based compensation operates outside the cash-versus-margin tension',
+      'Equity is always preferable to cash for early-stage organisations',
+      'The reasoning is sound provided the equity grants are large enough'
+    ],
+    correct: 1,
+    explanation: 'Equity <strong>defers</strong> the cash-versus-margin trade-off rather than eliminating it. If the equity does not crystallise into value, the original tension surfaces with greater force — often through delayed attrition once employees recognise the deferred value as illusory. The competitiveness–sustainability tension has no permanent resolution; only ongoing trade-offs.'
+  },
+  {
+    num: 6,
+    tag: 'Apply',
+    stem: 'Which of the following best distinguishes a <em>compensation strategy</em> from <em>compensation administration</em>?',
+    options: [
+      'Strategy uses external benchmarks; administration uses internal data',
+      'Strategy involves senior leadership; administration involves HR',
+      'Strategy makes explicit choices about positioning and trade-offs; administration executes those choices through policies and processes',
+      'Strategy is reviewed annually; administration is reviewed monthly',
+      'Strategy is qualitative; administration is quantitative'
+    ],
+    correct: 2,
+    explanation: 'The distinction is one of <strong>decision-making versus execution</strong>. Strategy answers "what are we choosing and why"; administration answers "how do we run what we have chosen." Many organisations have sophisticated administration without an underlying strategy — and the failure mode is precisely that gap.'
+  },
+  {
+    num: 7,
+    tag: 'Evaluate',
+    stem: 'An executive states: "We have not formalised a compensation policy because we want to preserve managerial discretion." This position is best characterised as —',
+    options: [
+      'A defensible pragmatic stance, particularly in small organisations',
+      'A non-decision that itself constitutes a policy — typically a poor one — through accumulated ad hoc choices',
+      'An appropriate approach in fast-changing industries',
+      'A legitimate alternative to formal compensation strategy',
+      'A sound way to retain managerial flexibility'
+    ],
+    correct: 1,
+    explanation: 'In the absence of explicit policy, organisations accumulate <strong>implicit</strong> ones through individual decisions. The resulting "policy" tends to be inconsistent, inequitable, and difficult to defend when challenged — externally by candidates, internally by employees, or legally by regulators. Preserving "discretion" usually means preserving the comfort of avoiding the conversation.'
+  },
+  {
+    num: 8,
+    tag: 'Apply',
+    stem: 'A talent acquisition lead reports that three engineering offers were rejected this quarter — all citing inadequate pay — despite benchmarking at the 50th percentile. The <em>two questions</em> most worth asking before responding are —',
+    options: [
+      '(i) Should we raise base pay? (ii) Should we issue counter-offers?',
+      '(i) Is our market definition appropriate for these roles? (ii) Is the 50th percentile the right policy position for the talent we are competing for?',
+      '(i) Are our recruiters effective? (ii) Is our employer brand strong enough?',
+      '(i) Should we reduce hiring volume? (ii) Should we relocate the role?',
+      '(i) Are candidates negotiating in bad faith? (ii) Should we revise job descriptions?'
+    ],
+    correct: 1,
+    explanation: 'The presenting issue looks tactical, but the underlying questions are <strong>strategic</strong> — whether the market definition is appropriate (engineers may compete in a different labour market than other roles) and whether the chosen percentile reflects the firm\'s competitive intent. Without answering these, raising pay is a symptom-driven response that may not solve the underlying mismatch.'
+  },
+  {
+    num: 9,
+    tag: 'Evaluate',
+    stem: 'An organisation benchmarks competitively, pays at the 60th percentile, and has industry-average attrition — yet a recent employee survey reveals significant dissatisfaction with pay. Which of the following is the <em>most plausible</em> diagnosis?',
+    options: [
+      'Employees have unrealistic expectations',
+      'The benchmark data is inaccurate',
+      'There is a gap between actual compensation and <em>perceived</em> compensation, driven by inadequate communication of the total rewards picture',
+      'The percentile target is too low',
+      'Attrition will rise in the next quarter'
+    ],
+    correct: 2,
+    explanation: 'Perception of pay is shaped by what is <strong>communicated</strong> as much as what is delivered. When organisations administer pay well but communicate it poorly, employees underestimate the total value they receive — and respond as if under-paid. The simplest intervention is often a personalised total rewards statement that makes the invisible components visible.'
+  },
+  {
+    num: 10,
+    tag: 'Synthesise',
+    stem: 'A CEO states: "We benchmark annually, our base pay is at the 60th percentile, our retirement and benefits scheme is generous, and our attrition is in line with the industry. Our compensation system is healthy." The <em>most rigorous</em> response is to ask —',
+    options: [
+      '"Why only the 60th percentile and not higher?"',
+      '"Which of the five objectives — attract, retain, motivate, control cost, comply — is your evidence actually addressing, and which are you assuming?"',
+      '"Have you considered increasing variable pay?"',
+      '"How does your benefits scheme compare to competitors?"',
+      '"When did you last update your benchmarks?"'
+    ],
+    correct: 1,
+    explanation: 'The CEO\'s evidence speaks to <em>attraction, retention,</em> and <em>cost</em> — but is silent on <em>motivation</em> and on whether the existing workforce experiences the system as <em>fair</em>. A "healthy administered system" is not the same as a healthy strategic system. The most rigorous response reframes the conversation from <strong>administrative competence</strong> to <strong>strategic completeness</strong> across all the system\'s objectives.'
+  }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  answers: {},      // questionNum -> option index
+  submitted: false,
+  score: 0,
+  participantName: ''
+};
+
+/* ============================================================
+   BUILD QUIZ
+   ============================================================ */
+function buildQuiz() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  QUIZ.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'question';
+    card.id = 'q-' + q.num;
+    card.innerHTML = `
+      <div class="question-header">
+        <div class="question-num">Question ${String(q.num).padStart(2, '0')}</div>
+        <div class="question-tag">${q.tag}</div>
+      </div>
+      <div class="question-stem">${q.stem}</div>
+      <div class="options" data-qnum="${q.num}">
+        ${q.options.map((opt, i) => `
+          <div class="option" data-idx="${i}" onclick="selectOption(${q.num}, ${i})">
+            <div class="option-letter">${String.fromCharCode(65 + i)}</div>
+            <div class="option-text">${opt}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp-${q.num}">
+        <div class="explanation-label">Rationale</div>
+        <div class="explanation-text">${q.explanation}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+/* ============================================================
+   INTERACTION
+   ============================================================ */
+function selectOption(qnum, idx) {
+  if (state.submitted) return;
+  state.answers[qnum] = idx;
+  // Clear previous selection in this question
+  const optsWrap = document.querySelector(`.options[data-qnum="${qnum}"]`);
+  optsWrap.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  optsWrap.querySelector(`.option[data-idx="${idx}"]`).classList.add('selected');
+  updateCounter();
+}
+
+function updateCounter() {
+  const n = Object.keys(state.answers).length;
+  document.getElementById('answeredCount').textContent = n;
+  document.getElementById('submitBtn').disabled = n < QUIZ.length;
+  // Update masthead progress
+  document.getElementById('progressLabel').textContent = `${n} / ${QUIZ.length}`;
+  document.getElementById('progressFill').style.width = (n / QUIZ.length * 100) + '%';
+}
+
+function startQuiz() {
+  state.participantName = document.getElementById('participantName').value.trim();
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('quizSection').style.display = 'block';
+  document.getElementById('progressContainer').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   SUBMIT & SCORE
+   ============================================================ */
+function submitQuiz() {
+  if (Object.keys(state.answers).length < QUIZ.length) {
+    alert('Please answer all 10 questions before submitting.');
+    return;
+  }
+  if (!confirm('Submit your answers? You will be able to review explanations but not change responses.')) return;
+
+  state.submitted = true;
+  let score = 0;
+
+  QUIZ.forEach(q => {
+    const userIdx = state.answers[q.num];
+    const correctIdx = q.correct;
+    const optsWrap = document.querySelector(`.options[data-qnum="${q.num}"]`);
+    optsWrap.querySelectorAll('.option').forEach(o => {
+      const i = parseInt(o.dataset.idx);
+      o.classList.remove('selected');
+      o.classList.add('locked');
+      if (i === correctIdx) {
+        o.classList.add('correct');
+        // Add marker if it wasn't the user's choice
+        if (i !== userIdx) {
+          const marker = document.createElement('div');
+          marker.className = 'option-marker correct';
+          marker.textContent = '✓ Correct';
+          o.appendChild(marker);
+        } else {
+          const marker = document.createElement('div');
+          marker.className = 'option-marker correct';
+          marker.textContent = '✓ Your answer';
+          o.appendChild(marker);
+        }
+      } else if (i === userIdx) {
+        o.classList.add('incorrect');
+        const marker = document.createElement('div');
+        marker.className = 'option-marker incorrect';
+        marker.textContent = '✗ Your answer';
+        o.appendChild(marker);
+      }
+    });
+    // Show explanation
+    document.getElementById('exp-' + q.num).classList.add('show');
+
+    if (userIdx === correctIdx) score++;
+  });
+
+  state.score = score;
+  renderResults();
+  buildSummary();
+
+  // Lock submit button
+  document.getElementById('submitBtn').style.display = 'none';
+
+  // Scroll to results
+  setTimeout(() => {
+    document.getElementById('resultsBanner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
+}
+
+function renderResults() {
+  const banner = document.getElementById('resultsBanner');
+  document.getElementById('finalScoreNumber').textContent = state.score;
+
+  let band = '';
+  let narrative = '';
+
+  if (state.score === 10) {
+    band = '— Distinction.';
+    narrative = `A complete reading. Every answer correctly identified, including the discriminator items on equity deferral, the absence-of-policy argument, and the strategic-completeness reframe. You are ready not merely to administer compensation, but to <strong>advise on it strategically.</strong>`;
+  } else if (state.score >= 8) {
+    band = '— Strong command.';
+    narrative = `You have the conceptual scaffolding of the field well in place. Errors at this level typically sit in the evaluation and synthesis questions — where the discipline asks not just <em>what</em> is true, but <em>which framing is most rigorous.</em> Review the explanations on your incorrect items; they point to depth rather than gaps.`;
+  } else if (state.score >= 6) {
+    band = '— Competent.';
+    narrative = `A working command of the building blocks: components, objectives, and the standard factors in pay determination. The questions you missed are likely concentrated in <strong>strategic judgement</strong> — recognising when a confident-sounding answer is actually a deferral, or when an administrative response is masking a strategic gap. The explanations below are calibrated for exactly this transition.`;
+  } else if (state.score >= 4) {
+    band = '— Partial.';
+    narrative = `You understand the components of compensation but have not yet integrated them into a strategic frame. Several of your incorrect answers likely reflect the most common pattern in early learners: treating compensation as a list of practices rather than a system of trade-offs. The explanations are written to surface that distinction.`;
+  } else {
+    band = '— Foundational.';
+    narrative = `Compensation management as a discipline has not yet settled into place. This is fixable: every explanation below carries the reasoning, and a second reading after a short interval typically yields a substantially stronger result. Treat this as a starting position, not a verdict.`;
+  }
+
+  document.getElementById('finalBand').textContent = band;
+  document.getElementById('finalNarrative').innerHTML = narrative;
+  banner.classList.add('show');
+}
+
+function buildSummary() {
+  const rows = document.getElementById('summaryRows');
+  rows.innerHTML = '';
+  QUIZ.forEach(q => {
+    const userIdx = state.answers[q.num];
+    const isCorrect = userIdx === q.correct;
+    const row = document.createElement('div');
+    row.className = 'summary-row';
+    row.innerHTML = `
+      <div class="summary-row-num">Q${String(q.num).padStart(2, '0')}</div>
+      <div>${q.tag} — ${q.stem.replace(/<[^>]+>/g, '').slice(0, 80)}${q.stem.length > 80 ? '…' : ''}</div>
+      <div class="summary-row-tag ${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</div>
+    `;
+    row.style.cursor = 'pointer';
+    row.onclick = () => {
+      document.getElementById('q-' + q.num).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    rows.appendChild(row);
+  });
+  document.getElementById('completionSummary').classList.add('show');
+}
+
+function scrollToFirstError() {
+  const firstError = QUIZ.find(q => state.answers[q.num] !== q.correct);
+  if (firstError) {
+    document.getElementById('q-' + firstError.num).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    alert('No errors — a perfect score. Print your result if you wish.');
+  }
+}
+
+function restartQuiz() {
+  if (!confirm('Begin the quiz again? Your current answers will be cleared.')) return;
+  state = { answers: {}, submitted: false, score: 0, participantName: '' };
+  document.getElementById('participantName').value = '';
+  document.getElementById('resultsBanner').classList.remove('show');
+  document.getElementById('completionSummary').classList.remove('show');
+  document.getElementById('submitBtn').style.display = '';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('cover').style.display = 'block';
+  document.getElementById('quizSection').style.display = 'none';
+  document.getElementById('progressContainer').style.display = 'none';
+  buildQuiz();
+  updateCounter();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+buildQuiz();
+updateCounter();
+</script>
+
+</body>
+</html>
