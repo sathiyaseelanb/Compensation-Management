@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Forms of Pay — A Classification Simulation</title>
+<style>
+/* ==========================================================
+   FORMS OF PAY — CLASSIFICATION SIMULATION
+   HBR-style two-stage classification of Total Rewards
+   Single self-contained HTML file. No external dependencies.
+   ========================================================== */
+
+:root {
+  --bg: #f5f1e8;
+  --bg-warm: #ede4d2;
+  --bg-dark: #0d1929;
+  --bg-dark-soft: #16243a;
+  --ink: #1a1f2e;
+  --ink-soft: #3a4258;
+  --ink-faint: #6b7388;
+  --paper: #ffffff;
+  --paper-dim: #faf7ef;
+  --hbr-red: #c8102e;
+  --hbr-red-deep: #9d0a23;
+  --gold: #b8862a;
+  --green: #1f7a4d;
+  --green-bright: #2da06b;
+  --green-soft: #e3f0e8;
+  --red-soft: #fbe5e8;
+  --amber: #c98a1b;
+  --rule: rgba(26, 31, 46, 0.15);
+  --rule-strong: rgba(26, 31, 46, 0.35);
+  --shadow-sm: 0 1px 3px rgba(13, 25, 41, 0.08);
+  --shadow-md: 0 4px 16px rgba(13, 25, 41, 0.1);
+  --shadow-lg: 0 12px 40px rgba(13, 25, 41, 0.18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 17px;
+  min-height: 100vh;
+}
+button { font-family: inherit; }
+
+/* ========== MASTHEAD ========== */
+.masthead {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 14px 20px;
+  border-bottom: 4px solid var(--hbr-red);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand-title {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--paper);
+  line-height: 1;
+}
+.brand-title .red { color: var(--hbr-red); font-style: normal; }
+.brand-sub {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.stage-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+}
+.stage-pips { display: flex; gap: 4px; }
+.stage-pip {
+  width: 28px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s;
+}
+.stage-pip.done { background: var(--hbr-red); }
+.stage-pip.current { background: var(--paper); }
+
+/* ========== CONTAINER ========== */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* ========== SCREENS ========== */
+.screen { display: none; animation: screen-in 0.4s ease; }
+.screen.active { display: block; }
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4 {
+  font-family: Georgia, serif;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.eyebrow {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: var(--hbr-red);
+}
+
+.screen-header {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.screen-header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--hbr-red);
+}
+.screen-title {
+  font-size: clamp(28px, 4.5vw, 40px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.screen-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+.screen-deck {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  font-style: italic;
+  max-width: 740px;
+}
+
+/* ========== COVER ========== */
+.cover { padding: 24px 0 12px; }
+.cover-title {
+  font-size: clamp(36px, 6vw, 54px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+.cover-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+.cover-deck {
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-bottom: 28px;
+  padding-left: 18px;
+  border-left: 3px solid var(--hbr-red);
+  max-width: 720px;
+}
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 24px;
+}
+.cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.cover-meta-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.cover-meta-value { font-size: 15px; color: var(--ink); font-weight: 600; }
+
+.byline-block {
+  margin: 24px 0;
+  padding: 20px 22px;
+  background: var(--paper);
+  border-left: 3px solid var(--bg-dark);
+  border-top: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.byline-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 8px;
+}
+.byline-name {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.byline-role {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.objectives-block {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  margin: 24px 0;
+  border-left: 3px solid var(--hbr-red);
+}
+.objectives-block h3 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.objectives-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 720px) {
+  .objectives-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.objective-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--paper-dim);
+  border-top: 3px solid var(--hbr-red);
+}
+.objective-num {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+}
+.objective-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.objective-text strong {
+  color: var(--ink);
+  font-weight: 700;
+  font-style: italic;
+}
+
+.cover-instructions {
+  background: var(--paper);
+  border-left: 3px solid var(--hbr-red);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.cover-instructions h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+.cover-instructions p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.cover-instructions p:last-child { margin-bottom: 0; }
+.cover-instructions strong { color: var(--ink); }
+
+/* ========== FORM ========== */
+.student-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (min-width: 540px) {
+  .student-form { grid-template-columns: 1fr 1fr; }
+}
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.field input {
+  padding: 13px 16px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  width: 100%;
+}
+.field input:focus { outline: none; border-color: var(--hbr-red); }
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.2;
+  text-align: center;
+  justify-content: center;
+}
+.btn-primary { background: var(--hbr-red); color: white; }
+.btn-primary:hover:not(:disabled) {
+  background: var(--hbr-red-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:disabled {
+  background: var(--ink-faint);
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+}
+.btn-secondary:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.btn-dark {
+  background: var(--bg-dark);
+  color: var(--paper);
+}
+.btn-dark:hover { background: var(--bg-dark-soft); }
+.btn .arrow { font-family: Georgia, serif; font-style: italic; font-size: 16px; }
+
+/* ========== WORKSPACE ========== */
+.stage-stat-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+@media (min-width: 720px) {
+  .stage-stat-row { grid-template-columns: 1fr 1fr 1fr; }
+}
+.stage-stat {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  border-top: 3px solid var(--hbr-red);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stage-stat-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.stage-stat-value {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.stage-stat-detail {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.placement-guide {
+  background: var(--paper);
+  border-left: 3px solid var(--bg-dark);
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.placement-guide strong { color: var(--ink); font-weight: 700; }
+
+/* The workspace layout */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+@media (min-width: 980px) {
+  .workspace { grid-template-columns: 320px 1fr; }
+}
+
+/* ========== CARD BANK (sticky on desktop) ========== */
+.card-bank {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+@media (min-width: 980px) {
+  .card-bank {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+  }
+}
+
+.bank-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--hbr-red);
+}
+.bank-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 4px;
+}
+.bank-title {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.bank-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  font-style: italic;
+}
+.bank-count strong { color: var(--hbr-red); font-weight: 700; font-style: normal; }
+
+.bank-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.bank-toolbar .btn-mini {
+  padding: 8px 12px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', sans-serif;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bank-toolbar .btn-mini:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* Selection indicator banner */
+.selection-banner {
+  background: var(--hbr-red);
+  color: var(--paper);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  animation: screen-in 0.25s ease;
+}
+.selection-banner.active { display: flex; }
+.selection-banner-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  font-weight: 700;
+}
+.selection-banner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.selection-banner-text {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+  line-height: 1.3;
+}
+.selection-banner-cancel {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: var(--paper);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.selection-banner-cancel:hover { background: rgba(255,255,255,0.35); }
+
+/* The card list inside the bank */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 60px;
+}
+
+/* ========== CARD ========== */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 12px 14px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  line-height: 1.35;
+  color: var(--ink);
+  position: relative;
+}
+.card:hover {
+  border-color: var(--hbr-red);
+  box-shadow: 0 2px 8px rgba(200, 16, 46, 0.15);
+  transform: translateX(2px);
+}
+.card-text {
+  flex: 1;
+  word-break: break-word;
+}
+.card-info-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-faint);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.card-info-btn:hover {
+  background: var(--hbr-red);
+  border-color: var(--hbr-red);
+  color: var(--paper);
+}
+
+/* Selected (highlighted) card */
+.card.highlight {
+  background: var(--hbr-red);
+  color: var(--paper);
+  border-color: var(--hbr-red);
+  box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.2);
+  transform: translateX(4px);
+}
+.card.highlight .card-info-btn {
+  border-color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.95);
+}
+.card.highlight .card-info-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* Placed card (in a zone) */
+.card.placed {
+  background: var(--paper-dim);
+}
+
+/* Feedback states (after submission) */
+.card.correct {
+  background: var(--green-soft);
+  border-color: var(--green);
+  border-left: 3px solid var(--green);
+}
+.card.incorrect {
+  background: var(--red-soft);
+  border-color: var(--hbr-red);
+  border-left: 3px solid var(--hbr-red);
+}
+.card-marker {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+.card-marker.correct { color: var(--green); }
+.card-marker.incorrect { color: var(--hbr-red); }
+
+/* ========== ZONES ========== */
+.zones {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .zones.cols-2 { grid-template-columns: 1fr 1fr; }
+  .zones.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.zone {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 16px 16px 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  transition: all 0.2s;
+}
+
+.zone-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--hbr-red);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.zone-title {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.zone-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+.zone-count strong { color: var(--hbr-red); }
+
+.zone-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 80px;
+}
+
+.zone-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+  font-size: 14px;
+  border: 1px dashed var(--rule);
+  background: var(--paper-dim);
+}
+
+/* "Ready-to-receive" state when a card is selected */
+.zone.ready-to-receive {
+  border-color: var(--hbr-red);
+  background: rgba(200, 16, 46, 0.02);
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--hbr-red);
+}
+.zone.ready-to-receive .zone-empty {
+  border-color: var(--hbr-red);
+  color: var(--hbr-red);
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.zone.ready-to-receive .zone-cards::after {
+  content: 'Tap to place here';
+  display: block;
+  padding: 12px;
+  text-align: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  border-top: 1px dashed rgba(200, 16, 46, 0.4);
+  margin-top: 4px;
+}
+.zone.ready-to-receive .zone-cards:empty::after { border-top: none; margin-top: 0; }
+
+/* ========== ACTION BAR ========== */
+.action-bar {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.action-bar-status {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.action-bar-status strong { color: var(--hbr-red); font-weight: 700; }
+.action-bar-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ========== FEEDBACK PANEL ========== */
+.feedback-panel {
+  display: none;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+}
+.feedback-panel.active { display: block; animation: screen-in 0.4s ease; }
+
+.feedback-results {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 24px;
+  border-left: 4px solid var(--hbr-red);
+  margin-bottom: 24px;
+}
+
+.feedback-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+
+.feedback-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.feedback-score {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--paper);
+  letter-spacing: -0.03em;
+}
+.feedback-score-total {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-style: italic;
+  color: rgba(255,255,255,0.6);
+}
+.feedback-band {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--paper);
+  font-weight: 500;
+}
+.feedback-narrative {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.feedback-explanations {
+  margin-top: 22px;
+}
+.feedback-explanations h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+}
+
+.explanation-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  padding: 8px 14px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--hbr-red); color: var(--hbr-red); }
+.filter-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.explanation-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 720px) {
+  .explanation-list { grid-template-columns: 1fr 1fr; }
+}
+.explanation {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  border-left: 3px solid var(--green);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.explanation.bad { border-left-color: var(--hbr-red); }
+.explanation strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.explanation .placement {
+  display: inline-block;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+.explanation .placement.good { background: var(--green-soft); color: var(--green); }
+.explanation .placement.bad { background: var(--red-soft); color: var(--hbr-red); }
+.explanation.hidden { display: none; }
+
+/* ========== REFLECTION ========== */
+.reflection-panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 26px 28px;
+  box-shadow: var(--shadow-sm);
+}
+.reflection-panel h3 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+.reflection-q {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.reflection-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 14px 16px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  resize: vertical;
+}
+.reflection-textarea:focus {
+  outline: none;
+  border-color: var(--hbr-red);
+  background: var(--paper);
+}
+.reflection-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
+.word-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ========== FINAL DASHBOARD ========== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+@media (min-width: 720px) {
+  .dashboard-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.dashboard-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.dashboard-card h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--hbr-red);
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.record-row:last-child { border-bottom: none; }
+.record-row strong {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+.record-row span {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--ink);
+  font-weight: 600;
+  text-align: right;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+.score-cell {
+  text-align: center;
+  padding: 14px 8px;
+  background: var(--paper-dim);
+  border-top: 3px solid var(--hbr-red);
+}
+.score-cell-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.score-cell-value {
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.debrief-list {
+  display: grid;
+  gap: 12px;
+}
+.debrief-item {
+  padding: 12px 14px;
+  background: var(--paper-dim);
+  border-left: 3px solid var(--hbr-red);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.debrief-item strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.final-reflections-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 14px;
+}
+@media (min-width: 720px) {
+  .final-reflections-grid { grid-template-columns: 1fr 1fr; }
+}
+.final-reflection-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.final-reflection-block label {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.final-reflection-block textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  resize: vertical;
+}
+.final-reflection-block textarea:focus {
+  outline: none;
+  border-color: var(--hbr-red);
+  background: var(--paper);
+}
+
+/* ========== MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 25, 41, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+  animation: fade-in 0.25s ease;
+}
+.modal-overlay.active { display: flex; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--paper);
+  max-width: 600px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 22px 24px 18px;
+  border-bottom: 3px solid var(--hbr-red);
+  position: relative;
+}
+.modal-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+.modal-title {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1.2;
+  padding-right: 36px;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--paper);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.modal-close:hover { background: var(--hbr-red); border-color: var(--hbr-red); }
+.modal-body { padding: 22px 24px; }
+.modal-section { margin-bottom: 18px; }
+.modal-section:last-child { margin-bottom: 0; }
+.modal-section-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+.modal-section-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.modal-section-text em { font-style: italic; color: var(--ink); }
+.modal-section-text strong { color: var(--ink); font-weight: 700; }
+.modal-reflection {
+  background: var(--paper-dim);
+  border-left: 3px solid var(--hbr-red);
+  padding: 14px 16px;
+  margin-top: 6px;
+  font-style: italic;
+}
+.modal-reflection .modal-section-text { font-style: italic; font-size: 15px; }
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 12px 22px;
+  border-left: 3px solid var(--hbr-red);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  z-index: 300;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 90vw;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -10px);
+}
+
+/* ========== PRINT ========== */
+@media print {
+  body { background: white; }
+  .masthead, .action-bar, .bank-toolbar, .selection-banner, .card-info-btn, .filter-btn { display: none !important; }
+  .screen:not(.active) { display: none !important; }
+  .screen.active { display: block !important; }
+  .workspace { grid-template-columns: 1fr !important; }
+  .card-bank, .zone, .dashboard-card, .reflection-panel { box-shadow: none !important; page-break-inside: avoid; }
+  .feedback-results { background: white; color: var(--ink); border: 2px solid var(--hbr-red); }
+  .feedback-score, .feedback-band, .feedback-narrative { color: var(--ink) !important; }
+}
+
+/* ========== MOBILE ========== */
+@media (max-width: 720px) {
+  .container { padding: 18px 14px 60px; }
+  .screen-header { margin-bottom: 18px; padding-bottom: 14px; }
+  .cover-meta { grid-template-columns: 1fr 1fr; }
+  .btn { padding: 12px 20px; font-size: 12px; }
+  .workspace { grid-template-columns: 1fr; }
+  .card-bank { position: static !important; max-height: none !important; overflow-y: visible !important; }
+  .stage-stat-row { grid-template-columns: 1fr; }
+  .stage-stat-value { font-size: 19px; }
+  .feedback-score { font-size: 42px; }
+  .screen-deck { font-size: 16px; }
+  .modal-body { padding: 18px 20px; }
+}
+
+@media (max-width: 480px) {
+  .stage-pip { width: 18px; }
+  .stage-indicator { font-size: 10px; gap: 8px; }
+  .brand-title { font-size: 16px; }
+  .brand-sub { font-size: 9px; }
+  .cover-meta { grid-template-columns: 1fr; }
+  .score-row { grid-template-columns: 1fr; }
+  .modal-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-title">Forms of <span class="red">Pay</span></span>
+      <span class="brand-sub">A Classification Simulation</span>
+    </div>
+    <div class="stage-indicator" id="stageIndicator" style="display:none;">
+      <span id="stageLabel">Stage 1 of 2</span>
+      <div class="stage-pips" id="stagePips"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- SCREEN: INTRO -->
+<section class="screen active" id="screen-intro">
+  <div class="cover">
+    <div class="eyebrow">Executive Classroom Exercise</div>
+    <h1 class="cover-title">Classify the <em>Forms of Pay.</em></h1>
+    <p class="cover-deck">A two-stage classification exercise on the architecture of Total Rewards. Sort thirty-nine compensation elements first by Direct versus Indirect compensation, then into the six-part Total Rewards framework. There is no perfect score — only disciplined judgement.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Format</div>
+        <div class="cover-meta-value">Two stages · 39 elements</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Duration</div>
+        <div class="cover-meta-value">25–35 minutes</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Level</div>
+        <div class="cover-meta-value">MBA · Executive</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Outcome</div>
+        <div class="cover-meta-value">Faculty debrief &amp; report</div>
+      </div>
+    </div>
+
+    <div class="byline-block">
+      <div class="byline-label">Developed by</div>
+      <div class="byline-name">Dr. Sathiyaseelan B</div>
+      <div class="byline-role">Professor — Human Resources Management<br>MBA Programme · School of Business and Management · Christ University</div>
+    </div>
+
+    <div class="objectives-block">
+      <h3>Learning Objectives</h3>
+      <div class="objectives-grid">
+        <div class="objective-item">
+          <span class="objective-num">Objective 01</span>
+          <span class="objective-text">Distinguish <strong>direct compensation</strong> from <strong>indirect compensation</strong> across the full pay landscape.</span>
+        </div>
+        <div class="objective-item">
+          <span class="objective-num">Objective 02</span>
+          <span class="objective-text">Classify reward elements into <strong>base salary, allowances, incentives, benefits, and recognition.</strong></span>
+        </div>
+        <div class="objective-item">
+          <span class="objective-num">Objective 03</span>
+          <span class="objective-text">Connect individual reward elements to the broader <strong>architecture of Total Rewards.</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-instructions">
+      <h3>How to classify</h3>
+      <p><strong>Tap any card</strong> in the Compensation Elements panel to select it. The card turns red and the destination zones light up.</p>
+      <p><strong>Tap a zone</strong> to drop the selected card into that category. You can move placed cards the same way — tap to re-select, then tap a different zone.</p>
+      <p><strong>Tap the small "i"</strong> on any card to open its concept card — definition, why it matters, an example, and a reflective question. Read before you classify; the cards are designed to teach.</p>
+    </div>
+
+    <div class="student-form">
+      <div class="field">
+        <label for="studentName">Student Name</label>
+        <input id="studentName" type="text" autocomplete="name" placeholder="Enter your full name">
+      </div>
+      <div class="field">
+        <label for="registerNumber">Register Number</label>
+        <input id="registerNumber" type="text" autocomplete="off" placeholder="Enter your register number">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="beginBtn" disabled onclick="beginStage(1)">Begin Stage 1 <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- SCREEN: STAGE (used for both Stage 1 and Stage 2) -->
+<section class="screen" id="screen-stage">
+  <div class="screen-header">
+    <div class="eyebrow" id="stageEyebrow">Stage 01</div>
+    <h2 class="screen-title" id="stageTitle"></h2>
+    <p class="screen-deck" id="stagePrompt"></p>
+  </div>
+
+  <div class="stage-stat-row">
+    <div class="stage-stat">
+      <div class="stage-stat-label">Total Elements</div>
+      <div class="stage-stat-value" id="stageTotal">39</div>
+      <div class="stage-stat-detail">across the simulation</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stage-stat-label">Placed</div>
+      <div class="stage-stat-value" id="stagePlaced">0</div>
+      <div class="stage-stat-detail" id="stagePlacedDetail">no classifications made yet</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stage-stat-label">Remaining</div>
+      <div class="stage-stat-value" id="stageRemaining">39</div>
+      <div class="stage-stat-detail" id="stageRemainingDetail">in the elements panel</div>
+    </div>
+  </div>
+
+  <div class="placement-guide">
+    <strong>How to classify:</strong> Tap a card to select it, then tap a zone to place it. Tap the small <em>i</em> on any card to open its concept card. Submit when all cards are placed.
+  </div>
+
+  <div class="workspace">
+    <!-- BANK -->
+    <aside class="card-bank">
+      <div class="bank-header">
+        <div class="bank-eyebrow">Source Pool</div>
+        <div class="bank-title">Compensation Elements</div>
+        <div class="bank-count"><strong id="bankCount">39</strong> remaining</div>
+      </div>
+
+      <div class="bank-toolbar">
+        <button class="btn-mini" onclick="shuffleBank()">Shuffle</button>
+        <button class="btn-mini" onclick="returnAllToBank()">Return all</button>
+      </div>
+
+      <div class="selection-banner" id="selectionBanner">
+        <span class="selection-banner-label">Selected — tap a zone to place</span>
+        <div class="selection-banner-row">
+          <span class="selection-banner-text" id="selectionBannerText"></span>
+          <button class="selection-banner-cancel" onclick="clearSelection()" aria-label="Cancel selection">✕</button>
+        </div>
+      </div>
+
+      <div class="card-list" id="bankList"></div>
+    </aside>
+
+    <!-- ZONES -->
+    <section class="zones" id="zoneGrid"></section>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="stageStatus">Place all elements before submitting.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-secondary" id="submitStageBtn" disabled onclick="submitStage()">Submit Classification</button>
+    </div>
+  </div>
+
+  <!-- FEEDBACK PANEL -->
+  <div class="feedback-panel" id="feedbackPanel"></div>
+</section>
+
+<!-- SCREEN: REFLECTION (after Stage 1) -->
+<section class="screen" id="screen-reflection">
+  <div class="screen-header">
+    <div class="eyebrow">Stage 1 · Reflection</div>
+    <h2 class="screen-title">Pause to <em>think.</em></h2>
+    <p class="screen-deck">A brief written response before moving to Stage 2. The classifications you just made will be sharper with a moment of reflection.</p>
+  </div>
+
+  <div class="reflection-panel">
+    <p class="reflection-q">Why is it important for compensation professionals to <em>distinguish between direct and indirect compensation</em> when designing reward systems? Where does the distinction matter most in practice?</p>
+    <textarea class="reflection-textarea" id="stageOneReflection" placeholder="Write a brief response · 40 words minimum…" oninput="updateReflectionWordCount('stageOneReflection', 'reflectionWordCount', 'continueToStageTwoBtn', 40)"></textarea>
+    <div class="word-count" id="reflectionWordCount">0 words · min 40</div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">A reflection of at least 40 words is required.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" id="continueToStageTwoBtn" disabled onclick="beginStage(2)">Continue to Stage 2 <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- SCREEN: FINAL DEBRIEF -->
+<section class="screen" id="screen-final">
+  <div class="screen-header">
+    <div class="eyebrow">Executive Debrief</div>
+    <h2 class="screen-title">Your classification <em>verdict.</em></h2>
+    <p class="screen-deck">A summary of your work across the two stages — performance, faculty feedback, and four short reflections that close the exercise.</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card">
+      <h3>Student Record</h3>
+      <div>
+        <div class="record-row">
+          <strong>Name</strong>
+          <span id="finalStudentName">—</span>
+        </div>
+        <div class="record-row">
+          <strong>Register Number</strong>
+          <span id="finalRegisterNumber">—</span>
+        </div>
+        <div class="record-row">
+          <strong>Date</strong>
+          <span id="finalDate">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>Performance Summary</h3>
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="score-cell-label">Stage 1</div>
+          <div class="score-cell-value" id="finalStageOne">0%</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-cell-label">Stage 2</div>
+          <div class="score-cell-value" id="finalStageTwo">0%</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-cell-label">Overall</div>
+          <div class="score-cell-value" id="finalOverall">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-card" style="margin-bottom: 22px;">
+    <h3>Tailored Faculty Feedback</h3>
+    <div class="debrief-list" id="debriefList"></div>
+  </div>
+
+  <div class="dashboard-card">
+    <h3>Executive Reflection · Four Questions</h3>
+    <div class="final-reflections-grid">
+      <div class="final-reflection-block">
+        <label>i — Which classifications did you find most difficult, and why?</label>
+        <textarea id="finalReflection1" oninput="checkFinalReflections()"></textarea>
+      </div>
+      <div class="final-reflection-block">
+        <label>ii — Which compensation elements do you think are most commonly misunderstood in practice?</label>
+        <textarea id="finalReflection2" oninput="checkFinalReflections()"></textarea>
+      </div>
+      <div class="final-reflection-block">
+        <label>iii — How might misclassifying compensation components affect compensation strategy?</label>
+        <textarea id="finalReflection3" oninput="checkFinalReflections()"></textarea>
+      </div>
+      <div class="final-reflection-block">
+        <label>iv — What insight did this exercise provide about the architecture of Total Rewards?</label>
+        <textarea id="finalReflection4" oninput="checkFinalReflections()"></textarea>
+      </div>
+    </div>
+    <div class="action-bar">
+      <div class="action-bar-status" id="finalReflectionStatus">Complete all four reflections to close the exercise.</div>
+      <div class="action-bar-buttons">
+        <button class="btn btn-secondary" onclick="window.print()">Print or save as PDF</button>
+        <button class="btn btn-primary" id="finishBtn" disabled onclick="finishExercise()">Submit Debrief <span class="arrow">→</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-eyebrow">Compensation Element</div>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">Definition</div>
+        <div class="modal-section-text" id="modalDef"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Why it matters</div>
+        <div class="modal-section-text" id="modalMatters"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Example from practice</div>
+        <div class="modal-section-text" id="modalExample"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Reflective question</div>
+        <div class="modal-reflection">
+          <div class="modal-section-text" id="modalQuestion"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   FORMS OF PAY — Application Logic
+   ========================================================== */
+
+/* ---------- DATA: 39 Compensation Elements ---------- */
+const ITEMS = [
+  { term: 'Base Salary', stage1: 'Direct Compensation', stage2: 'Base Salary', def: 'The fixed core wage or salary paid for performing the responsibilities of a role.', matters: 'It anchors pay equity, grade structures, budgeting, and market positioning.', example: 'A consulting firm sets base salary bands by level, geography, and benchmarked market data.', q: 'How does base salary shape an employee\'s perception of fairness and career progression?' },
+  { term: 'Housing Allowance', stage1: 'Direct Compensation', stage2: 'Fixed Allowances', def: 'A fixed cash amount provided to help employees meet housing costs.', matters: 'It supplements pay while addressing location-specific cost pressures.', example: 'A multinational offers housing allowances to managers assigned to high-rent metropolitan markets.', q: 'When should a housing allowance be separate from base salary rather than folded into it?' },
+  { term: 'Transport Allowance', stage1: 'Direct Compensation', stage2: 'Fixed Allowances', def: 'A fixed payment intended to offset commuting or transportation expenses.', matters: 'It clarifies which mobility costs the organization chooses to support.', example: 'A manufacturing company provides a monthly transport allowance for plant employees commuting from distant towns.', q: 'What equity issues arise when commuting costs differ widely across employees?' },
+  { term: 'Meal Allowance', stage1: 'Direct Compensation', stage2: 'Fixed Allowances', def: 'A recurring cash allowance or voucher value provided to support meal expenses.', matters: 'It can improve employee convenience while remaining distinct from performance pay.', example: 'A bank gives branch employees a monthly meal allowance for workday lunches.', q: 'Should meal support be treated as a cash allowance or as an employee benefit?' },
+  { term: 'Communication Allowance', stage1: 'Direct Compensation', stage2: 'Fixed Allowances', def: 'A fixed payment for work-related phone, internet, or communication expenses.', matters: 'It supports role effectiveness, especially in mobile and hybrid work arrangements.', example: 'A sales organization reimburses account managers through a standard monthly communication allowance.', q: 'How should organizations distinguish business expense reimbursement from compensation?' },
+  { term: 'Skill Certification Allowance', stage1: 'Direct Compensation', stage2: 'Fixed Allowances', def: 'A fixed recurring payment linked to holding a valued professional certification.', matters: 'It signals which capabilities the organization is willing to pay a premium for.', example: 'An IT services firm pays certified cloud architects an allowance while the certification remains current.', q: 'Could certification allowances encourage learning, credential chasing, or both?' },
+  { term: 'Annual Performance Bonus', stage1: 'Direct Compensation', stage2: 'Short-Term Incentives', def: 'A variable cash award tied to annual individual, team, or company performance.', matters: 'It connects near-term results with reward outcomes and reinforces performance priorities.', example: 'A consumer goods company pays annual bonuses based on sales growth, margin, and leadership ratings.', q: 'Which performance measures should carry the most weight in an annual bonus plan?' },
+  { term: 'Sales Incentives', stage1: 'Direct Compensation', stage2: 'Short-Term Incentives', def: 'Variable pay tied to sales activities, quota achievement, or revenue outcomes.', matters: 'It directs selling effort and can strongly influence customer and product focus.', example: 'A software firm pays quarterly incentives when sales representatives exceed subscription targets.', q: 'What unintended behaviours can poorly designed sales incentives create?' },
+  { term: 'Commission', stage1: 'Direct Compensation', stage2: 'Short-Term Incentives', def: 'A payment calculated as a percentage of sales revenue, margin, or transaction value.', matters: 'It creates a direct line between measurable sales outcomes and employee earnings.', example: 'A real estate brokerage pays agents a commission on closed property transactions.', q: 'When does commission strengthen motivation, and when can it undermine collaboration?' },
+  { term: 'Profit Sharing', stage1: 'Direct Compensation', stage2: 'Short-Term Incentives', def: 'A variable reward that distributes part of organizational profit to employees.', matters: 'It encourages employees to think about enterprise-level financial performance.', example: 'A privately held manufacturer shares a portion of annual profits with all eligible employees.', q: 'How visible must financial results be for profit sharing to feel credible?' },
+  { term: 'Productivity Incentive', stage1: 'Direct Compensation', stage2: 'Short-Term Incentives', def: 'Variable pay linked to output, efficiency, quality, or productivity targets.', matters: 'It can improve operational performance when measures are balanced and controllable.', example: 'A logistics center rewards teams for throughput gains achieved without safety incidents.', q: 'How can productivity incentives avoid sacrificing quality or safety?' },
+  { term: 'Annual Cash Award', stage1: 'Direct Compensation', stage2: 'Recognition', def: 'A discretionary cash recognition award for notable contribution or achievement.', matters: 'It reinforces valued behaviours, but differs from formulaic incentive compensation.', example: 'A professional services firm grants annual cash awards for exceptional client impact.', q: 'What makes a cash award recognition rather than short-term incentive pay?' },
+  { term: 'Stock Options', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'The right to purchase company shares at a predetermined exercise price in the future.', matters: 'It aligns employees with long-term shareholder value and retention horizons.', example: 'Technology firms frequently use stock options to retain critical talent during growth stages.', q: 'What behaviours might stock options encourage among employees?' },
+  { term: 'Restricted Stock Units (RSUs)', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'Company share units that vest over time and convert into shares or cash value.', matters: 'They support retention and align employees with sustained company value.', example: 'A public technology company grants RSUs that vest over four years to engineering leaders.', q: 'How do RSUs differ motivationally from stock options?' },
+  { term: 'Performance Shares', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'Equity awards earned only if specified multi-year performance goals are achieved.', matters: 'They connect long-term executive reward with strategic performance outcomes.', example: 'A listed company grants performance shares based on three-year total shareholder return and return on capital.', q: 'Which long-term measures best represent durable value creation?' },
+  { term: 'Share Appreciation Rights (SARs)', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'Rights that pay employees the increase in share value over a set price without requiring share purchase.', matters: 'They create upside participation while limiting the need for employees to invest cash.', example: 'A growing private company uses SARs to mimic equity value for senior leaders.', q: 'When might SARs be preferable to direct share ownership?' },
+  { term: 'Long-Term Cash Incentive Plan', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'A cash-based award tied to performance or retention over a multi-year period.', matters: 'It supports long-term focus where equity is unavailable, unsuitable, or too dilutive.', example: 'A family-owned enterprise pays a three-year cash incentive tied to EBITDA and succession milestones.', q: 'What strategic goals justify a multi-year cash incentive?' },
+  { term: 'Deferred Compensation', stage1: 'Direct Compensation', stage2: 'Long-Term Incentives', def: 'Compensation earned now but paid at a future date, often for tax, retention, or executive planning reasons.', matters: 'It affects retention, executive wealth planning, and long-term employment commitments.', example: 'A financial institution allows senior executives to defer bonus payouts into a later retirement window.', q: 'How can deferred compensation influence executive risk-taking?' },
+  { term: 'Medical Insurance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Employer-sponsored coverage for medical expenses and healthcare access.', matters: 'It protects employees from major health costs and is central to benefits strategy.', example: 'A large employer offers tiered medical plans with employee and family coverage.', q: 'How does medical insurance affect the total value of employment?' },
+  { term: 'Dental Insurance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Coverage for preventive and corrective dental care.', matters: 'It broadens health protection beyond core medical coverage.', example: 'A corporate benefits plan includes annual dental checkups and partial orthodontic coverage.', q: 'Should dental coverage be standard for all employees or optional by employee choice?' },
+  { term: 'Life Insurance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Insurance that pays a benefit to designated beneficiaries if the employee dies.', matters: 'It provides financial security and demonstrates duty of care.', example: 'An employer provides life coverage equal to two times annual salary.', q: 'How should organizations communicate the value of protection benefits employees rarely use?' },
+  { term: 'Disability Insurance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Income protection for employees who cannot work due to illness or disability.', matters: 'It reduces income risk and strengthens the employment safety net.', example: 'A company offers long-term disability coverage after an extended medical leave period.', q: 'Why is disability protection an important part of Total Rewards architecture?' },
+  { term: 'Accident Insurance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Coverage that provides financial support after accidental injury or death.', matters: 'It is especially relevant for roles with travel, field work, or operational exposure.', example: 'An infrastructure firm provides accident insurance for employees working at project sites.', q: 'How should accident coverage vary by role risk?' },
+  { term: 'Provident Fund', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'A retirement savings arrangement funded through employer and employee contributions.', matters: 'It supports long-term financial security and statutory compliance in many jurisdictions.', example: 'An Indian employer contributes to employees\' provident fund accounts as part of retirement benefits.', q: 'How does provident fund value differ from immediate cash compensation?' },
+  { term: 'Pension Plan', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'An employer-supported retirement income program, either defined benefit or defined contribution.', matters: 'It shapes long-term security, workforce planning, and employer obligations.', example: 'A legacy industrial company maintains a pension plan for long-tenured employees.', q: 'What trade-offs exist between pension generosity and financial sustainability?' },
+  { term: 'Superannuation', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'A retirement benefit arrangement involving employer contributions to future income savings.', matters: 'It extends the Total Rewards promise beyond active employment.', example: 'An Australian employer contributes a required percentage of earnings into superannuation accounts.', q: 'Why might employees undervalue retirement benefits compared with salary?' },
+  { term: 'Gratuity', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'A lump-sum benefit paid after qualifying service, commonly linked to tenure.', matters: 'It rewards service continuity and supports post-employment financial transition.', example: 'An organization pays gratuity to eligible employees upon resignation or retirement after a minimum service period.', q: 'How does gratuity influence retention compared with annual incentives?' },
+  { term: 'Wellness Program', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Programs that support physical, mental, or preventive health.', matters: 'It can reduce health risks and signal a broader commitment to employee wellbeing.', example: 'A company offers health screenings, fitness subsidies, and stress management workshops.', q: 'What evidence should justify investment in wellness programs?' },
+  { term: 'Employee Assistance Program', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Confidential support services for personal, family, financial, or mental health concerns.', matters: 'It helps employees manage life challenges that can affect wellbeing and performance.', example: 'An employer offers 24-hour counseling support through an external EAP provider.', q: 'How can organizations increase trust and use of an EAP?' },
+  { term: 'Childcare Support', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Financial, onsite, or referral support for employee childcare needs.', matters: 'It supports workforce participation, inclusion, and retention of caregivers.', example: 'A corporate office provides childcare subsidies during peak work seasons.', q: 'How might childcare support affect gender equity and career continuity?' },
+  { term: 'Flexible Work Support', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Support for remote, hybrid, flexible scheduling, or work-life integration arrangements.', matters: 'It can expand the reward proposition beyond cash and improve retention.', example: 'A professional services firm funds home office equipment for hybrid employees.', q: 'When does flexibility become a core reward rather than a work arrangement?' },
+  { term: 'Company Car', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Employer-provided vehicle access for business and sometimes personal use.', matters: 'It functions as a visible perquisite and may support role mobility.', example: 'A regional sales director receives a company car due to frequent client travel.', q: 'How should organizations evaluate the status value of a company car?' },
+  { term: 'Fuel Reimbursement', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Payment or reimbursement for fuel used in work-related travel or approved vehicle use.', matters: 'It supports business mobility and can be perceived as a perquisite when standardized.', example: 'A field service firm reimburses fuel expenses for technicians covering assigned territories.', q: 'Where is the boundary between expense reimbursement and indirect compensation?' },
+  { term: 'Club Membership', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Employer-paid membership in social, athletic, or business clubs.', matters: 'It is often used as an executive perquisite and relationship-building tool.', example: 'A company sponsors a senior executive\'s business club membership for client development.', q: 'When can a club membership be justified as business support rather than status privilege?' },
+  { term: 'Executive Perquisites', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Special benefits or privileges offered to senior executives.', matters: 'They can support productivity and status, but require governance and transparency.', example: 'An organization provides executive health checks, financial planning, and reserved parking.', q: 'How should boards decide which executive perquisites are appropriate?' },
+  { term: 'Relocation Assistance', stage1: 'Indirect Compensation', stage2: 'Benefits & Perquisites', def: 'Financial or logistical support for employees moving for a role or assignment.', matters: 'It reduces barriers to talent mobility and supports strategic staffing.', example: 'A company covers moving costs and temporary housing for a leader transferred overseas.', q: 'Should relocation assistance vary by employee level, family status, or assignment type?' },
+  { term: 'Education Assistance', stage1: 'Indirect Compensation', stage2: 'Recognition', def: 'Employer support for formal education, tuition, or academic development.', matters: 'It recognizes growth potential and builds future capability.', example: 'A healthcare organization reimburses part of an MBA program for high-potential managers.', q: 'When is education assistance a development investment versus a recognition tool?' },
+  { term: 'Certification Sponsorship', stage1: 'Indirect Compensation', stage2: 'Recognition', def: 'Employer funding for professional certifications, exams, or credentials.', matters: 'It acknowledges specialized growth and reinforces capability-building priorities.', example: 'A cybersecurity firm sponsors employees for advanced security certifications.', q: 'How can sponsorship be allocated fairly across employees?' },
+  { term: 'Learning & Development Support', stage1: 'Indirect Compensation', stage2: 'Recognition', def: 'Access to programs, coaching, training, or development resources funded by the employer.', matters: 'It recognizes the employee as a future contributor and strengthens organizational capability.', example: 'A leadership program gives selected managers coaching, simulations, and executive education modules.', q: 'How does development support influence retention and motivation?' },
+];
+
+/* Assign stable IDs */
+ITEMS.forEach((item, i) => { item.id = 'item-' + i; });
+
+const STAGES = {
+  1: {
+    label: 'Stage 01',
+    title: 'Direct vs. Indirect Compensation',
+    prompt: 'Classify each compensation element according to whether it is paid directly to employees as cash or value, or provided indirectly through benefits, perquisites, or support programmes.',
+    categories: ['Direct Compensation', 'Indirect Compensation'],
+    key: 'stage1',
+    cols: 'cols-2'
+  },
+  2: {
+    label: 'Stage 02',
+    title: 'The Total Rewards Framework',
+    prompt: 'Now classify the same elements into the six-part architecture of Total Rewards: Base Salary, Fixed Allowances, Short-Term Incentives, Long-Term Incentives, Benefits & Perquisites, and Recognition.',
+    categories: ['Base Salary', 'Fixed Allowances', 'Short-Term Incentives', 'Long-Term Incentives', 'Benefits & Perquisites', 'Recognition'],
+    key: 'stage2',
+    cols: 'cols-3'
+  }
+};
+
+/* ---------- STATE ---------- */
+const state = {
+  studentName: '',
+  registerNumber: '',
+  currentStage: 0,
+  placements: {}, // itemId -> categoryName ('bank' = unplaced)
+  selectedCardId: null,
+  scores: { 1: null, 2: null },
+  reflections: { stage1: '', final: ['', '', '', ''] },
+  resultsByStage: { 1: null, 2: null }
+};
+
+/* ---------- INIT ---------- */
+function init() {
+  // Hook up form gate
+  document.getElementById('studentName').addEventListener('input', checkGate);
+  document.getElementById('registerNumber').addEventListener('input', checkGate);
+  // Keyboard escape closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+}
+
+function checkGate() {
+  const name = document.getElementById('studentName').value.trim();
+  const reg = document.getElementById('registerNumber').value.trim();
+  document.getElementById('beginBtn').disabled = !(name.length >= 2 && reg.length >= 2);
+}
+
+/* ---------- SCREEN NAVIGATION ---------- */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStageIndicator(stageNum, label) {
+  const indicator = document.getElementById('stageIndicator');
+  if (stageNum === 0) {
+    indicator.style.display = 'none';
+    return;
+  }
+  indicator.style.display = 'flex';
+  document.getElementById('stageLabel').textContent = label || `Stage ${stageNum} of 2`;
+  const pips = document.getElementById('stagePips');
+  pips.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'stage-pip';
+    if (i < stageNum) pip.classList.add('done');
+    else if (i === stageNum) pip.classList.add('current');
+    pips.appendChild(pip);
+  }
+}
+
+/* ---------- BEGIN STAGE ---------- */
+function beginStage(stageNum) {
+  if (stageNum === 1) {
+    state.studentName = document.getElementById('studentName').value.trim();
+    state.registerNumber = document.getElementById('registerNumber').value.trim();
+  }
+  state.currentStage = stageNum;
+  // Reset placements
+  state.placements = {};
+  ITEMS.forEach(item => { state.placements[item.id] = 'bank'; });
+  state.selectedCardId = null;
+
+  // Set pip position: Stage 1 = pip 1, Reflection = pip 2, Stage 2 = pip 3, Final = pip 4
+  updateStageIndicator(stageNum === 1 ? 1 : 3);
+
+  const stage = STAGES[stageNum];
+  document.getElementById('stageEyebrow').textContent = stage.label;
+  document.getElementById('stageTitle').textContent = stage.title;
+  document.getElementById('stagePrompt').textContent = stage.prompt;
+  document.getElementById('stageTotal').textContent = ITEMS.length;
+  document.getElementById('feedbackPanel').classList.remove('active');
+  document.getElementById('submitStageBtn').disabled = true;
+  document.getElementById('submitStageBtn').classList.remove('btn-secondary');
+  document.getElementById('submitStageBtn').classList.add('btn-primary');
+  document.getElementById('submitStageBtn').innerHTML = 'Submit Classification';
+  document.getElementById('submitStageBtn').style.display = '';
+
+  renderBank();
+  renderZones(stage);
+  updateCounters();
+  showScreen('stage');
+}
+
+/* ---------- RENDER BANK ---------- */
+function renderBank() {
+  const list = document.getElementById('bankList');
+  list.innerHTML = '';
+  // Use shuffled order
+  const shuffled = shuffleArray(ITEMS.map(i => i.id));
+  shuffled.forEach(id => {
+    if (state.placements[id] === 'bank') {
+      const item = getItem(id);
+      const card = createCard(item);
+      list.appendChild(card);
+    }
+  });
+}
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function createCard(item) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = item.id;
+  card.innerHTML = `
+    <span class="card-text">${escapeHtml(item.term)}</span>
+    <button class="card-info-btn" onclick="event.stopPropagation(); openModal('${item.id}')" aria-label="Concept card">i</button>
+  `;
+  card.addEventListener('click', (e) => {
+    if (e.target.classList.contains('card-info-btn')) return;
+    selectCard(item.id);
+  });
+  return card;
+}
+
+function getItem(id) {
+  return ITEMS.find(i => i.id === id);
+}
+
+/* ---------- RENDER ZONES ---------- */
+function renderZones(stage) {
+  const grid = document.getElementById('zoneGrid');
+  grid.innerHTML = '';
+  grid.className = 'zones ' + stage.cols;
+  stage.categories.forEach(cat => {
+    const zone = document.createElement('div');
+    zone.className = 'zone';
+    zone.dataset.category = cat;
+    zone.innerHTML = `
+      <div class="zone-header">
+        <div class="zone-title">${escapeHtml(cat)}</div>
+        <div class="zone-count"><strong class="zone-count-num">0</strong> placed</div>
+      </div>
+      <div class="zone-cards" data-list></div>
+    `;
+    zone.addEventListener('click', (e) => {
+      if (e.target.closest('.card')) return;
+      if (state.selectedCardId) {
+        moveCard(state.selectedCardId, cat);
+        clearSelection();
+      }
+    });
+    grid.appendChild(zone);
+  });
+}
+
+/* ---------- SELECTION ---------- */
+function selectCard(id) {
+  // Toggle off if same card clicked
+  if (state.selectedCardId === id) {
+    clearSelection();
+    return;
+  }
+  // Clear previous
+  document.querySelectorAll('.card.highlight').forEach(c => c.classList.remove('highlight'));
+  state.selectedCardId = id;
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if (card) card.classList.add('highlight');
+  // Selection banner
+  const banner = document.getElementById('selectionBanner');
+  const text = document.getElementById('selectionBannerText');
+  text.textContent = getItem(id).term;
+  banner.classList.add('active');
+  // Light up zones
+  document.querySelectorAll('.zone').forEach(z => z.classList.add('ready-to-receive'));
+  // Make sure zone empty state shows where applicable
+  ensureZoneEmptyStates();
+}
+
+function clearSelection() {
+  state.selectedCardId = null;
+  document.querySelectorAll('.card.highlight').forEach(c => c.classList.remove('highlight'));
+  document.querySelectorAll('.zone.ready-to-receive').forEach(z => z.classList.remove('ready-to-receive'));
+  document.getElementById('selectionBanner').classList.remove('active');
+  ensureZoneEmptyStates();
+}
+
+/* ---------- MOVE CARD ---------- */
+function moveCard(id, destination) {
+  state.placements[id] = destination;
+  // Re-render bank and zones from state
+  refreshBankAndZones();
+  updateCounters();
+  showToast(`Moved to ${destination}`);
+}
+
+function refreshBankAndZones() {
+  // Bank list
+  const list = document.getElementById('bankList');
+  // Capture current order of bank
+  const existingOrder = Array.from(list.children).map(c => c.dataset.id);
+  list.innerHTML = '';
+  // Items in bank: keep existing order, plus any newly returned at the end
+  const inBank = ITEMS.filter(i => state.placements[i.id] === 'bank').map(i => i.id);
+  // Append in existing order first
+  existingOrder.forEach(id => {
+    if (inBank.includes(id)) {
+      list.appendChild(createCard(getItem(id)));
+    }
+  });
+  // Then any new ones that weren't there before
+  inBank.forEach(id => {
+    if (!existingOrder.includes(id)) {
+      list.appendChild(createCard(getItem(id)));
+    }
+  });
+
+  // Zones
+  document.querySelectorAll('.zone').forEach(zone => {
+    const cat = zone.dataset.category;
+    const cardsContainer = zone.querySelector('.zone-cards');
+    cardsContainer.innerHTML = '';
+    const placed = ITEMS.filter(i => state.placements[i.id] === cat);
+    placed.forEach(item => {
+      const card = createCard(item);
+      card.classList.add('placed');
+      cardsContainer.appendChild(card);
+    });
+    // Update count
+    zone.querySelector('.zone-count-num').textContent = placed.length;
+  });
+  ensureZoneEmptyStates();
+}
+
+function ensureZoneEmptyStates() {
+  document.querySelectorAll('.zone').forEach(zone => {
+    const cardsContainer = zone.querySelector('.zone-cards');
+    if (cardsContainer.children.length === 0) {
+      // Only add empty state if not already there
+      if (!cardsContainer.querySelector('.zone-empty')) {
+        const empty = document.createElement('div');
+        empty.className = 'zone-empty';
+        empty.textContent = state.selectedCardId ? 'Drop the selected element here' : 'No elements placed';
+        cardsContainer.appendChild(empty);
+      } else {
+        cardsContainer.querySelector('.zone-empty').textContent = state.selectedCardId ? 'Drop the selected element here' : 'No elements placed';
+      }
+    } else {
+      // Remove empty state if cards exist
+      const e = cardsContainer.querySelector('.zone-empty');
+      if (e) e.remove();
+    }
+  });
+}
+
+/* ---------- COUNTERS ---------- */
+function updateCounters() {
+  const placed = ITEMS.filter(i => state.placements[i.id] !== 'bank').length;
+  const remaining = ITEMS.length - placed;
+  document.getElementById('stagePlaced').textContent = placed;
+  document.getElementById('stageRemaining').textContent = remaining;
+  document.getElementById('bankCount').textContent = remaining;
+
+  const placedDetail = document.getElementById('stagePlacedDetail');
+  const remainingDetail = document.getElementById('stageRemainingDetail');
+  if (placed === 0) placedDetail.textContent = 'no classifications made yet';
+  else if (placed === ITEMS.length) placedDetail.textContent = 'all elements placed';
+  else placedDetail.textContent = `${Math.round(placed/ITEMS.length*100)}% complete`;
+
+  if (remaining === 0) remainingDetail.textContent = 'ready to submit';
+  else remainingDetail.textContent = `in the elements panel`;
+
+  document.getElementById('submitStageBtn').disabled = remaining > 0;
+  document.getElementById('stageStatus').innerHTML = remaining > 0
+    ? `Place <strong>${remaining}</strong> more element${remaining === 1 ? '' : 's'} before submitting.`
+    : 'All elements classified — ready to submit.';
+}
+
+/* ---------- BANK TOOLBAR ---------- */
+function shuffleBank() {
+  const list = document.getElementById('bankList');
+  const cards = Array.from(list.children);
+  const shuffled = shuffleArray(cards);
+  list.innerHTML = '';
+  shuffled.forEach(c => list.appendChild(c));
+  showToast('Bank shuffled');
+}
+
+function returnAllToBank() {
+  if (Object.values(state.placements).every(v => v === 'bank')) return;
+  if (!confirm('Return all placed elements to the bank? This clears your current stage placements.')) return;
+  ITEMS.forEach(i => { state.placements[i.id] = 'bank'; });
+  clearSelection();
+  refreshBankAndZones();
+  updateCounters();
+  showToast('All elements returned');
+}
+
+/* ---------- SUBMIT STAGE ---------- */
+function submitStage() {
+  const stage = STAGES[state.currentStage];
+  const results = ITEMS.map(card => {
+    const placed = state.placements[card.id];
+    const expected = card[stage.key];
+    return { card, placed, expected, correct: placed === expected };
+  });
+  const correct = results.filter(r => r.correct).length;
+  const score = Math.round(correct / ITEMS.length * 100);
+  state.scores[state.currentStage] = score;
+  state.resultsByStage[state.currentStage] = results;
+
+  // Apply visual states to cards in zones
+  decorateCards(results);
+  renderFeedback(stage, results, score, correct);
+
+  // Lock submit button
+  document.getElementById('submitStageBtn').style.display = 'none';
+
+  // Scroll to feedback
+  setTimeout(() => {
+    document.getElementById('feedbackPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+function decorateCards(results) {
+  results.forEach(r => {
+    const cards = document.querySelectorAll(`.card[data-id="${r.card.id}"]`);
+    cards.forEach(c => {
+      c.classList.add(r.correct ? 'correct' : 'incorrect');
+      // Add marker
+      if (!c.querySelector('.card-marker')) {
+        const marker = document.createElement('span');
+        marker.className = 'card-marker ' + (r.correct ? 'correct' : 'incorrect');
+        marker.textContent = r.correct ? '✓' : '✗';
+        c.appendChild(marker);
+      }
+    });
+  });
+}
+
+/* ---------- FEEDBACK ---------- */
+function renderFeedback(stage, results, score, correct) {
+  const incorrect = results.length - correct;
+  const buttonLabel = state.currentStage === 1 ? 'Continue to Reflection' : 'View Executive Debrief';
+  const band = scoreBand(score, state.currentStage);
+  const narrative = scoreNarrative(score, state.currentStage, results);
+
+  const expHtml = results.map(r => {
+    const cls = r.correct ? '' : 'bad';
+    const placementCls = r.correct ? 'good' : 'bad';
+    const placementLabel = r.correct ? '✓ Correct placement' : `✗ Placed in ${escapeHtml(r.placed)}; expected ${escapeHtml(r.expected)}`;
+    const reasonText = state.currentStage === 1 ? stageOneReason(r.card) : stageTwoReason(r.card);
+    return `
+      <div class="explanation ${cls}" data-correct="${r.correct}">
+        <strong>${escapeHtml(r.card.term)}</strong>
+        <span class="placement ${placementCls}">${placementLabel}</span>
+        <div>${escapeHtml(reasonText)}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('feedbackPanel').innerHTML = `
+    <div class="feedback-results">
+      <div class="feedback-eyebrow">Stage ${state.currentStage} · Result</div>
+      <div class="feedback-score-row">
+        <span class="feedback-score">${score}</span>
+        <span class="feedback-score-total">/ 100</span>
+        <span class="feedback-band">— ${band}</span>
+      </div>
+      <div class="feedback-narrative">${narrative}</div>
+    </div>
+
+    <div class="feedback-explanations">
+      <h3>Element-by-element rationale</h3>
+      <div class="explanation-filter">
+        <button class="filter-btn active" onclick="filterExplanations(this, 'all')">All ${results.length}</button>
+        <button class="filter-btn" onclick="filterExplanations(this, 'correct')">Correct (${correct})</button>
+        <button class="filter-btn" onclick="filterExplanations(this, 'incorrect')">To Review (${incorrect})</button>
+      </div>
+      <div class="explanation-list" id="explanationList">${expHtml}</div>
+    </div>
+
+    <div class="action-bar">
+      <div class="action-bar-status">Review the rationale, then proceed.</div>
+      <div class="action-bar-buttons">
+        <button class="btn btn-secondary" onclick="retryStage()">Retry Stage</button>
+        <button class="btn btn-primary" onclick="advanceFromStage()">${buttonLabel} <span class="arrow">→</span></button>
+      </div>
+    </div>
+  `;
+  document.getElementById('feedbackPanel').classList.add('active');
+}
+
+function filterExplanations(btn, mode) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.explanation').forEach(e => {
+    const correct = e.dataset.correct === 'true';
+    if (mode === 'all') e.classList.remove('hidden');
+    else if (mode === 'correct') e.classList.toggle('hidden', !correct);
+    else if (mode === 'incorrect') e.classList.toggle('hidden', correct);
+  });
+}
+
+function scoreBand(score, stageNum) {
+  if (score === 100) return 'Distinguished — every element correctly classified';
+  if (score >= 90) return 'Strong — near-perfect classification';
+  if (score >= 75) return 'Competent — well-grounded classification';
+  if (score >= 60) return 'Developing — the core distinctions are in place';
+  return 'Foundational — the framework needs review';
+}
+
+function scoreNarrative(score, stageNum, results) {
+  const incorrect = results.filter(r => !r.correct);
+  if (score === 100) {
+    return stageNum === 1
+      ? 'A complete grasp of the direct/indirect distinction. You can be trusted to advise on the boundary between cash and non-cash rewards — the foundation of Total Rewards thinking.'
+      : 'A complete reconstruction of the Total Rewards architecture. You can map any new compensation element to its rightful place in the framework — the mark of a confident reward strategist.';
+  }
+  if (score >= 90) {
+    return 'Near-perfect classification. The misplacements below are at the edges of the framework, where definitions overlap — exactly the cases that test understanding rather than recall.';
+  }
+  if (score >= 75) {
+    return 'A capable classification. The core architecture is clear in your placements; the errors point to specific concepts worth revisiting — not a structural misunderstanding of the framework.';
+  }
+  if (score >= 60) {
+    // Detect specific patterns
+    const allowanceAsBenefit = incorrect.filter(r => r.card.stage2 === 'Fixed Allowances' && r.placed === 'Indirect Compensation').length;
+    const recognitionAsIncentive = incorrect.filter(r => r.card.stage2 === 'Recognition' && r.placed && r.placed.includes('Incentive')).length;
+    let pattern = '';
+    if (allowanceAsBenefit >= 2) pattern = ' A pattern worth noting: you appear to be classifying some fixed cash allowances as indirect compensation. Allowances paid in cash, however regular, are direct compensation.';
+    else if (recognitionAsIncentive >= 2) pattern = ' A pattern worth noting: recognition (discretionary acknowledgement of contribution) is being conflated with incentive pay (formulaic reward for measurable outcomes). The distinction is whether reward is rule-based or judgement-based.';
+    return `A working classification. The shape of the framework is visible, but several elements are misplaced.${pattern} Review the rationale below before proceeding.`;
+  }
+  return 'A foundational attempt. A meaningful share of elements is yet to find its right category. Use the rationale below as a teaching tool, then retry the stage with the framework more firmly in view.';
+}
+
+function stageOneReason(item) {
+  return item.stage1 === 'Direct Compensation'
+    ? 'it is paid directly to the employee as cash or near-cash value (whether base, allowance, incentive, or recognition cash award)'
+    : 'it provides value indirectly through benefits, perquisites, insurance, or support programmes, rather than as direct cash to the employee';
+}
+
+function stageTwoReason(item) {
+  switch (item.stage2) {
+    case 'Base Salary': return 'it is the fixed core wage paid for performing the role, anchoring grade structure and pay equity';
+    case 'Fixed Allowances': return 'it is a fixed cash payment tied to a specific cost category or capability, distinct from base salary';
+    case 'Short-Term Incentives': return 'it is variable pay tied to short-term (typically annual or quarterly) performance outcomes';
+    case 'Long-Term Incentives': return 'it is reward tied to multi-year performance, retention, or shareholder value horizons';
+    case 'Benefits & Perquisites': return 'it provides indirect protection, support, or status value rather than direct cash compensation';
+    case 'Recognition': return 'it acknowledges contribution or growth in a way that is discretionary or developmental, not formulaic';
+    default: return 'it falls within this category in the standard Total Rewards architecture';
+  }
+}
+
+/* ---------- RETRY / ADVANCE ---------- */
+function retryStage() {
+  if (!confirm('Retry this stage? Your current classifications will be cleared.')) return;
+  beginStage(state.currentStage);
+}
+
+function advanceFromStage() {
+  if (state.currentStage === 1) {
+    updateStageIndicator(2, 'Reflection · Stage 1');
+    showScreen('reflection');
+  } else {
+    updateStageIndicator(4, 'Executive Debrief');
+    renderFinal();
+    showScreen('final');
+  }
+}
+
+/* ---------- REFLECTIONS ---------- */
+function updateReflectionWordCount(textareaId, counterId, buttonId, minWords) {
+  const ta = document.getElementById(textareaId);
+  const wc = document.getElementById(counterId);
+  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  wc.textContent = `${words} word${words === 1 ? '' : 's'} · min ${minWords}`;
+  if (textareaId === 'stageOneReflection') state.reflections.stage1 = ta.value.trim();
+  if (buttonId) document.getElementById(buttonId).disabled = words < minWords;
+}
+
+function checkFinalReflections() {
+  const refs = [1, 2, 3, 4].map(i => document.getElementById('finalReflection' + i).value.trim());
+  state.reflections.final = refs;
+  const allFilled = refs.every(r => r.split(/\s+/).filter(Boolean).length >= 20);
+  document.getElementById('finishBtn').disabled = !allFilled;
+  const status = document.getElementById('finalReflectionStatus');
+  const completedCount = refs.filter(r => r.split(/\s+/).filter(Boolean).length >= 20).length;
+  if (completedCount === 4) status.textContent = 'All reflections complete — ready to submit.';
+  else status.innerHTML = `<strong>${4 - completedCount}</strong> reflection${4 - completedCount === 1 ? '' : 's'} remaining (minimum 20 words each).`;
+}
+
+/* ---------- FINAL DASHBOARD ---------- */
+function renderFinal() {
+  document.getElementById('finalStudentName').textContent = state.studentName || '—';
+  document.getElementById('finalRegisterNumber').textContent = state.registerNumber || '—';
+  document.getElementById('finalDate').textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const s1 = state.scores[1] || 0;
+  const s2 = state.scores[2] || 0;
+  const overall = Math.round((s1 + s2) / 2);
+  document.getElementById('finalStageOne').textContent = s1 + '%';
+  document.getElementById('finalStageTwo').textContent = s2 + '%';
+  document.getElementById('finalOverall').textContent = overall + '%';
+
+  // Build tailored debrief
+  const list = document.getElementById('debriefList');
+  list.innerHTML = generateDebrief(s1, s2, overall);
+  checkFinalReflections();
+}
+
+function generateDebrief(s1, s2, overall) {
+  let items = [];
+
+  // Overall verdict
+  if (overall >= 90) items.push({ label: 'Overall verdict', text: 'A confident grasp of the Total Rewards architecture. You can be trusted to advise on classification, communication, and budgeting decisions that turn on these distinctions.' });
+  else if (overall >= 75) items.push({ label: 'Overall verdict', text: 'A capable working knowledge of the Total Rewards framework. The minor gaps below indicate where deeper precision is worth developing.' });
+  else if (overall >= 60) items.push({ label: 'Overall verdict', text: 'The core framework is in view, but several distinctions need sharpening. Treat the rationale you have just reviewed as a study guide before the next assessment.' });
+  else items.push({ label: 'Overall verdict', text: 'A foundational attempt. A second pass through the framework — and the rationale for each element — is recommended before applying these concepts in practice.' });
+
+  // Stage 1 vs Stage 2 comparison
+  if (s1 > s2 + 15) {
+    items.push({ label: 'Pattern observed', text: 'You handled the direct/indirect distinction (Stage 1) more confidently than the six-part Total Rewards framework (Stage 2). The next layer of mastery is learning to differentiate fixed allowances from benefits, and recognition from incentives.' });
+  } else if (s2 > s1 + 15) {
+    items.push({ label: 'Pattern observed', text: 'You navigated the six-part Total Rewards framework (Stage 2) more confidently than the direct/indirect distinction (Stage 1). Revisit the boundary between cash and non-cash rewards — it underpins all downstream classification.' });
+  } else {
+    items.push({ label: 'Pattern observed', text: 'Your performance was consistent across both stages — a sign that you understand the framework as a whole rather than as a list of categories to memorise.' });
+  }
+
+  // Specific error patterns
+  const r1 = state.resultsByStage[1] || [];
+  const r2 = state.resultsByStage[2] || [];
+
+  const allowanceErrors = r2.filter(r => r.card.stage2 === 'Fixed Allowances' && !r.correct).length;
+  const recognitionErrors = r2.filter(r => r.card.stage2 === 'Recognition' && !r.correct).length;
+  const ltiErrors = r2.filter(r => r.card.stage2 === 'Long-Term Incentives' && !r.correct).length;
+
+  if (allowanceErrors >= 2) {
+    items.push({ label: 'Concept to revisit', text: 'Fixed Allowances — recurring cash payments tied to a specific cost (housing, transport, meals, communication) or capability (certification). They are direct compensation even when paid as a separate line on the payslip.' });
+  }
+  if (recognitionErrors >= 2) {
+    items.push({ label: 'Concept to revisit', text: 'Recognition — discretionary acknowledgement of contribution or growth. The defining test is whether the reward is rule-based (incentive) or judgement-based (recognition). Cash awards, certification sponsorship, and learning support are all forms of recognition.' });
+  }
+  if (ltiErrors >= 2) {
+    items.push({ label: 'Concept to revisit', text: 'Long-Term Incentives — equity, deferred cash, or performance-share arrangements that vest over a multi-year horizon. The defining test is the time horizon and the link to sustained value creation.' });
+  }
+
+  // Closing teaching point
+  items.push({ label: 'For your practice', text: 'When you encounter a new compensation element in the wild, ask three questions: (i) is it paid in cash to the employee? (ii) is it fixed or variable? (iii) is it tied to short-term outcomes, long-term outcomes, or neither? Those three questions place almost any element correctly in the framework.' });
+
+  return items.map(it => `
+    <div class="debrief-item">
+      <strong>${escapeHtml(it.label)}</strong>
+      ${escapeHtml(it.text)}
+    </div>
+  `).join('');
+}
+
+function finishExercise() {
+  showToast('Debrief submitted · ready to print');
+  setTimeout(() => {
+    if (confirm('Print or save your debrief as a PDF for submission?')) {
+      window.print();
+    }
+  }, 600);
+}
+
+/* ---------- MODAL ---------- */
+function openModal(id) {
+  const item = getItem(id);
+  if (!item) return;
+  document.getElementById('modalTitle').textContent = item.term;
+  document.getElementById('modalDef').innerHTML = escapeHtml(item.def);
+  document.getElementById('modalMatters').innerHTML = escapeHtml(item.matters);
+  document.getElementById('modalExample').innerHTML = escapeHtml(item.example);
+  document.getElementById('modalQuestion').innerHTML = escapeHtml(item.q);
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget && !event.target.classList.contains('modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+/* ---------- UTILITIES ---------- */
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+/* ---------- BOOT ---------- */
+init();
+</script>
+</body>
+</html>
