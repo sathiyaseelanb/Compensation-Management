@@ -1,0 +1,3365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Great Pay Redesign — A Strategic Compensation Simulation</title>
+<style>
+/* ==========================================================
+   THE GREAT PAY REDESIGN
+   A self-contained HBR-style strategy simulation
+   Single file. No external dependencies.
+   ========================================================== */
+
+:root {
+  --bg: #f5f1e8;
+  --bg-warm: #ede4d2;
+  --bg-dark: #0d1929;
+  --bg-dark-soft: #16243a;
+  --bg-darker: #0a1320;
+  --ink: #1a1f2e;
+  --ink-soft: #3a4258;
+  --ink-faint: #6b7388;
+  --paper: #ffffff;
+  --paper-dim: #faf7ef;
+  --hbr-red: #c8102e;
+  --hbr-red-deep: #9d0a23;
+  --gold: #b8862a;
+  --gold-soft: #d9a648;
+  --green: #1f7a4d;
+  --green-bright: #2da06b;
+  --amber: #c98a1b;
+  --rule: rgba(26, 31, 46, 0.15);
+  --rule-strong: rgba(26, 31, 46, 0.35);
+  --shadow-sm: 0 1px 3px rgba(13, 25, 41, 0.08);
+  --shadow-md: 0 4px 16px rgba(13, 25, 41, 0.1);
+  --shadow-lg: 0 12px 40px rgba(13, 25, 41, 0.18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 17px;
+  min-height: 100vh;
+}
+
+button { font-family: inherit; }
+
+/* ========== MASTHEAD ========== */
+.masthead {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 14px 20px;
+  border-bottom: 4px solid var(--hbr-red);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-title {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--paper);
+  line-height: 1;
+}
+
+.brand-title .red { color: var(--hbr-red); font-style: normal; }
+
+.brand-sub {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.stage-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+}
+
+.stage-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.stage-pip {
+  width: 26px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s;
+}
+
+.stage-pip.done { background: var(--hbr-red); }
+.stage-pip.current { background: var(--paper); }
+
+/* ========== CONTAINER ========== */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* ========== STAGES ========== */
+.stage {
+  display: none;
+  animation: stage-in 0.4s ease;
+}
+.stage.active { display: block; }
+
+@keyframes stage-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4 {
+  font-family: Georgia, serif;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.eyebrow {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: var(--hbr-red);
+}
+
+.stage-header {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+
+.stage-header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--hbr-red);
+}
+
+.stage-title {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+
+.stage-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+
+.stage-deck {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  font-style: italic;
+  max-width: 740px;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.btn-primary { background: var(--hbr-red); color: white; }
+.btn-primary:hover { background: var(--hbr-red-deep); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+}
+.btn-secondary:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.btn-dark {
+  background: var(--bg-dark);
+  color: var(--paper);
+}
+.btn-dark:hover { background: var(--bg-dark-soft); }
+
+.btn .arrow { font-family: Georgia, serif; font-style: italic; font-size: 16px; }
+
+/* ========== COVER ========== */
+.cover {
+  padding: 30px 0 20px;
+}
+
+.cover-title {
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+
+.cover-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+
+.cover-deck {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-bottom: 30px;
+  padding-left: 18px;
+  border-left: 3px solid var(--hbr-red);
+  max-width: 720px;
+}
+
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 28px;
+}
+
+.cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.cover-meta-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.cover-meta-value { font-size: 16px; color: var(--ink); font-weight: 600; }
+
+.byline-block {
+  margin: 28px 0;
+  padding: 22px 24px;
+  background: var(--paper);
+  border-left: 3px solid var(--bg-dark);
+  border-top: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.byline-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 8px;
+}
+
+.byline-name {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.byline-role {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.cover-instructions {
+  margin: 24px 0;
+  padding: 22px 24px;
+  background: var(--paper);
+  border-left: 3px solid var(--hbr-red);
+}
+
+.cover-instructions h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+
+.cover-instructions p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.cover-instructions p:last-child { margin-bottom: 0; }
+.cover-instructions strong { color: var(--ink); }
+
+.name-input-wrap { margin-bottom: 24px; }
+.name-input-wrap label {
+  display: block;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+
+.name-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 13px 16px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+}
+.name-input:focus { outline: none; border-color: var(--hbr-red); }
+
+/* ========== CEO BRIEFING (Stage 1) ========== */
+.ceo-quote {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 32px 28px;
+  margin: 24px 0;
+  border-left: 4px solid var(--hbr-red);
+  position: relative;
+}
+
+.ceo-quote-mark {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 70px;
+  color: var(--hbr-red);
+  line-height: 0.5;
+  position: absolute;
+  top: 30px;
+  left: 20px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.ceo-quote p {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--paper);
+  margin-bottom: 16px;
+  padding-left: 32px;
+}
+
+.ceo-quote .signature {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hbr-red);
+  padding-left: 32px;
+  font-style: normal;
+}
+
+.company-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.company-name {
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.company-tag {
+  font-size: 15px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.metric-mini {
+  background: var(--paper-dim);
+  padding: 14px 16px;
+  border-top: 3px solid var(--hbr-red);
+}
+
+.metric-mini-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.metric-mini-value {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.metric-mini-status {
+  font-size: 12px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.status-critical { color: var(--hbr-red); }
+.status-warning { color: var(--amber); }
+.status-ok { color: var(--green); }
+
+/* ========== DASHBOARD ========== */
+.dashboard-bar {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  border-left: 4px solid var(--hbr-red);
+}
+
+.dashboard-bar-title {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+
+.dashboard-gauges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.gauge-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.gauge-svg { width: 64px; height: 64px; }
+
+.gauge-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.2;
+}
+
+.gauge-value-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--paper);
+}
+
+/* ========== DECISION CARDS ========== */
+.decision-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.decision-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+
+.decision-num {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+}
+
+.decision-title {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.25;
+}
+
+.decision-prompt {
+  font-size: 16px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .choice-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .choice-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+}
+
+.choice-card {
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  position: relative;
+}
+
+.choice-card:hover {
+  border-color: var(--hbr-red);
+  background: var(--paper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.choice-card.selected {
+  background: var(--bg-dark);
+  border-color: var(--bg-dark);
+  color: var(--paper);
+}
+
+.choice-card.selected .choice-title { color: var(--paper); }
+.choice-card.selected .choice-desc { color: rgba(255, 255, 255, 0.75); }
+.choice-card.selected .choice-tradeoff { color: var(--gold-soft); }
+
+.choice-title {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.choice-desc {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.choice-tradeoff {
+  font-size: 12px;
+  color: var(--hbr-red);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+/* ========== SLIDER (allocation) ========== */
+.allocation-block {
+  margin-bottom: 12px;
+}
+
+.allocation-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (min-width: 540px) {
+  .allocation-row { grid-template-columns: 140px 1fr 50px; align-items: center; gap: 14px; }
+}
+
+.allocation-row:last-child { border-bottom: none; }
+
+.allocation-label {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.allocation-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--rule);
+  outline: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.allocation-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--hbr-red);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--paper);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.allocation-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: var(--hbr-red);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--paper);
+}
+
+.allocation-value {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--hbr-red);
+  text-align: right;
+}
+
+.allocation-total {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--paper-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.allocation-total.invalid { background: rgba(200, 16, 46, 0.08); color: var(--hbr-red-deep); }
+.allocation-total.valid { color: var(--green); }
+
+/* ========== TEXTAREA ========== */
+.reflection-textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 14px 16px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  resize: vertical;
+}
+.reflection-textarea:focus {
+  outline: none;
+  border-color: var(--hbr-red);
+  background: var(--paper);
+}
+.reflection-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
+
+.word-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ========== STAKEHOLDER PERSONAS ========== */
+.stakeholder-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--hbr-red);
+}
+
+.stakeholder-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stakeholder-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stakeholder-info { flex: 1; min-width: 0; }
+
+.stakeholder-name {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.stakeholder-role {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hbr-red);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.stakeholder-quote {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  padding: 14px 16px;
+  background: var(--paper-dim);
+  border-left: 3px solid var(--hbr-red);
+  margin-bottom: 14px;
+}
+
+.stakeholder-quote strong { color: var(--ink); font-style: normal; font-weight: 700; }
+
+.stakeholder-response {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (min-width: 720px) {
+  .stakeholder-response { grid-template-columns: 1fr 1fr; }
+}
+
+.response-option {
+  padding: 12px 14px;
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.response-option:hover {
+  border-color: var(--hbr-red);
+  background: var(--paper);
+}
+
+.response-option.selected {
+  background: var(--bg-dark);
+  color: var(--paper);
+  border-color: var(--bg-dark);
+}
+
+/* ========== EVENT CARDS ========== */
+.event-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  margin-bottom: 20px;
+  border-top: 4px solid var(--amber);
+  box-shadow: var(--shadow-sm);
+}
+
+.event-flag {
+  display: inline-block;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+
+.event-title {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.event-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* ========== EMPLOYEE REACTIONS ========== */
+.employee-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .employee-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.employee-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.employee-header {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.employee-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--hbr-red);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.employee-info { flex: 1; min-width: 0; }
+.employee-name { font-family: Georgia, serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+.employee-detail { font-size: 13px; color: var(--ink-soft); font-style: italic; line-height: 1.4; }
+
+.employee-reaction {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  padding: 10px 12px;
+  background: var(--paper-dim);
+  border-left: 3px solid var(--hbr-red);
+  margin-bottom: 14px;
+}
+
+.employee-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.emp-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--paper-dim);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.emp-metric-label { color: var(--ink-faint); text-transform: uppercase; font-weight: 600; }
+.emp-metric-value {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.emp-bar-track {
+  margin-top: 4px;
+  height: 4px;
+  background: var(--rule);
+  position: relative;
+}
+.emp-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--hbr-red);
+  transition: width 0.6s ease;
+}
+
+/* ========== BOARD ========== */
+.board-question {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--bg-dark);
+}
+
+.board-member {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hbr-red);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.board-q-text {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+/* ========== ACTION BAR ========== */
+.action-bar {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.action-bar-status {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.action-bar-status strong { color: var(--hbr-red); font-weight: 700; }
+
+/* ========== MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 25, 41, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+  animation: fade-in 0.25s ease;
+}
+.modal-overlay.active { display: flex; }
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--paper);
+  max-width: 560px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 22px 24px 18px;
+  border-bottom: 3px solid var(--hbr-red);
+  position: relative;
+}
+
+.modal-category {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+
+.modal-title {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1.15;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--paper);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.modal-close:hover { background: var(--hbr-red); border-color: var(--hbr-red); }
+
+.modal-body { padding: 24px; }
+
+.modal-section { margin-bottom: 18px; }
+.modal-section:last-child { margin-bottom: 0; }
+
+.modal-section-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+
+.modal-section-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.modal-section-text strong { color: var(--ink); font-weight: 700; }
+.modal-section-text em { font-style: italic; color: var(--ink); }
+
+/* ========== CONCEPT LINK ========== */
+.concept-link {
+  color: var(--hbr-red);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--hbr-red);
+  cursor: pointer;
+  font-weight: 600;
+}
+.concept-link:hover { color: var(--hbr-red-deep); border-bottom-style: solid; }
+
+/* ========== REPORT ========== */
+.report-cover {
+  background: var(--paper);
+  border: 4px double var(--hbr-red);
+  padding: 30px 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.report-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+}
+
+.report-title {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 22px;
+}
+
+.report-recipient {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+
+.report-name {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--hbr-red);
+  margin-bottom: 24px;
+}
+
+.report-strategic-score {
+  font-family: Georgia, serif;
+  font-size: clamp(64px, 12vw, 96px);
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.report-strategic-score-total {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.report-band {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--hbr-red);
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.report-section {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-section h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--hbr-red);
+}
+
+.report-section h4 {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  margin-top: 14px;
+}
+
+.report-section h4:first-of-type { margin-top: 0; }
+
+.report-section p {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.report-section ul {
+  list-style: none;
+  margin-top: 8px;
+}
+
+.report-section ul li {
+  padding: 8px 0 8px 22px;
+  position: relative;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--rule);
+}
+
+.report-section ul li:last-child { border-bottom: none; }
+
+.report-section ul li::before {
+  content: '·';
+  position: absolute;
+  left: 6px;
+  color: var(--hbr-red);
+  font-size: 20px;
+  line-height: 1;
+  top: 8px;
+  font-weight: 700;
+}
+
+.report-section ul li.strength::before { content: '+'; color: var(--green); }
+.report-section ul li.weakness::before { content: '−'; color: var(--hbr-red); }
+.report-section ul li.risk::before { content: '!'; color: var(--amber); font-weight: 700; }
+
+.report-section ul li strong { color: var(--ink); font-weight: 700; }
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.badge {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 18px 14px;
+  text-align: center;
+  border-top: 3px solid var(--gold);
+}
+
+.badge-mark {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.badge-name {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1.3;
+}
+
+.badge-desc {
+  font-family: Georgia, serif;
+  font-size: 12.5px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 12px 22px;
+  border-left: 3px solid var(--hbr-red);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  z-index: 300;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 90vw;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -10px);
+}
+
+/* ========== PRINT ========== */
+@media print {
+  body { background: white; }
+  .masthead, .action-bar, .dashboard-bar { display: none !important; }
+  .stage:not(.active) { display: none !important; }
+  .stage.active { display: block !important; }
+  .report-section, .report-cover, .badge { page-break-inside: avoid; box-shadow: none; }
+}
+
+/* ========== MOBILE ADJUSTMENTS ========== */
+@media (max-width: 720px) {
+  .container { padding: 20px 16px 50px; }
+  .stage-header { margin-bottom: 22px; padding-bottom: 16px; }
+  .decision-card { padding: 18px; }
+  .ceo-quote p { padding-left: 22px; font-size: 17px; }
+  .ceo-quote-mark { font-size: 50px; top: 22px; left: 12px; }
+  .dashboard-gauges { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; }
+  .gauge-svg { width: 56px; height: 56px; }
+  .gauge-label { font-size: 9px; }
+  .btn { padding: 12px 20px; font-size: 12px; }
+  .cover-meta { grid-template-columns: 1fr 1fr; }
+  .modal { max-height: 92vh; }
+  .stakeholder-quote { font-size: 15px; padding: 12px 14px; }
+  .board-q-text { font-size: 17px; }
+}
+
+@media (max-width: 480px) {
+  .stage-pip { width: 18px; }
+  .stage-indicator { font-size: 10px; }
+  .brand-title { font-size: 16px; }
+  .brand-sub { font-size: 9px; }
+  .cover-meta { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-title">The Great Pay <span class="red">Redesign</span></span>
+      <span class="brand-sub">A Strategic Compensation Simulation</span>
+    </div>
+    <div class="stage-indicator" id="stageIndicator" style="display:none;">
+      <span id="stageLabel">Stage 1 of 7</span>
+      <div class="stage-pips" id="stagePips"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ============ STAGE 0 — COVER ============ -->
+<section class="stage active" id="stage-cover">
+  <div class="cover">
+    <div class="eyebrow">Executive Strategy Simulation</div>
+    <h1 class="cover-title">The Great <em>Pay Redesign.</em></h1>
+    <p class="cover-deck">A seven-stage strategy simulation that asks you to redesign the compensation system of a 1,500-person technology firm under competing stakeholder demands, real business constraints, and unforeseeable events. There is no right answer — only defensible ones.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Format</div>
+        <div class="cover-meta-value">Interactive · 7 stages</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Duration</div>
+        <div class="cover-meta-value">45–60 minutes</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Level</div>
+        <div class="cover-meta-value">MBA · Executive</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Outcome</div>
+        <div class="cover-meta-value">Personalised executive report</div>
+      </div>
+    </div>
+
+    <div class="byline-block">
+      <div class="byline-label">Developed by</div>
+      <div class="byline-name">Dr. Sathiyaseelan B</div>
+      <div class="byline-role">Professor — Human Resources Management<br>School of Business and Management · Christ University</div>
+    </div>
+
+    <div class="cover-instructions">
+      <h3>How this simulation works</h3>
+      <p><strong>You will make a series of decisions</strong> on compensation philosophy, pay structure, stakeholder negotiation, and crisis response. Every decision moves multiple dashboard metrics — usually some up and some down.</p>
+      <p><strong>There is no perfect answer.</strong> Lead the market and you strain costs. Pay only for performance and you erode the loyalty of long-tenured staff. Choose transparency and you create new questions you must be ready to answer. Trade-offs are the point.</p>
+      <p><strong>Throughout the simulation</strong>, any concept shown as a <span class="concept-link" onclick="openConcept('philosophy')">dotted red link</span> can be tapped to open a definition card. The dashboard at the top of each stage shows the live state of eight organisational metrics.</p>
+      <p><strong>At the end</strong>, you receive a personalised executive report — strengths, weaknesses, risks, badges earned, and an overall Strategic Compensation Score out of 100.</p>
+    </div>
+
+    <div class="name-input-wrap">
+      <label for="participantName">Your name (for the executive report)</label>
+      <input type="text" id="participantName" class="name-input" placeholder="e.g., Anjali Mehta" autocomplete="name">
+    </div>
+
+    <button class="btn btn-primary" onclick="startSimulation()">Enter the boardroom <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 1 — CEO BRIEFING ============ -->
+<section class="stage" id="stage-briefing">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 01 · The CEO Briefing</div>
+    <h2 class="stage-title">A company under <em>pressure.</em></h2>
+    <p class="stage-deck">You have been brought in as a compensation strategist. The CEO has called a meeting. The numbers are not encouraging.</p>
+  </div>
+
+  <div class="ceo-quote">
+    <span class="ceo-quote-mark">"</span>
+    <p>We are growing rapidly, but our compensation system is under pressure. Employees question fairness. Competitors are poaching our talent. Costs are rising. Your task is to redesign our compensation structure and help us build a sustainable competitive advantage.</p>
+    <p>I need clarity by the end of the week. The board meets next month.</p>
+    <div class="signature">— Vikram Rao, CEO · NovaTech Solutions</div>
+  </div>
+
+  <div class="company-card">
+    <div class="company-name">NovaTech Solutions</div>
+    <div class="company-tag">Technology &amp; Digital Services · 1,500 employees · ₹500 Cr revenue · Bengaluru-headquartered, pan-India operations</div>
+
+    <div class="metric-grid">
+      <div class="metric-mini">
+        <div class="metric-mini-label">Attrition</div>
+        <div class="metric-mini-value">24%</div>
+        <div class="metric-mini-status status-critical">Critical · above industry</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-label">Engagement</div>
+        <div class="metric-mini-value">62%</div>
+        <div class="metric-mini-status status-warning">Below benchmark</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-label">Labour cost</div>
+        <div class="metric-mini-value">46%</div>
+        <div class="metric-mini-status status-warning">Of operating cost</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-label">Market gap</div>
+        <div class="metric-mini-value">15–20%</div>
+        <div class="metric-mini-status status-critical">Below competitors</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-label">Equity complaints</div>
+        <div class="metric-mini-value">Rising</div>
+        <div class="metric-mini-status status-warning">Internal grievances</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-label">External offers</div>
+        <div class="metric-mini-value">High</div>
+        <div class="metric-mini-status status-critical">Top talent targeted</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Read the briefing carefully before proceeding.</div>
+    <button class="btn btn-primary" onclick="goToStage('philosophy')">Begin compensation review <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 2 — PHILOSOPHY ============ -->
+<section class="stage" id="stage-philosophy">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 02 · Compensation Philosophy</div>
+    <h2 class="stage-title">What does this firm <em>believe</em> about pay?</h2>
+    <p class="stage-deck">Before structure, philosophy. Four strategic choices that will shape every downstream decision. Tap any underlined concept to open its definition.</p>
+  </div>
+
+  <div id="dashboardPhil"></div>
+
+  <!-- Decision 1 -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision i — Market Position</div>
+      <div class="decision-num">Philosophy</div>
+    </div>
+    <div class="decision-prompt">Where does NovaTech choose to sit against the <span class="concept-link" onclick="openConcept('external-equity')">external labour market</span>?</div>
+    <div class="choice-grid cols-3" data-decision="market-position">
+      <div class="choice-card" data-value="lead">
+        <div class="choice-title">Lead the market</div>
+        <div class="choice-desc">Pay above the 75th percentile. Aggressive on attraction and retention.</div>
+        <div class="choice-tradeoff">↑ Talent · ↑ Cost pressure</div>
+      </div>
+      <div class="choice-card" data-value="match">
+        <div class="choice-title">Match the market</div>
+        <div class="choice-desc">Target the median (50th percentile). Defensible, predictable, balanced.</div>
+        <div class="choice-tradeoff">↑ Stability · ↓ Differentiation</div>
+      </div>
+      <div class="choice-card" data-value="lag">
+        <div class="choice-title">Lag the market</div>
+        <div class="choice-desc">Pay below the median. Compete on non-cash factors — culture, growth, equity.</div>
+        <div class="choice-tradeoff">↑ Cost control · ↓ Talent attraction</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision 2 -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision ii — Basis of Pay</div>
+      <div class="decision-num">Allocate 100 points</div>
+    </div>
+    <div class="decision-prompt">How is differentiated pay justified inside the firm? Distribute 100 points across the four bases.</div>
+    <div class="allocation-block" id="basisAllocation">
+      <div class="allocation-row">
+        <div class="allocation-label">Seniority</div>
+        <input type="range" class="allocation-slider" data-key="seniority" min="0" max="100" value="25" oninput="updateAllocation('basis')">
+        <div class="allocation-value" id="basis-seniority">25</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Skills</div>
+        <input type="range" class="allocation-slider" data-key="skills" min="0" max="100" value="25" oninput="updateAllocation('basis')">
+        <div class="allocation-value" id="basis-skills">25</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Competencies</div>
+        <input type="range" class="allocation-slider" data-key="competencies" min="0" max="100" value="25" oninput="updateAllocation('basis')">
+        <div class="allocation-value" id="basis-competencies">25</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Performance</div>
+        <input type="range" class="allocation-slider" data-key="performance" min="0" max="100" value="25" oninput="updateAllocation('basis')">
+        <div class="allocation-value" id="basis-performance">25</div>
+      </div>
+      <div class="allocation-total" id="basisTotal">Total: 100 / 100</div>
+    </div>
+  </div>
+
+  <!-- Decision 3 -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision iii — Pay Transparency</div>
+      <div class="decision-num">Disclosure</div>
+    </div>
+    <div class="decision-prompt">How openly will <span class="concept-link" onclick="openConcept('pay-transparency')">pay information</span> be shared with employees?</div>
+    <div class="choice-grid cols-3" data-decision="transparency">
+      <div class="choice-card" data-value="low">
+        <div class="choice-title">Low</div>
+        <div class="choice-desc">Pay is private. No bands published. Discussion discouraged.</div>
+        <div class="choice-tradeoff">↑ Flexibility · ↓ Trust</div>
+      </div>
+      <div class="choice-card" data-value="moderate">
+        <div class="choice-title">Moderate</div>
+        <div class="choice-desc">Ranges and grades published. Individual numbers private.</div>
+        <div class="choice-tradeoff">↑ Trust · = Flexibility</div>
+      </div>
+      <div class="choice-card" data-value="high">
+        <div class="choice-title">High</div>
+        <div class="choice-desc">Full transparency. All salaries visible to all employees.</div>
+        <div class="choice-tradeoff">↑ Fairness · ↓ Privacy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision 4 -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision iv — Internal Equity Priority</div>
+      <div class="decision-num">Alignment</div>
+    </div>
+    <div class="decision-prompt">How strongly will <span class="concept-link" onclick="openConcept('internal-equity')">internal equity</span> constrain market-driven pay decisions?</div>
+    <div class="choice-grid cols-3" data-decision="equity-priority">
+      <div class="choice-card" data-value="high">
+        <div class="choice-title">High</div>
+        <div class="choice-desc">Internal consistency trumps market data. Same role, same pay.</div>
+        <div class="choice-tradeoff">↑ Fairness · ↓ Market match</div>
+      </div>
+      <div class="choice-card" data-value="medium">
+        <div class="choice-title">Medium</div>
+        <div class="choice-desc">Equity matters, but market pressure can justify exceptions.</div>
+        <div class="choice-tradeoff">= Balance · = Tension</div>
+      </div>
+      <div class="choice-card" data-value="low">
+        <div class="choice-title">Low</div>
+        <div class="choice-desc">Each role priced to its market. Internal differences accepted.</div>
+        <div class="choice-tradeoff">↑ Market match · ↓ Fairness</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reflection -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Why did you choose this philosophy?</div>
+      <div class="decision-num">Reflection · 40+ words</div>
+    </div>
+    <div class="decision-prompt">In a few sentences, explain the strategic intent behind your philosophy choices. What is this firm now telling its people about pay?</div>
+    <textarea class="reflection-textarea" id="philReflection" placeholder="Your response here…" oninput="updateWordCount('philReflection', 'philReflectionWC', 'submitPhil', 40)"></textarea>
+    <div class="word-count" id="philReflectionWC">0 words</div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Make all four decisions and write your reflection to continue.</div>
+    <button class="btn btn-primary" id="submitPhil" onclick="submitPhilosophy()" disabled>Continue to pay structure <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 3 — STRUCTURE ============ -->
+<section class="stage" id="stage-structure">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 03 · Pay Structure Design</div>
+    <h2 class="stage-title">From philosophy to <em>architecture.</em></h2>
+    <p class="stage-deck">Five structural decisions. Each carries operational consequence and signals philosophy in concrete terms.</p>
+  </div>
+
+  <div id="dashboardStruct"></div>
+
+  <!-- Decision 1: Grade Architecture -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision i — Grade Architecture</div>
+      <div class="decision-num">Structure</div>
+    </div>
+    <div class="decision-prompt">How many grade levels will NovaTech maintain across <strong>Analyst → Senior Analyst → Manager → Senior Manager → Director</strong>?</div>
+    <div class="choice-grid cols-3" data-decision="grade-architecture">
+      <div class="choice-card" data-value="broad">
+        <div class="choice-title"><span class="concept-link" onclick="event.stopPropagation(); openConcept('broad-banding')">Broad Banding</span></div>
+        <div class="choice-desc">3–4 wide bands. Career growth through skills, not titles.</div>
+        <div class="choice-tradeoff">↑ Flexibility · ↓ Hierarchy clarity</div>
+      </div>
+      <div class="choice-card" data-value="moderate">
+        <div class="choice-title">Moderate Grades</div>
+        <div class="choice-desc">5–7 grades. Clear levels with reasonable progression.</div>
+        <div class="choice-tradeoff">= Balanced · = Conventional</div>
+      </div>
+      <div class="choice-card" data-value="narrow">
+        <div class="choice-title">Narrow Grades</div>
+        <div class="choice-desc">10+ grades. Fine differentiation by role and tenure.</div>
+        <div class="choice-tradeoff">↑ Recognition · ↑ Pay compression</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision 2: Salary Range Width -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision ii — Salary Range Width</div>
+      <div class="decision-num">Spread</div>
+    </div>
+    <div class="decision-prompt">How wide is the pay range within each grade?</div>
+    <div class="choice-grid cols-3" data-decision="range-width">
+      <div class="choice-card" data-value="narrow">
+        <div class="choice-title">Narrow (±15%)</div>
+        <div class="choice-desc">Tight ranges. Promotions drive pay growth.</div>
+        <div class="choice-tradeoff">↑ Cost control · ↓ In-role growth</div>
+      </div>
+      <div class="choice-card" data-value="moderate">
+        <div class="choice-title">Moderate (±25%)</div>
+        <div class="choice-desc">Standard ranges. Room to reward without promotion.</div>
+        <div class="choice-tradeoff">= Balanced · = Conventional</div>
+      </div>
+      <div class="choice-card" data-value="wide">
+        <div class="choice-title">Wide (±40%)</div>
+        <div class="choice-desc">Generous overlap between grades. Long in-role runway.</div>
+        <div class="choice-tradeoff">↑ Retention · ↑ Cost variance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision 3: Midpoint Progression -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision iii — Midpoint Progression</div>
+      <div class="decision-num">Promotion uplift</div>
+    </div>
+    <div class="decision-prompt">By how much does each grade's midpoint rise above the previous?</div>
+    <div class="choice-grid cols-3" data-decision="midpoint">
+      <div class="choice-card" data-value="10">
+        <div class="choice-title">10% step</div>
+        <div class="choice-desc">Modest uplifts. Promotions are frequent but financially small.</div>
+        <div class="choice-tradeoff">↑ Cost control · ↓ Promotion impact</div>
+      </div>
+      <div class="choice-card" data-value="20">
+        <div class="choice-title">20% step</div>
+        <div class="choice-desc">Standard progression. Promotions feel meaningful.</div>
+        <div class="choice-tradeoff">= Balanced · = Conventional</div>
+      </div>
+      <div class="choice-card" data-value="30">
+        <div class="choice-title">30% step</div>
+        <div class="choice-desc">Steep progression. Promotions are rare, transformational.</div>
+        <div class="choice-tradeoff">↑ Motivation · ↑ Pay gap stress</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision 4: Pay Mix -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision iv — Compensation Mix</div>
+      <div class="decision-num">Allocate 100 points</div>
+    </div>
+    <div class="decision-prompt">Distribute 100 points across <span class="concept-link" onclick="openConcept('total-rewards')">total rewards</span> components.</div>
+    <div class="allocation-block" id="mixAllocation">
+      <div class="allocation-row">
+        <div class="allocation-label">Fixed Pay</div>
+        <input type="range" class="allocation-slider" data-key="fixed" min="0" max="100" value="70" oninput="updateAllocation('mix')">
+        <div class="allocation-value" id="mix-fixed">70</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label"><span class="concept-link" onclick="openConcept('incentive-pay')">Incentive Pay</span></div>
+        <input type="range" class="allocation-slider" data-key="incentive" min="0" max="100" value="20" oninput="updateAllocation('mix')">
+        <div class="allocation-value" id="mix-incentive">20</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label"><span class="concept-link" onclick="openConcept('long-term')">Long-Term Rewards</span></div>
+        <input type="range" class="allocation-slider" data-key="longterm" min="0" max="100" value="10" oninput="updateAllocation('mix')">
+        <div class="allocation-value" id="mix-longterm">10</div>
+      </div>
+      <div class="allocation-total" id="mixTotal">Total: 100 / 100</div>
+    </div>
+  </div>
+
+  <!-- Decision 5: Benefits -->
+  <div class="decision-card">
+    <div class="decision-header">
+      <div class="decision-title">Decision v — Benefits Strategy</div>
+      <div class="decision-num">Budget: 100 units</div>
+    </div>
+    <div class="decision-prompt">Allocate a fixed benefits budget across five categories. Total must equal 100.</div>
+    <div class="allocation-block" id="benefitsAllocation">
+      <div class="allocation-row">
+        <div class="allocation-label">Health Benefits</div>
+        <input type="range" class="allocation-slider" data-key="health" min="0" max="100" value="30" oninput="updateAllocation('benefits')">
+        <div class="allocation-value" id="benefits-health">30</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Retirement</div>
+        <input type="range" class="allocation-slider" data-key="retirement" min="0" max="100" value="20" oninput="updateAllocation('benefits')">
+        <div class="allocation-value" id="benefits-retirement">20</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Learning &amp; Development</div>
+        <input type="range" class="allocation-slider" data-key="learning" min="0" max="100" value="20" oninput="updateAllocation('benefits')">
+        <div class="allocation-value" id="benefits-learning">20</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Wellness</div>
+        <input type="range" class="allocation-slider" data-key="wellness" min="0" max="100" value="15" oninput="updateAllocation('benefits')">
+        <div class="allocation-value" id="benefits-wellness">15</div>
+      </div>
+      <div class="allocation-row">
+        <div class="allocation-label">Flexible Work Support</div>
+        <input type="range" class="allocation-slider" data-key="flex" min="0" max="100" value="15" oninput="updateAllocation('benefits')">
+        <div class="allocation-value" id="benefits-flex">15</div>
+      </div>
+      <div class="allocation-total" id="benefitsTotal">Total: 100 / 100</div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">All five decisions must be completed.</div>
+    <button class="btn btn-primary" id="submitStruct" onclick="submitStructure()" disabled>Continue to stakeholders <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 4 — STAKEHOLDERS ============ -->
+<section class="stage" id="stage-stakeholders">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 04 · Stakeholder Negotiation</div>
+    <h2 class="stage-title">Five voices. <em>One decision.</em></h2>
+    <p class="stage-deck">Each member of the leadership team has heard your proposal. They have concerns. Choose your response to each — your style of negotiation is itself a strategic signal.</p>
+  </div>
+
+  <div id="dashboardStake"></div>
+
+  <div id="stakeholdersContainer"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Respond to all five stakeholders.</div>
+    <button class="btn btn-primary" id="submitStake" onclick="submitStakeholders()" disabled>Continue to crisis events <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 5 — SHOCK EVENTS ============ -->
+<section class="stage" id="stage-shocks">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 05 · Shock Events</div>
+    <h2 class="stage-title">The next twelve months — <em>unpredictable.</em></h2>
+    <p class="stage-deck">Five events have unfolded since your redesign was announced. Each demands a response. Your reactions will affect the dashboard meaningfully.</p>
+  </div>
+
+  <div id="dashboardShock"></div>
+
+  <div id="shocksContainer"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Respond to all five events.</div>
+    <button class="btn btn-primary" id="submitShocks" onclick="submitShocks()" disabled>Continue to employee reactions <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 6 — EMPLOYEE REACTIONS ============ -->
+<section class="stage" id="stage-employees">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 06 · Employee Reactions</div>
+    <h2 class="stage-title">Ten people. <em>Ten different views.</em></h2>
+    <p class="stage-deck">A cross-section of NovaTech's workforce reacts to your redesigned compensation system. Notice how the same decisions produce different effects across segments. This is what trade-offs look like in human terms.</p>
+  </div>
+
+  <div id="dashboardEmp"></div>
+
+  <div class="employee-grid" id="employeeGrid"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Review the reactions, then proceed to the board.</div>
+    <button class="btn btn-primary" onclick="goToStage('board')">Proceed to board review <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 7 — BOARD REVIEW ============ -->
+<section class="stage" id="stage-board">
+  <div class="stage-header">
+    <div class="eyebrow">Stage 07 · Board Review</div>
+    <h2 class="stage-title">The Board's <em>five questions.</em></h2>
+    <p class="stage-deck">Five board members challenge your design. Write a brief answer to each — 40 words or more. This is the final test before your executive report is generated.</p>
+  </div>
+
+  <div id="dashboardBoard"></div>
+
+  <div id="boardContainer"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Answer all five board questions.</div>
+    <button class="btn btn-primary" id="submitBoard" onclick="submitBoard()" disabled>Generate executive report <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ STAGE 8 — REPORT ============ -->
+<section class="stage" id="stage-report">
+  <div class="stage-header">
+    <div class="eyebrow">Executive Report · Confidential</div>
+    <h2 class="stage-title">Your <em>strategic verdict.</em></h2>
+    <p class="stage-deck">A personalised assessment of your redesign — its strengths, weaknesses, risks, and the badges earned for distinctive strategic moves.</p>
+  </div>
+
+  <div id="reportContainer"></div>
+
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="window.print()">Print or save as PDF</button>
+    <button class="btn btn-primary" onclick="restartSimulation()">Run again <span class="arrow">↻</span></button>
+  </div>
+</section>
+
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-category" id="modalCategory">Concept</div>
+      <h3 class="modal-title" id="modalTitle">Term</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">Definition</div>
+        <div class="modal-section-text" id="modalDefinition"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Why it matters</div>
+        <div class="modal-section-text" id="modalWhy"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Real-world example</div>
+        <div class="modal-section-text" id="modalExample"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Reflective question</div>
+        <div class="modal-section-text" id="modalReflection" style="font-style: italic;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   THE GREAT PAY REDESIGN — Application Logic
+   ========================================================== */
+
+/* ---------- GLOBAL STATE ---------- */
+const STAGES = ['cover', 'briefing', 'philosophy', 'structure', 'stakeholders', 'shocks', 'employees', 'board', 'report'];
+const STAGE_DISPLAY_NUM = { 'briefing': 1, 'philosophy': 2, 'structure': 3, 'stakeholders': 4, 'shocks': 5, 'employees': 6, 'board': 7 };
+
+let state = {
+  participantName: '',
+  currentStage: 'cover',
+  // Philosophy
+  philosophy: { marketPosition: null, basis: { seniority: 25, skills: 25, competencies: 25, performance: 25 }, transparency: null, equityPriority: null, reflection: '' },
+  // Structure
+  structure: { gradeArch: null, rangeWidth: null, midpoint: null, mix: { fixed: 70, incentive: 20, longterm: 10 }, benefits: { health: 30, retirement: 20, learning: 20, wellness: 15, flex: 15 } },
+  // Stakeholders
+  stakeholderResponses: {},
+  // Shocks
+  shockEvents: [],
+  shockResponses: {},
+  // Board
+  boardQuestions: [],
+  boardAnswers: {},
+  // Metrics — calculated continuously
+  metrics: {
+    attraction: 50, retention: 50, fairness: 50, costEfficiency: 50,
+    trust: 50, motivation: 50, compliance: 70, performance: 50
+  }
+};
+
+/* ---------- CONCEPTS (educational pop-ups) ---------- */
+const CONCEPTS = {
+  'philosophy': {
+    label: 'Compensation Philosophy',
+    category: 'Foundational',
+    definition: 'The set of guiding principles a firm holds about how it will pay its people — what it rewards, how it positions against the market, and what trade-offs it is willing to accept.',
+    why: 'Without an explicit philosophy, every compensation decision is made ad hoc. Over time, the absence of a philosophy becomes one — usually an incoherent and indefensible one.',
+    example: 'Netflix made its compensation philosophy famous: pay top-of-market, expect top performance, accept the cost. Whether one agrees with the choice, the firm has a philosophy.',
+    reflection: 'If you stripped your firm\'s compensation policies of all numbers, would a coherent philosophy still be visible?'
+  },
+  'internal-equity': {
+    label: 'Internal Equity',
+    category: 'Principle',
+    definition: 'The principle that employees doing similar work, requiring similar skills, and producing similar value should be paid similarly within the firm.',
+    why: 'Internal equity is what makes a pay system feel fair to those inside it. Erode it, and engagement and trust collapse — regardless of market positioning.',
+    example: 'When two engineers hired six months apart for the same role earn dramatically different salaries because the labour market shifted, internal equity is breached even if both are paid "to market".',
+    reflection: 'How does your firm decide when to override internal equity for external market pressure?'
+  },
+  'external-equity': {
+    label: 'External Equity / Market Pricing',
+    category: 'Principle',
+    definition: 'The principle that pay should be competitive against the external labour market for comparable roles.',
+    why: 'External equity is what makes a firm able to attract talent. Without it, candidates accept offers elsewhere; existing employees become flight risks.',
+    example: 'A firm benchmarks every role annually against industry surveys and adjusts pay structures to maintain its chosen percentile position.',
+    reflection: 'Has your firm consciously chosen its market position, or has it drifted into one?'
+  },
+  'pay-transparency': {
+    label: 'Pay Transparency',
+    category: 'Policy',
+    definition: 'The degree to which an organisation discloses compensation information — pay bands, individual salaries, or the logic behind pay decisions — to its employees and the public.',
+    why: 'Transparency builds trust when it is principled, and breeds resentment when it is partial. The choice is not whether to be transparent, but how.',
+    example: 'Buffer publishes every employee\'s salary publicly. Most firms publish ranges. Some publish nothing. Each choice has consequences — and no choice is neutral.',
+    reflection: 'What would your employees discover if your pay decisions became fully transparent tomorrow?'
+  },
+  'broad-banding': {
+    label: 'Broad Banding',
+    category: 'Structure',
+    definition: 'A grade architecture that consolidates many narrow grades into fewer, wider bands — typically 3–5 — within which significant pay variation is permitted.',
+    why: 'Broad banding emphasises lateral growth and skill development over title progression. It works in flat organisations; it confuses hierarchical ones.',
+    example: 'A consulting firm operates with four broad bands — Associate, Consultant, Principal, Partner — within each of which compensation can vary by 60% or more.',
+    reflection: 'Does your firm need fewer titles and more skill differentiation, or the opposite?'
+  },
+  'incentive-pay': {
+    label: 'Incentive / Variable Pay',
+    category: 'Component',
+    definition: 'Compensation contingent on performance — individual, team, or organisational — typically delivered as annual bonuses, commissions, or short-term incentives.',
+    why: 'Incentive pay is the most direct way to align reward with outcomes. It is also the easiest to design badly: rewarding the wrong thing, the wrong way, on the wrong timescale.',
+    example: 'A software firm replaces a flat annual bonus with quarterly milestones tied to product launches — deliberately accelerating accountability.',
+    reflection: 'If a new employee studied only your variable pay scheme, what would they conclude your firm rewards?'
+  },
+  'long-term': {
+    label: 'Long-Term Incentives',
+    category: 'Component',
+    definition: 'Compensation that vests over multiple years — typically equity, deferred cash, or performance shares — designed to align employees with sustained organisational performance.',
+    why: 'Long-term incentives are how the firm asks employees to think beyond the quarter. They are most valuable for retaining critical talent and aligning leadership.',
+    example: 'A four-year stock vest with a one-year cliff is now standard for senior technology hires in India — but the design of the cliff and the vest curve matters greatly.',
+    reflection: 'For which roles in your firm is a multi-year time horizon most important — and is your LTI design serving that?'
+  },
+  'total-rewards': {
+    label: 'Total Rewards',
+    category: 'Framework',
+    definition: 'The full set of financial and non-financial returns the employee receives — base pay, variable pay, benefits, learning, recognition, and intangibles like culture and growth.',
+    why: 'Optimising only base pay misses most of what employees value. Total rewards thinking is what separates strategic compensation from administrative payroll.',
+    example: 'Two firms offer identical base salaries. One adds an L&D allowance, parental leave, and a four-day week pilot. The total reward is no longer identical.',
+    reflection: 'What proportion of your total rewards spend is being communicated to employees as value received?'
+  },
+  'pay-compression': {
+    label: 'Pay Compression',
+    category: 'Risk',
+    definition: 'The condition in which the pay differentials between roles, levels, or tenures become uncomfortably small — eroding the perceived value of promotion or experience.',
+    why: 'Compression is the silent failure mode of fast-growing firms: new hires arrive at market rates, while existing employees lag — until the gap closes from the wrong direction.',
+    example: 'A senior manager earns ₹35L. A newly hired senior manager from a competitor earns ₹40L. Six months later, the existing manager leaves.',
+    reflection: 'When did your firm last audit pay compression across tenure within the same role?'
+  },
+  'job-evaluation': {
+    label: 'Job Evaluation',
+    category: 'Technique',
+    definition: 'The systematic process of determining the relative worth of jobs within an organisation — typically through point-factor, ranking, or classification methods.',
+    why: 'Job evaluation is how a firm operationalises its internal equity policy. It turns "is this role more valuable than that one?" into a defensible answer.',
+    example: 'An engineering firm uses point-factor evaluation to settle whether a senior structural engineer should be paid more than a senior project manager — a question previously decided by personality.',
+    reflection: 'What does your firm\'s evaluation method implicitly reward — and what does it implicitly punish?'
+  },
+  'merit-pay': {
+    label: 'Merit Pay',
+    category: 'Component',
+    definition: 'Pay increases tied to evaluated individual performance — usually delivered as a percentage of base salary, calibrated by performance rating.',
+    why: 'Merit pay is how a firm protects its performance-based contributions philosophy against manager-by-manager drift.',
+    example: 'A merit matrix maps performance rating × position-in-range to a percentage increase — top performers at the bottom of their range receive 10%; the same rating at the top, 4%.',
+    reflection: 'Are your merit guidelines a discipline — or a guideline managers quietly route around?'
+  },
+  'variable-pay': {
+    label: 'Variable Pay',
+    category: 'Component',
+    definition: 'Any portion of compensation that is not guaranteed — including bonuses, commissions, profit-sharing, and incentive payouts.',
+    why: 'Variable pay shifts risk between firm and employee. More variable means more upside (and downside) for the employee — and more flexibility for the firm.',
+    example: 'A sales role with 50/50 fixed-variable split shifts almost all the demand risk to the salesperson. A 80/20 split shifts most of it to the firm.',
+    reflection: 'What is the right risk-sharing balance for each role in your firm, and does your variable pay design reflect it?'
+  }
+};
+
+/* ---------- STAKEHOLDERS ---------- */
+const STAKEHOLDERS = [
+  {
+    id: 'cfo',
+    name: 'Priya Iyer',
+    role: 'Chief Financial Officer',
+    avatar: 'PI',
+    concernType: 'cost',
+    quoteFn: (s) => {
+      const market = s.philosophy.marketPosition;
+      const perf = s.philosophy.basis.performance || 0;
+      if (market === 'lead') return `<strong>I have looked at your numbers.</strong> Leading the market will lift labour cost from 46% to nearly 52% of operating cost. We do not have headroom for that. Where is the offsetting case?`;
+      if (market === 'lag') return `<strong>I appreciate the cost discipline.</strong> But if attrition rises further, our recruitment costs will erode the savings. What is your view on that risk?`;
+      return `<strong>Matching the market is defensible.</strong> But your structure with ${perf}% weight on performance pay introduces volatility into our quarterly forecast. How will Finance plan for that?`;
+    },
+    options: [
+      'I have modelled the cost impact and can defend it to the board.',
+      'You are right — let me revise the mix to reduce volatility.',
+      'The cost is real, but the cost of doing nothing is greater.',
+      'Let me show you the attrition-saving case in detail.'
+    ],
+    correctIndex: 0,
+    scoring: [
+      { costEfficiency: -2, trust: 4, retention: 2 },
+      { costEfficiency: 5, motivation: -3, attraction: -2 },
+      { costEfficiency: -3, retention: 4, motivation: 3 },
+      { costEfficiency: 2, retention: 3, trust: 2 }
+    ]
+  },
+  {
+    id: 'ceo',
+    name: 'Vikram Rao',
+    role: 'Chief Executive Officer',
+    avatar: 'VR',
+    concernType: 'growth',
+    quoteFn: (s) => {
+      const market = s.philosophy.marketPosition;
+      if (market === 'lag') return `<strong>I respect the cost case.</strong> But we will not double revenue with below-market pay. How do we attract the senior engineers we need to win the next contract?`;
+      return `<strong>I want growth.</strong> Will your design help us double headcount in 18 months without breaking the bank? What is the talent acquisition story?`;
+    },
+    options: [
+      'The structure is built to attract — let me walk through the talent acquisition model.',
+      'We may need to revisit market position for senior technical hires specifically.',
+      'Growth is the priority — I can adjust to lead the market for engineering.',
+      'Headcount growth will require selective premium pay; the base structure stays.'
+    ],
+    correctIndex: 3,
+    scoring: [
+      { attraction: 3, costEfficiency: -1, performance: 2 },
+      { attraction: 4, costEfficiency: -2, fairness: -2 },
+      { attraction: 5, costEfficiency: -4, fairness: -3 },
+      { attraction: 4, costEfficiency: -1, fairness: 1, retention: 2 }
+    ]
+  },
+  {
+    id: 'chro',
+    name: 'Anuradha Menon',
+    role: 'Chief Human Resources Officer',
+    avatar: 'AM',
+    concernType: 'people',
+    quoteFn: (s) => {
+      const trans = s.philosophy.transparency;
+      const equity = s.philosophy.equityPriority;
+      if (trans === 'low' && equity === 'low') return `<strong>I am worried.</strong> Low transparency combined with low equity priority will read to employees as "they do not trust us and they do not see us." How do we walk that back?`;
+      if (trans === 'high') return `<strong>The transparency choice is bold.</strong> Are we ready for the questions it will surface? Every existing inequity becomes a conversation.`;
+      return `<strong>The design is technically sound.</strong> But trust does not follow from structure alone. How will we communicate the philosophy?`;
+    },
+    options: [
+      'You\'re right — communication strategy is the next priority, not an afterthought.',
+      'I have built in a transparency runway with employee briefings every quarter.',
+      'The design includes a grievance redressal process to address surfacing concerns.',
+      'Trust will follow consistency — we hold the line for 12 months and review.'
+    ],
+    correctIndex: 0,
+    scoring: [
+      { trust: 5, motivation: 3, fairness: 2 },
+      { trust: 4, motivation: 2, fairness: 3 },
+      { trust: 2, fairness: 3, compliance: 2 },
+      { trust: -2, motivation: -2, fairness: -1 }
+    ]
+  },
+  {
+    id: 'buhead',
+    name: 'Rohan Kapoor',
+    role: 'Business Unit Head',
+    avatar: 'RK',
+    concernType: 'recruitment',
+    quoteFn: (s) => {
+      const market = s.philosophy.marketPosition;
+      const range = s.structure.rangeWidth;
+      if (market === 'lag') return `<strong>I cannot hire on this structure.</strong> Three senior engineers turned down offers last month — all citing pay. Are you giving me a structure I can actually use to recruit?`;
+      if (range === 'narrow') return `<strong>Narrow ranges will hurt me.</strong> I cannot offer enough premium for the specialised people I need. Can we widen for engineering at least?`;
+      return `<strong>This works for most roles.</strong> But for niche specialists — AI, cybersecurity — the market is so hot that even matching is losing. What is the exception policy?`;
+    },
+    options: [
+      'I will add a hot-skills premium framework as part of the design.',
+      'The standard structure holds; we use sign-on bonuses for niche roles.',
+      'Let\'s elevate the market position for engineering specifically.',
+      'Recruit on growth story and L&D investment; pay matches market.'
+    ],
+    correctIndex: 0,
+    scoring: [
+      { attraction: 4, fairness: -1, costEfficiency: -1 },
+      { attraction: 2, costEfficiency: -1, retention: -1 },
+      { attraction: 5, costEfficiency: -3, fairness: -2 },
+      { attraction: 2, motivation: 2, costEfficiency: 2 }
+    ]
+  },
+  {
+    id: 'emprep',
+    name: 'Sandeep Kumar',
+    role: 'Employee Representative',
+    avatar: 'SK',
+    concernType: 'fairness',
+    quoteFn: (s) => {
+      const trans = s.philosophy.transparency;
+      const equity = s.philosophy.equityPriority;
+      const perf = s.philosophy.basis.performance || 0;
+      if (perf > 50) return `<strong>The team is uneasy.</strong> Heavy performance weighting will benefit a few and feel arbitrary to many. How is the calibration process protected from bias?`;
+      if (trans === 'low') return `<strong>People want to understand pay.</strong> Without transparency, even good decisions read as suspicious. Where will we land on this?`;
+      if (equity === 'low') return `<strong>If equity is not a priority,</strong> long-tenured employees will feel discarded. How do we honour the people who built this company?`;
+      return `<strong>The design looks balanced on paper.</strong> But what is the appeals process when an employee disagrees with their pay decision?`;
+    },
+    options: [
+      'A formal pay review committee will be established, with employee representation.',
+      'Annual all-hands sessions will explain the philosophy and answer questions.',
+      'A confidential channel will be created for pay-equity concerns.',
+      'The HR team will be available — but the structure itself is the answer.'
+    ],
+    correctIndex: 0,
+    scoring: [
+      { trust: 5, fairness: 5, motivation: 3 },
+      { trust: 3, fairness: 3, motivation: 2 },
+      { trust: 4, fairness: 3, compliance: 2 },
+      { trust: -3, fairness: -3, motivation: -2 }
+    ]
+  }
+];
+
+/* ---------- SHOCK EVENTS POOL (20+) ---------- */
+const SHOCK_POOL = [
+  {
+    id: 'comp-raise',
+    flag: 'Crisis · Market shift',
+    title: 'A major competitor raises engineering salaries by 25%',
+    desc: 'The largest competitor announced a market-wide engineering pay revision yesterday. Recruiters report a flood of LinkedIn outreach to your senior engineers.',
+    options: [
+      { text: 'Match the increase for engineering only — within 30 days', score: { attraction: 6, retention: 7, costEfficiency: -8, fairness: -4 } },
+      { text: 'Hold the line — strengthen non-cash retention (L&D, projects)', score: { attraction: -4, retention: -3, costEfficiency: 3, motivation: 2 } },
+      { text: 'Offer targeted retention bonuses to top 20% only', score: { attraction: 1, retention: 4, fairness: -3, costEfficiency: -3 } },
+      { text: 'Initiate a comprehensive market re-benchmarking exercise', score: { attraction: 2, retention: 2, costEfficiency: -2, trust: 2 } }
+    ]
+  },
+  {
+    id: 'transparency-law',
+    flag: 'Regulation · Compliance',
+    title: 'Pay transparency legislation introduced',
+    desc: 'A new state-level regulation requires firms above 1,000 employees to publish gender-wage gaps and pay band data annually. Compliance deadline: 90 days.',
+    options: [
+      { text: 'Comply fully and publicly — lead the narrative', score: { compliance: 8, trust: 6, fairness: 5, costEfficiency: -2 } },
+      { text: 'Comply at minimum threshold; keep narrative tight', score: { compliance: 5, trust: -1, fairness: 0 } },
+      { text: 'Conduct internal audit first; comply with revised structure', score: { compliance: 6, fairness: 3, costEfficiency: -3, trust: 2 } },
+      { text: 'Delay disclosure; pursue legal interpretation', score: { compliance: -5, trust: -4, fairness: -2 } }
+    ]
+  },
+  {
+    id: 'investor-pressure',
+    flag: 'Crisis · Investor',
+    title: 'Major investor demands 15% reduction in compensation cost',
+    desc: 'A board-level investor has flagged labour cost as their primary concern. They want a 15% cost reduction in 12 months.',
+    options: [
+      { text: 'Propose alternative — convert fixed to variable, no net cut', score: { costEfficiency: 4, retention: 2, motivation: 1 } },
+      { text: 'Defend the current structure; show retention and revenue case', score: { costEfficiency: -2, retention: 4, trust: 3 } },
+      { text: 'Freeze hiring for 9 months; redistribute existing budget', score: { costEfficiency: 5, retention: -2, motivation: -3 } },
+      { text: 'Implement a tiered cut: 5% senior, 0% junior, 15% executives', score: { costEfficiency: 4, fairness: 3, trust: 2, motivation: -2 } }
+    ]
+  },
+  {
+    id: 'engineer-exit',
+    flag: 'Crisis · Talent loss',
+    title: 'Three senior engineers resign in the same week',
+    desc: 'All three cited compensation as the reason, all to the same competitor. They are mid-project on the firm\'s most critical client engagement.',
+    options: [
+      { text: 'Counter-offer all three with 30% increases', score: { retention: 5, fairness: -4, costEfficiency: -4 } },
+      { text: 'Let them go; immediately accelerate hiring at market+', score: { retention: -3, attraction: 3, costEfficiency: -3, fairness: 2 } },
+      { text: 'Counter only the most critical; redistribute work for others', score: { retention: 2, fairness: -1, costEfficiency: -2, motivation: -2 } },
+      { text: 'Hold pay; offer expanded scope and project ownership', score: { retention: -1, motivation: 4, costEfficiency: 2 } }
+    ]
+  },
+  {
+    id: 'social-media',
+    flag: 'Crisis · Reputation',
+    title: 'Employee social media campaign on pay disparity',
+    desc: 'A viral Twitter thread from a mid-level employee alleges large pay disparities between recent hires and long-tenured staff. It is trending on professional networks.',
+    options: [
+      { text: 'Public response: commit to a pay equity audit within 60 days', score: { trust: 5, fairness: 6, costEfficiency: -3, compliance: 3 } },
+      { text: 'Internal town hall; acknowledge concerns; communicate philosophy', score: { trust: 4, fairness: 3, motivation: 2 } },
+      { text: 'Issue a corporate statement; do not engage employee specifically', score: { trust: -2, fairness: -2, compliance: 1 } },
+      { text: 'Identify the employee; manage as a discipline issue', score: { trust: -6, fairness: -5, compliance: -3 } }
+    ]
+  },
+  {
+    id: 'recession',
+    flag: 'External · Macro',
+    title: 'Economic recession reduces client demand',
+    desc: 'Two large clients cancel contracts. Revenue is projected to fall 12% over the next two quarters. The CFO is asking for compensation contingency plans.',
+    options: [
+      { text: 'Freeze hiring and merit increases; protect base pay', score: { costEfficiency: 4, retention: 2, motivation: -2 } },
+      { text: 'Convert one bonus cycle into deferred compensation', score: { costEfficiency: 3, retention: 1, trust: -1 } },
+      { text: 'Restructure variable pay to lower thresholds, smaller payouts', score: { costEfficiency: 4, motivation: -3, fairness: 1 } },
+      { text: 'No structural change — fund through reserves; protect culture', score: { costEfficiency: -3, retention: 4, trust: 5 } }
+    ]
+  },
+  {
+    id: 'talent-shortage',
+    flag: 'External · Market',
+    title: 'AI/ML talent shortage drives market salaries up 35%',
+    desc: 'The market for AI/ML talent has overheated. Even modestly skilled engineers are commanding salaries 35% above last year. Your firm has 14 such roles open.',
+    options: [
+      { text: 'Create an AI/ML pay band 30% above standard structure', score: { attraction: 6, fairness: -4, retention: 2, costEfficiency: -4 } },
+      { text: 'Hire mid-level talent and invest in upskilling instead', score: { attraction: -1, motivation: 3, costEfficiency: 2 } },
+      { text: 'Offer sign-on bonuses + equity, not base premium', score: { attraction: 4, fairness: 1, costEfficiency: -2 } },
+      { text: 'Partner with universities for early-career pipeline', score: { attraction: 1, costEfficiency: 3, performance: 1 } }
+    ]
+  },
+  {
+    id: 'merger',
+    flag: 'Strategy · Integration',
+    title: 'Acquisition of a 400-person competitor announced',
+    desc: 'NovaTech is acquiring a smaller competitor with a very different (and more generous) compensation structure. Integration begins in 90 days.',
+    options: [
+      { text: 'Migrate acquired employees to NovaTech structure — phased', score: { fairness: 3, costEfficiency: 4, retention: -3, motivation: -2 } },
+      { text: 'Maintain acquired structure for 24 months; harmonise gradually', score: { fairness: -1, costEfficiency: -3, retention: 5, trust: 3 } },
+      { text: 'Adopt the higher acquired structure across the merged firm', score: { fairness: 4, costEfficiency: -7, retention: 4, motivation: 3 } },
+      { text: 'Negotiate individual transitions with key acquired talent', score: { fairness: 0, costEfficiency: 0, retention: 3, attraction: 2 } }
+    ]
+  },
+  {
+    id: 'union',
+    flag: 'Crisis · Labour',
+    title: 'Unionisation effort gains momentum',
+    desc: 'A group of mid-tier employees has begun a formal unionisation effort, citing pay opacity and arbitrary promotion decisions. Leadership is split.',
+    options: [
+      { text: 'Open dialogue; commit to greater pay transparency proactively', score: { trust: 5, fairness: 5, compliance: 3, motivation: 2 } },
+      { text: 'Respect the legal process; do not oppose actively', score: { trust: 3, compliance: 4, fairness: 2 } },
+      { text: 'Address the underlying concerns; remain non-unionised', score: { trust: 4, fairness: 4, motivation: 3 } },
+      { text: 'Strengthen direct employee channels as alternative', score: { trust: 2, fairness: 1, motivation: 1 } }
+    ]
+  },
+  {
+    id: 'inflation',
+    flag: 'External · Macro',
+    title: 'Inflation at 8% erodes employee purchasing power',
+    desc: 'Annual inflation has reached 8%, but the firm\'s standard merit budget is 6%. Employees are losing real income. HR is fielding daily complaints.',
+    options: [
+      { text: 'One-time cost-of-living adjustment for all employees', score: { trust: 5, fairness: 5, costEfficiency: -5, motivation: 3 } },
+      { text: 'Increase merit budget by 3 points for one year', score: { trust: 3, fairness: 2, costEfficiency: -3 } },
+      { text: 'Communicate the math; adjust only for the lowest-paid', score: { trust: 2, fairness: 4, costEfficiency: -1 } },
+      { text: 'Hold the line; emphasise long-term value over short-term', score: { trust: -4, fairness: -3, motivation: -3, costEfficiency: 3 } }
+    ]
+  },
+  {
+    id: 'key-employee',
+    flag: 'Crisis · Counter-offer',
+    title: 'Your top performer receives a 50% counter-offer',
+    desc: 'Aditi Sharma, your highest-rated engineer for three years running, has received an offer from a competitor at 50% above her current pay. She is meeting with you tomorrow.',
+    options: [
+      { text: 'Match the offer with a retention package — explain the exception', score: { retention: 4, fairness: -3, motivation: 1 } },
+      { text: 'Offer a meaningful but smaller increase + scope expansion', score: { retention: 2, fairness: 1, motivation: 3 } },
+      { text: 'Decline to counter; wish her well; reinforce policy', score: { retention: -4, fairness: 4, trust: 1 } },
+      { text: 'Acknowledge the structure failure; commit to broader review', score: { retention: 0, fairness: 3, trust: 4 } }
+    ]
+  },
+  {
+    id: 'gender-gap',
+    flag: 'Compliance · Equity',
+    title: 'Audit reveals 11% gender pay gap',
+    desc: 'An internal audit finds an 11% gender pay gap across comparable roles. The number is below industry average but above the firm\'s public commitments.',
+    options: [
+      { text: 'Public disclosure + 12-month closure plan with milestones', score: { trust: 6, fairness: 7, compliance: 5, costEfficiency: -3 } },
+      { text: 'Internal correction first; public communication once closed', score: { fairness: 5, compliance: 3, trust: 2, costEfficiency: -3 } },
+      { text: 'Address case-by-case in the next merit cycle', score: { fairness: 2, compliance: 1, trust: -1 } },
+      { text: 'Investigate methodology before any commitments', score: { compliance: 0, trust: -3, fairness: -2 } }
+    ]
+  },
+  {
+    id: 'remote-rate',
+    flag: 'Policy · Geography',
+    title: 'Remote work blurs geographic pay zones',
+    desc: '40% of staff now work remotely. An employee in Tier-3 city is doing the same work as a colleague in Bengaluru, for 30% less pay. This is becoming a flashpoint.',
+    options: [
+      { text: 'Move to a single national pay structure', score: { fairness: 4, costEfficiency: -4, retention: 3, attraction: 2 } },
+      { text: 'Maintain geographic differentials with transparent criteria', score: { fairness: -1, costEfficiency: 3, compliance: 2 } },
+      { text: 'Allow employees to choose: location-tied or location-free', score: { fairness: 2, costEfficiency: 0, motivation: 3 } },
+      { text: 'Eliminate geographic differential for senior roles only', score: { fairness: 1, costEfficiency: 1, attraction: 2 } }
+    ]
+  },
+  {
+    id: 'top-team-flight',
+    flag: 'Crisis · Leadership',
+    title: 'Two business unit heads exit for a startup',
+    desc: 'Both took senior team members with them. The exits cite equity opportunity, not base compensation. Capital markets are noticing.',
+    options: [
+      { text: 'Introduce an LTI/ESOP scheme for senior leadership', score: { retention: 5, attraction: 4, costEfficiency: -3, motivation: 3 } },
+      { text: 'One-time retention grant to remaining senior team', score: { retention: 4, attraction: 1, costEfficiency: -2, fairness: -1 } },
+      { text: 'Restructure variable pay to longer-horizon vesting', score: { retention: 3, attraction: 2, motivation: 1 } },
+      { text: 'Promote from within; signal opportunity', score: { retention: 2, motivation: 4, attraction: 1 } }
+    ]
+  },
+  {
+    id: 'new-tech',
+    flag: 'Strategy · Capability',
+    title: 'AI tools could replace 15% of routine work',
+    desc: 'A pilot has shown AI can automate 15% of work in three job families. Leadership is considering compensation implications.',
+    options: [
+      { text: 'Maintain pay; reinvest savings in upskilling and growth roles', score: { trust: 5, motivation: 3, costEfficiency: 1, retention: 3 } },
+      { text: 'Restructure affected roles; cut some pay; create new tracks', score: { fairness: -3, retention: -3, costEfficiency: 3, trust: -3 } },
+      { text: 'Wait and observe; do not pre-empt the change', score: { trust: 0, costEfficiency: -1, motivation: -1 } },
+      { text: 'Negotiate new role definitions with affected employees', score: { trust: 4, fairness: 3, motivation: 2 } }
+    ]
+  },
+  {
+    id: 'star-recruit',
+    flag: 'Opportunity · Hire',
+    title: 'A celebrity tech leader is willing to join — at 2x your CEO\'s pay',
+    desc: 'A globally recognised AI scientist could transform NovaTech\'s positioning. Her ask is twice your current CEO\'s compensation. Internal optics are complicated.',
+    options: [
+      { text: 'Hire her; create a Chief Scientist tier outside main structure', score: { attraction: 6, performance: 4, fairness: -5, costEfficiency: -4 } },
+      { text: 'Negotiate down with equity-heavy package', score: { attraction: 4, performance: 3, costEfficiency: -2, fairness: -2 } },
+      { text: 'Decline; protect internal equity', score: { attraction: -2, fairness: 4, motivation: 1 } },
+      { text: 'Offer advisory role at premium; not full-time', score: { attraction: 2, performance: 2, fairness: 1, costEfficiency: 1 } }
+    ]
+  },
+  {
+    id: 'esop-window',
+    flag: 'Policy · Liquidity',
+    title: 'Long-tenured employees want ESOP liquidity',
+    desc: 'A group of long-tenured employees with vested ESOPs are asking for a liquidity event. The board is divided. Some employees are leaving to monetise elsewhere.',
+    options: [
+      { text: 'Conduct a partial buyback within 6 months', score: { retention: 5, trust: 5, costEfficiency: -3 } },
+      { text: 'Commit to an annual liquidity window going forward', score: { retention: 4, trust: 4, attraction: 3 } },
+      { text: 'Hold for the next funding round; communicate timeline', score: { retention: 1, trust: 1, costEfficiency: 2 } },
+      { text: 'Maintain current policy; no buyback', score: { retention: -3, trust: -3, motivation: -2 } }
+    ]
+  },
+  {
+    id: 'whistleblower',
+    flag: 'Compliance · Risk',
+    title: 'Whistleblower flags pay discrimination',
+    desc: 'A whistleblower complaint alleges that pay decisions for a specific manager have been systematically biased. The compliance team is investigating.',
+    options: [
+      { text: 'Suspend manager pending investigation; conduct full audit', score: { compliance: 6, fairness: 5, trust: 4 } },
+      { text: 'Independent external review of all relevant decisions', score: { compliance: 7, fairness: 5, trust: 5, costEfficiency: -2 } },
+      { text: 'Internal HR review; manager coached not suspended', score: { compliance: 2, fairness: 1, trust: 0 } },
+      { text: 'Dismiss as unsubstantiated; defend the manager', score: { compliance: -5, fairness: -5, trust: -5 } }
+    ]
+  },
+  {
+    id: 'glassdoor',
+    flag: 'Reputation · External',
+    title: 'Glassdoor rating drops sharply on pay/compensation',
+    desc: 'NovaTech\'s Glassdoor compensation score has dropped from 3.8 to 2.9 over six months. Comments cluster around opacity and unfairness.',
+    options: [
+      { text: 'Publish detailed compensation philosophy publicly', score: { trust: 5, attraction: 3, fairness: 3 } },
+      { text: 'Engage HR comms to respond to each review individually', score: { trust: 2, attraction: 1, motivation: 0 } },
+      { text: 'Conduct external compensation review; act on findings', score: { trust: 4, attraction: 3, fairness: 4, costEfficiency: -2 } },
+      { text: 'Do not engage; ratings will normalise', score: { trust: -3, attraction: -3, motivation: -2 } }
+    ]
+  },
+  {
+    id: 'cfo-departure',
+    flag: 'Crisis · Leadership',
+    title: 'The CFO is recruited by a larger competitor',
+    desc: 'Your CFO has accepted a CFO role at a 3x larger competitor — base pay 60% higher. She has offered to help with transition. Replacement search has begun.',
+    options: [
+      { text: 'Acknowledge structural limits; recruit at market for new CFO', score: { attraction: 3, fairness: 2, costEfficiency: -3 } },
+      { text: 'Pursue an internal succession; promote to acting CFO', score: { motivation: 4, retention: 3, attraction: -2 } },
+      { text: 'Make a strong counter-offer to retain', score: { retention: 3, fairness: -2, costEfficiency: -3 } },
+      { text: 'Use the moment to redesign the leadership compensation tier', score: { attraction: 4, retention: 2, fairness: 1, costEfficiency: -2 } }
+    ]
+  }
+];
+
+/* ---------- EMPLOYEE PERSONAS ---------- */
+const EMPLOYEES = [
+  { name: 'Aditi Sharma', role: 'Senior Engineer · 3 years', avatar: 'AS', archetype: 'high-perf-young' },
+  { name: 'Rajesh Krishnan', role: 'Senior Manager · 14 years', avatar: 'RK', archetype: 'long-tenure' },
+  { name: 'Meera Patel', role: 'Engineering Manager · 7 years', avatar: 'MP', archetype: 'mid-career' },
+  { name: 'Imran Ali', role: 'AI/ML Specialist · 4 years', avatar: 'IA', archetype: 'specialist' },
+  { name: 'Priya Nair', role: 'High-Potential Analyst · 2 years', avatar: 'PN', archetype: 'future-leader' },
+  { name: 'Suresh Reddy', role: 'Director · 11 years', avatar: 'SR', archetype: 'senior-tenure' },
+  { name: 'Kavya Joshi', role: 'Junior Engineer · 1 year', avatar: 'KJ', archetype: 'early-career' },
+  { name: 'Arjun Mehta', role: 'Sales Manager · 5 years', avatar: 'AM', archetype: 'variable-pay' },
+  { name: 'Nisha Iyer', role: 'Operations Analyst · 6 years', avatar: 'NI', archetype: 'steady-performer' },
+  { name: 'Vikram Singh', role: 'Cybersecurity Lead · 8 years', avatar: 'VS', archetype: 'specialist-senior' }
+];
+
+/* ---------- BOARD QUESTIONS ---------- */
+const BOARD_QUESTIONS = [
+  { member: 'Audit Committee Chair', q: 'How does your compensation design hold up against your three primary objectives — efficiency, fairness, and compliance? Where is each at greatest risk?' },
+  { member: 'Lead Director', q: 'Walk me through the single biggest trade-off you have made. Why did you accept it?' },
+  { member: 'Compensation Committee Chair', q: 'How will you retain your top performers when competitors are paying 20% more? Be specific about mechanisms, not intent.' },
+  { member: 'Investor Director', q: 'Your labour cost is 46% of operating cost. Where will that number be in 24 months under your design — and what evidence supports your projection?' },
+  { member: 'CEO', q: 'If an employee asked you tomorrow why your pay system is fair, what would you tell them in three sentences?' },
+  { member: 'Independent Director', q: 'What did you choose to leave out of this design that you wish you could have included?' },
+  { member: 'Risk Committee Chair', q: 'Name the three risks most likely to derail your design in the first 18 months. Which is most asymmetric?' },
+  { member: 'CHRO Designate', q: 'How does this structure support — or constrain — our growth strategy of doubling headcount over three years?' },
+  { member: 'Lead Director', q: 'Who in this organisation benefits most from your redesign — and who is most disadvantaged? Be honest.' },
+  { member: 'Compensation Committee Chair', q: 'A year from now, what specific metric would tell you this redesign was successful?' },
+  { member: 'Independent Director', q: 'What is your communication plan for explaining this change to every employee in the first 30 days?' },
+  { member: 'Audit Committee Chair', q: 'If a pay discrimination claim emerged within six months, what would your design have done to either prevent or surface it earlier?' },
+  { member: 'Investor Director', q: 'Why should we believe this design is sustainable across a downturn, not just a growth phase?' },
+  { member: 'CEO', q: 'If you could change one decision you made in this exercise, which would it be and why?' },
+  { member: 'Lead Director', q: 'What is the single most important assumption your design rests on — and what happens if it turns out to be wrong?' }
+];
+
+/* ==========================================================
+   APPLICATION FUNCTIONS
+   ========================================================== */
+
+/* ---------- STAGE NAVIGATION ---------- */
+function goToStage(name) {
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('stage-' + name);
+  if (target) target.classList.add('active');
+  state.currentStage = name;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Update stage indicator
+  const num = STAGE_DISPLAY_NUM[name];
+  if (num !== undefined) {
+    document.getElementById('stageIndicator').style.display = 'flex';
+    document.getElementById('stageLabel').textContent = `Stage ${num} of 7`;
+    renderStagePips(num);
+  } else if (name === 'report') {
+    document.getElementById('stageLabel').textContent = 'Executive Report';
+    renderStagePips(7);
+  } else {
+    document.getElementById('stageIndicator').style.display = 'none';
+  }
+
+  // Render stage-specific content + dashboard
+  if (name === 'philosophy') renderDashboard('dashboardPhil');
+  if (name === 'structure') renderDashboard('dashboardStruct');
+  if (name === 'stakeholders') { renderDashboard('dashboardStake'); renderStakeholders(); }
+  if (name === 'shocks') { renderDashboard('dashboardShock'); renderShocks(); }
+  if (name === 'employees') { renderDashboard('dashboardEmp'); renderEmployees(); }
+  if (name === 'board') { renderDashboard('dashboardBoard'); renderBoard(); }
+  if (name === 'report') renderReport();
+}
+
+function renderStagePips(currentNum) {
+  const pips = document.getElementById('stagePips');
+  pips.innerHTML = '';
+  for (let i = 1; i <= 7; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'stage-pip';
+    if (i < currentNum) pip.classList.add('done');
+    else if (i === currentNum) pip.classList.add('current');
+    pips.appendChild(pip);
+  }
+}
+
+function startSimulation() {
+  state.participantName = document.getElementById('participantName').value.trim() || 'Participant';
+  goToStage('briefing');
+}
+
+function restartSimulation() {
+  if (!confirm('Begin the simulation again? All current responses will be cleared.')) return;
+  window.location.reload();
+}
+
+/* ---------- DASHBOARD RENDERING ---------- */
+function renderDashboard(targetId) {
+  const labels = {
+    attraction: 'Attraction', retention: 'Retention', fairness: 'Fairness', costEfficiency: 'Cost Efficiency',
+    trust: 'Trust', motivation: 'Motivation', compliance: 'Compliance', performance: 'Performance'
+  };
+  const m = state.metrics;
+  const html = `
+    <div class="dashboard-bar">
+      <div class="dashboard-bar-title">Live Organisational Dashboard · 8 metrics</div>
+      <div class="dashboard-gauges">
+        ${Object.keys(labels).map(k => renderGauge(k, labels[k], m[k])).join('')}
+      </div>
+    </div>
+  `;
+  const el = document.getElementById(targetId);
+  if (el) el.innerHTML = html;
+}
+
+function renderGauge(key, label, value) {
+  const v = Math.max(0, Math.min(100, value));
+  const radius = 26;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (v / 100) * circumference;
+  let color = 'var(--hbr-red)';
+  if (v >= 70) color = '#2da06b';
+  else if (v >= 45) color = '#d9a648';
+
+  return `
+    <div class="gauge-cell">
+      <svg class="gauge-svg" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="${radius}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="5"/>
+        <circle cx="32" cy="32" r="${radius}" fill="none" stroke="${color}" stroke-width="5"
+          stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+          transform="rotate(-90 32 32)" style="transition: stroke-dashoffset 0.6s ease;"/>
+        <text x="32" y="38" class="gauge-value-text" text-anchor="middle">${Math.round(v)}</text>
+      </svg>
+      <div class="gauge-label">${label}</div>
+    </div>
+  `;
+}
+
+/* ---------- METRICS ENGINE ---------- */
+function applyDelta(delta) {
+  Object.keys(delta).forEach(k => {
+    if (state.metrics[k] !== undefined) {
+      state.metrics[k] = Math.max(0, Math.min(100, state.metrics[k] + delta[k]));
+    }
+  });
+}
+
+function recalculateBaselineFromDecisions() {
+  // Reset to baseline
+  state.metrics = { attraction: 50, retention: 50, fairness: 50, costEfficiency: 50, trust: 50, motivation: 50, compliance: 70, performance: 50 };
+
+  const p = state.philosophy;
+
+  // Market position
+  if (p.marketPosition === 'lead') applyDelta({ attraction: 18, retention: 12, costEfficiency: -18, performance: 4 });
+  else if (p.marketPosition === 'match') applyDelta({ attraction: 6, retention: 4, costEfficiency: -2 });
+  else if (p.marketPosition === 'lag') applyDelta({ attraction: -14, retention: -10, costEfficiency: 12 });
+
+  // Basis of pay
+  const b = p.basis;
+  applyDelta({
+    performance: Math.round((b.performance - 25) * 0.3 + (b.competencies - 25) * 0.1),
+    motivation: Math.round((b.performance - 25) * 0.25 - (b.seniority - 25) * 0.1),
+    fairness: Math.round((b.competencies - 25) * 0.1 + (b.skills - 25) * 0.05 - Math.abs(b.performance - 50) * 0.1),
+    retention: Math.round((b.seniority - 25) * 0.15 + (b.competencies - 25) * 0.05)
+  });
+
+  // Transparency
+  if (p.transparency === 'high') applyDelta({ trust: 14, fairness: 10, compliance: 6, costEfficiency: -2 });
+  else if (p.transparency === 'moderate') applyDelta({ trust: 7, fairness: 5, compliance: 3 });
+  else if (p.transparency === 'low') applyDelta({ trust: -8, fairness: -6, compliance: -4 });
+
+  // Equity priority
+  if (p.equityPriority === 'high') applyDelta({ fairness: 12, trust: 8, attraction: -4, retention: 3 });
+  else if (p.equityPriority === 'medium') applyDelta({ fairness: 4, trust: 2 });
+  else if (p.equityPriority === 'low') applyDelta({ fairness: -10, trust: -6, attraction: 5 });
+
+  // Structure
+  const s = state.structure;
+  if (s.gradeArch === 'broad') applyDelta({ motivation: 4, retention: 2, fairness: -3 });
+  else if (s.gradeArch === 'narrow') applyDelta({ motivation: -3, fairness: 4, costEfficiency: -2 });
+
+  if (s.rangeWidth === 'wide') applyDelta({ retention: 6, costEfficiency: -4 });
+  else if (s.rangeWidth === 'narrow') applyDelta({ retention: -4, costEfficiency: 4, motivation: -2 });
+
+  if (s.midpoint === '30') applyDelta({ motivation: 5, fairness: -3, retention: 3 });
+  else if (s.midpoint === '10') applyDelta({ motivation: -3, costEfficiency: 4, retention: -2 });
+
+  // Mix
+  const mix = s.mix;
+  applyDelta({
+    motivation: Math.round((mix.incentive - 20) * 0.2 + (mix.longterm - 10) * 0.2),
+    retention: Math.round((mix.longterm - 10) * 0.4),
+    costEfficiency: Math.round((mix.fixed - 70) * 0.05),
+    performance: Math.round((mix.incentive - 20) * 0.15)
+  });
+
+  // Benefits
+  const ben = s.benefits;
+  applyDelta({
+    trust: Math.round((ben.health - 30) * 0.05 + (ben.retirement - 20) * 0.1),
+    retention: Math.round((ben.health - 30) * 0.05 + (ben.retirement - 20) * 0.05),
+    motivation: Math.round((ben.learning - 20) * 0.1 + (ben.wellness - 15) * 0.05),
+    attraction: Math.round((ben.flex - 15) * 0.1 + (ben.learning - 20) * 0.05)
+  });
+}
+
+/* ---------- ALLOCATIONS ---------- */
+function updateAllocation(group) {
+  const groupMap = {
+    'basis': { ids: ['seniority','skills','competencies','performance'], target: 'basisTotal', stateKey: 'philosophy.basis' },
+    'mix': { ids: ['fixed','incentive','longterm'], target: 'mixTotal', stateKey: 'structure.mix' },
+    'benefits': { ids: ['health','retirement','learning','wellness','flex'], target: 'benefitsTotal', stateKey: 'structure.benefits' }
+  };
+  const g = groupMap[group];
+  let total = 0;
+  g.ids.forEach(id => {
+    const slider = document.querySelector(`.allocation-slider[data-key="${id}"]`);
+    const val = parseInt(slider.value);
+    document.getElementById(`${group === 'basis' ? 'basis' : group === 'mix' ? 'mix' : 'benefits'}-${id}`).textContent = val;
+    total += val;
+    // Update state
+    const path = g.stateKey.split('.');
+    state[path[0]][path[1]][id] = val;
+  });
+  const totalEl = document.getElementById(g.target);
+  totalEl.textContent = `Total: ${total} / 100`;
+  totalEl.classList.remove('valid', 'invalid');
+  if (total === 100) totalEl.classList.add('valid');
+  else totalEl.classList.add('invalid');
+
+  // Check stage submit eligibility
+  if (group === 'basis') checkPhilosophyReady();
+  if (group === 'mix' || group === 'benefits') checkStructureReady();
+}
+
+/* ---------- CHOICE SELECTION ---------- */
+document.addEventListener('click', (e) => {
+  const choice = e.target.closest('.choice-card');
+  if (choice) {
+    const grid = choice.parentElement;
+    const decisionKey = grid.dataset.decision;
+    if (!decisionKey) return;
+    grid.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+    choice.classList.add('selected');
+
+    const value = choice.dataset.value;
+    if (decisionKey === 'market-position') state.philosophy.marketPosition = value;
+    else if (decisionKey === 'transparency') state.philosophy.transparency = value;
+    else if (decisionKey === 'equity-priority') state.philosophy.equityPriority = value;
+    else if (decisionKey === 'grade-architecture') state.structure.gradeArch = value;
+    else if (decisionKey === 'range-width') state.structure.rangeWidth = value;
+    else if (decisionKey === 'midpoint') state.structure.midpoint = value;
+
+    checkPhilosophyReady();
+    checkStructureReady();
+  }
+});
+
+/* ---------- WORD COUNT ---------- */
+function updateWordCount(textareaId, counterId, buttonId, minWords) {
+  const ta = document.getElementById(textareaId);
+  const wc = document.getElementById(counterId);
+  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  wc.textContent = words + ' word' + (words === 1 ? '' : 's') + (minWords ? ` · min ${minWords}` : '');
+  state.philosophy.reflection = ta.value.trim();
+  if (buttonId) checkPhilosophyReady();
+}
+
+/* ---------- PHILOSOPHY ---------- */
+function checkPhilosophyReady() {
+  const p = state.philosophy;
+  const basisTotal = Object.values(p.basis).reduce((a,b)=>a+b,0);
+  const reflectionWords = (p.reflection || '').split(/\s+/).filter(Boolean).length;
+  const ready = p.marketPosition && p.transparency && p.equityPriority && basisTotal === 100 && reflectionWords >= 40;
+  const btn = document.getElementById('submitPhil');
+  if (btn) btn.disabled = !ready;
+}
+
+function submitPhilosophy() {
+  recalculateBaselineFromDecisions();
+  showToast('Philosophy locked in · dashboard updated');
+  goToStage('structure');
+}
+
+/* ---------- STRUCTURE ---------- */
+function checkStructureReady() {
+  const s = state.structure;
+  const mixTotal = Object.values(s.mix).reduce((a,b)=>a+b,0);
+  const benefitsTotal = Object.values(s.benefits).reduce((a,b)=>a+b,0);
+  const ready = s.gradeArch && s.rangeWidth && s.midpoint && mixTotal === 100 && benefitsTotal === 100;
+  const btn = document.getElementById('submitStruct');
+  if (btn) btn.disabled = !ready;
+}
+
+function submitStructure() {
+  recalculateBaselineFromDecisions();
+  showToast('Pay structure designed · dashboard updated');
+  goToStage('stakeholders');
+}
+
+/* ---------- STAKEHOLDERS ---------- */
+function renderStakeholders() {
+  const container = document.getElementById('stakeholdersContainer');
+  container.innerHTML = '';
+  STAKEHOLDERS.forEach(sh => {
+    const card = document.createElement('div');
+    card.className = 'stakeholder-card';
+    card.innerHTML = `
+      <div class="stakeholder-header">
+        <div class="stakeholder-avatar">${sh.avatar}</div>
+        <div class="stakeholder-info">
+          <div class="stakeholder-name">${sh.name}</div>
+          <div class="stakeholder-role">${sh.role}</div>
+        </div>
+      </div>
+      <div class="stakeholder-quote">${sh.quoteFn(state)}</div>
+      <div class="stakeholder-response" data-sh="${sh.id}">
+        ${sh.options.map((opt, i) => `
+          <div class="response-option" data-idx="${i}" onclick="selectStakeholderResponse('${sh.id}', ${i})">${opt}</div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectStakeholderResponse(shId, idx) {
+  state.stakeholderResponses[shId] = idx;
+  const wrap = document.querySelector(`.stakeholder-response[data-sh="${shId}"]`);
+  wrap.querySelectorAll('.response-option').forEach(o => o.classList.remove('selected'));
+  wrap.querySelector(`.response-option[data-idx="${idx}"]`).classList.add('selected');
+  const ready = STAKEHOLDERS.every(sh => state.stakeholderResponses[sh.id] !== undefined);
+  document.getElementById('submitStake').disabled = !ready;
+}
+
+function submitStakeholders() {
+  STAKEHOLDERS.forEach(sh => {
+    const idx = state.stakeholderResponses[sh.id];
+    applyDelta(sh.scoring[idx]);
+  });
+  showToast('Stakeholder responses recorded · dashboard updated');
+  goToStage('shocks');
+}
+
+/* ---------- SHOCKS ---------- */
+function pickShocks() {
+  if (state.shockEvents.length > 0) return state.shockEvents;
+  // Pick 5 random events from pool
+  const shuffled = [...SHOCK_POOL].sort(() => Math.random() - 0.5);
+  state.shockEvents = shuffled.slice(0, 5);
+  return state.shockEvents;
+}
+
+function renderShocks() {
+  const events = pickShocks();
+  const container = document.getElementById('shocksContainer');
+  container.innerHTML = '';
+  events.forEach((ev, i) => {
+    const card = document.createElement('div');
+    card.className = 'event-card';
+    card.innerHTML = `
+      <div class="event-flag">Event ${String(i+1).padStart(2,'0')} · ${ev.flag}</div>
+      <div class="event-title">${ev.title}</div>
+      <div class="event-desc">${ev.desc}</div>
+      <div class="stakeholder-response" data-ev="${ev.id}">
+        ${ev.options.map((opt, j) => `
+          <div class="response-option" data-idx="${j}" onclick="selectShockResponse('${ev.id}', ${j})">${opt.text}</div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectShockResponse(evId, idx) {
+  state.shockResponses[evId] = idx;
+  const wrap = document.querySelector(`.stakeholder-response[data-ev="${evId}"]`);
+  wrap.querySelectorAll('.response-option').forEach(o => o.classList.remove('selected'));
+  wrap.querySelector(`.response-option[data-idx="${idx}"]`).classList.add('selected');
+  const ready = state.shockEvents.every(ev => state.shockResponses[ev.id] !== undefined);
+  document.getElementById('submitShocks').disabled = !ready;
+}
+
+function submitShocks() {
+  state.shockEvents.forEach(ev => {
+    const idx = state.shockResponses[ev.id];
+    applyDelta(ev.options[idx].score);
+  });
+  showToast('Crisis responses recorded · final dashboard updated');
+  goToStage('employees');
+}
+
+/* ---------- EMPLOYEE REACTIONS ---------- */
+function calculateEmployeeReaction(emp) {
+  // Each employee archetype responds differently to the same decisions
+  const p = state.philosophy;
+  const s = state.structure;
+  const m = state.metrics;
+
+  let satisfaction = 50, trust = 50, motivation = 50, stay = 60;
+  let reaction = '';
+
+  const perfWeight = p.basis.performance;
+  const seniorityWeight = p.basis.seniority;
+
+  switch (emp.archetype) {
+    case 'high-perf-young':
+      satisfaction += (perfWeight - 25) * 0.6 + (p.marketPosition === 'lead' ? 15 : p.marketPosition === 'lag' ? -15 : 0);
+      motivation += (perfWeight - 25) * 0.5 + (s.midpoint === '30' ? 8 : -2);
+      stay += (p.marketPosition === 'lead' ? 15 : -8) + (s.mix.longterm > 15 ? 10 : -5);
+      trust += p.transparency === 'high' ? 10 : p.transparency === 'low' ? -8 : 4;
+      reaction = perfWeight >= 40 && p.marketPosition !== 'lag'
+        ? 'Finally — a system that rewards what I do. I can see a path here.'
+        : perfWeight < 30
+        ? 'I work harder than most and earn the same. Why would I stay?'
+        : 'The structure is okay. But the market is paying more, and that\'s hard to ignore.';
+      break;
+
+    case 'long-tenure':
+      satisfaction += (seniorityWeight - 25) * 0.6 - (perfWeight - 25) * 0.2;
+      trust += p.equityPriority === 'high' ? 10 : -5;
+      stay += seniorityWeight > 30 ? 12 : -4;
+      motivation += (s.benefits.retirement - 20) * 0.4;
+      reaction = seniorityWeight >= 30 && p.equityPriority === 'high'
+        ? 'They see the value in what we\'ve built. That matters.'
+        : perfWeight > 50
+        ? 'Everything I built doesn\'t count anymore. They want stars, not workhorses.'
+        : 'It\'s acceptable. I\'ll stay, but the loyalty feels less mutual now.';
+      break;
+
+    case 'mid-career':
+      satisfaction = (m.fairness + m.motivation) / 2;
+      motivation += (s.benefits.flex - 15) * 0.4 + (s.benefits.wellness - 15) * 0.3;
+      trust = m.trust;
+      stay = m.retention;
+      reaction = m.fairness >= 65 && s.benefits.flex >= 18
+        ? 'Recognition + flexibility — that\'s what mid-career needs. This works.'
+        : m.fairness < 50
+        ? 'Promotions feel arbitrary. I want clarity on what gets me to the next level.'
+        : 'A balanced design. I appreciate the thought, even where I disagree.';
+      break;
+
+    case 'specialist':
+      satisfaction += p.marketPosition === 'lead' ? 18 : p.marketPosition === 'lag' ? -18 : 0;
+      stay += p.marketPosition === 'lead' ? 20 : p.marketPosition === 'lag' ? -25 : 0;
+      motivation += (s.benefits.learning - 20) * 0.6;
+      trust += p.equityPriority === 'low' ? 6 : -4;
+      reaction = p.marketPosition === 'lead'
+        ? 'They\'re serious about specialists. I have offers but I\'m staying.'
+        : p.marketPosition === 'lag'
+        ? 'I have three offers above what I make here. We\'ll see how long this lasts.'
+        : 'It\'s competitive enough — for now. The market moves fast in my field.';
+      break;
+
+    case 'future-leader':
+      motivation += (s.midpoint === '30' ? 12 : s.midpoint === '10' ? -6 : 4);
+      satisfaction += (s.benefits.learning - 20) * 0.5 + (s.mix.longterm - 10) * 0.4;
+      stay = m.retention + (s.benefits.learning > 25 ? 8 : 0);
+      trust += p.transparency === 'high' ? 8 : p.transparency === 'low' ? -8 : 2;
+      reaction = s.benefits.learning >= 25 && s.midpoint !== '10'
+        ? 'I can see my next five years here. That\'s rare.'
+        : s.midpoint === '10'
+        ? 'Promotions don\'t move the needle much. I might need to leave to grow.'
+        : 'The trajectory is unclear. I\'d like to know what investment they\'ll make in me.';
+      break;
+
+    case 'senior-tenure':
+      satisfaction += (s.mix.longterm - 10) * 0.6 + (seniorityWeight - 25) * 0.3;
+      stay += s.mix.longterm > 15 ? 14 : -6;
+      trust = (m.trust + m.fairness) / 2;
+      motivation += p.equityPriority === 'high' ? 8 : -3;
+      reaction = s.mix.longterm >= 18 && p.equityPriority === 'high'
+        ? 'They\'re thinking long-term — and so am I. Aligned.'
+        : s.mix.longterm < 8
+        ? 'No real long-term incentive. I\'m thinking about my next move.'
+        : 'Solid. I might have wanted more equity, but it\'s a reasonable design.';
+      break;
+
+    case 'early-career':
+      satisfaction += (s.benefits.learning - 20) * 0.6 + (s.benefits.flex - 15) * 0.3;
+      motivation += s.midpoint === '30' ? 8 : 0;
+      stay += (s.benefits.learning - 20) * 0.3 + (m.trust - 50) * 0.4;
+      trust = m.trust;
+      reaction = s.benefits.learning >= 23 && s.benefits.flex >= 15
+        ? 'Good place to start a career. Learning, flexibility, fair pay — I\'ll stay a while.'
+        : s.benefits.learning < 15
+        ? 'Cost-conscious but the L&D budget is thin. I want to grow somewhere that invests.'
+        : 'It\'s fine for now. I\'ll see how the first promotion goes.';
+      break;
+
+    case 'variable-pay':
+      satisfaction += (s.mix.incentive - 20) * 0.6;
+      motivation += s.mix.incentive > 30 ? 12 : s.mix.incentive < 15 ? -8 : 2;
+      stay += m.motivation > 60 ? 10 : -5;
+      trust += p.transparency === 'high' ? 8 : 0;
+      reaction = s.mix.incentive >= 30
+        ? 'Variable pay tied to outcomes — that\'s how sales should work. I\'m motivated.'
+        : s.mix.incentive < 15
+        ? 'Mostly fixed pay in sales doesn\'t make sense. Where\'s the upside?'
+        : 'The mix is reasonable. I\'d like more variable, but it\'s workable.';
+      break;
+
+    case 'steady-performer':
+      satisfaction = (m.fairness + m.trust) / 2;
+      stay += (m.fairness - 50) * 0.5 + (s.benefits.health - 30) * 0.3;
+      motivation += (s.benefits.wellness - 15) * 0.4;
+      trust = m.trust;
+      reaction = m.fairness >= 65 && m.trust >= 60
+        ? 'Fair and stable. That\'s what I want at this stage of my career.'
+        : m.fairness < 50
+        ? 'Hard to know what\'s fair when communication is patchy. I\'m losing patience.'
+        : 'It\'s a workable system. I\'m not in a hurry to leave.';
+      break;
+
+    case 'specialist-senior':
+      satisfaction += p.marketPosition === 'lead' ? 14 : p.marketPosition === 'lag' ? -14 : 2;
+      stay += (s.mix.longterm - 10) * 0.5 + (p.marketPosition === 'lead' ? 10 : -8);
+      motivation += s.benefits.learning > 22 ? 6 : 0;
+      trust = m.trust;
+      reaction = p.marketPosition === 'lead' && s.mix.longterm >= 15
+        ? 'Premium pay, long-term incentives, learning budget — I have what I need.'
+        : p.marketPosition === 'lag'
+        ? 'For my expertise, this is well below market. I\'ll need to consider options.'
+        : 'It\'s competitive — just. I\'d like more long-term incentive to match my tenure.';
+      break;
+  }
+
+  return {
+    satisfaction: Math.max(0, Math.min(100, Math.round(satisfaction))),
+    trust: Math.max(0, Math.min(100, Math.round(trust))),
+    motivation: Math.max(0, Math.min(100, Math.round(motivation))),
+    stay: Math.max(0, Math.min(100, Math.round(stay))),
+    reaction: reaction
+  };
+}
+
+function renderEmployees() {
+  const grid = document.getElementById('employeeGrid');
+  grid.innerHTML = '';
+  EMPLOYEES.forEach(emp => {
+    const r = calculateEmployeeReaction(emp);
+    const card = document.createElement('div');
+    card.className = 'employee-card';
+    card.innerHTML = `
+      <div class="employee-header">
+        <div class="employee-avatar">${emp.avatar}</div>
+        <div class="employee-info">
+          <div class="employee-name">${emp.name}</div>
+          <div class="employee-detail">${emp.role}</div>
+        </div>
+      </div>
+      <div class="employee-reaction">"${r.reaction}"</div>
+      <div class="employee-metrics">
+        ${renderEmpMetric('Satisfaction', r.satisfaction)}
+        ${renderEmpMetric('Trust', r.trust)}
+        ${renderEmpMetric('Motivation', r.motivation)}
+        ${renderEmpMetric('Stay prob.', r.stay)}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderEmpMetric(label, value) {
+  const v = Math.max(0, Math.min(100, value));
+  return `
+    <div class="emp-metric">
+      <span class="emp-metric-label">${label}</span>
+      <span class="emp-metric-value">${v}</span>
+      <div class="emp-bar-track" style="grid-column: 1 / -1;">
+        <div class="emp-bar-fill" style="width: ${v}%;"></div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- BOARD ---------- */
+function pickBoardQuestions() {
+  if (state.boardQuestions.length > 0) return state.boardQuestions;
+  const shuffled = [...BOARD_QUESTIONS].sort(() => Math.random() - 0.5);
+  state.boardQuestions = shuffled.slice(0, 5);
+  return state.boardQuestions;
+}
+
+function renderBoard() {
+  const qs = pickBoardQuestions();
+  const container = document.getElementById('boardContainer');
+  container.innerHTML = '';
+  qs.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'board-question';
+    card.innerHTML = `
+      <div class="board-member">${q.member} · Question ${i+1} of 5</div>
+      <div class="board-q-text">"${q.q}"</div>
+      <textarea class="reflection-textarea" id="board-${i}" placeholder="Your answer · 40 words minimum…" oninput="updateBoardAnswer(${i})"></textarea>
+      <div class="word-count" id="board-wc-${i}">0 words · min 40</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateBoardAnswer(i) {
+  const ta = document.getElementById('board-' + i);
+  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('board-wc-' + i).textContent = words + ' words · min 40';
+  state.boardAnswers[i] = ta.value.trim();
+  const allReady = [0,1,2,3,4].every(idx => (state.boardAnswers[idx] || '').split(/\s+/).filter(Boolean).length >= 40);
+  document.getElementById('submitBoard').disabled = !allReady;
+}
+
+function submitBoard() {
+  showToast('Board responses submitted · generating report');
+  setTimeout(() => goToStage('report'), 600);
+}
+
+/* ---------- REPORT GENERATION ---------- */
+function renderReport() {
+  const score = calculateStrategicScore();
+  const band = scoreBand(score);
+  const philEval = evaluatePhilosophy();
+  const structEval = evaluateStructure();
+  const stakeEval = evaluateStakeholders();
+  const risks = identifyRisks();
+  const badges = awardBadges();
+
+  const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  document.getElementById('reportContainer').innerHTML = `
+    <div class="report-cover">
+      <div class="report-eyebrow">Confidential Executive Report</div>
+      <div class="report-title">The Strategic Compensation Verdict</div>
+      <div class="report-recipient">Prepared for</div>
+      <div class="report-name">${escapeHtml(state.participantName)}</div>
+      <div style="margin: 20px 0; padding: 20px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+        <div style="font-family: 'Helvetica Neue', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px;">Strategic Compensation Score</div>
+        <div>
+          <span class="report-strategic-score">${score}</span>
+          <span class="report-strategic-score-total"> / 100</span>
+        </div>
+        <div class="report-band">— ${band.title}</div>
+        <div style="font-family: Georgia, serif; font-size: 16px; font-style: italic; color: var(--ink-soft); margin-top: 14px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.55;">${band.narrative}</div>
+      </div>
+      <div style="font-family: 'Helvetica Neue', sans-serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint);">Issued · ${date}</div>
+    </div>
+
+    <div class="report-section">
+      <h3>i · Compensation Philosophy Evaluation</h3>
+      <h4>Your strategic stance</h4>
+      <p>${philEval.summary}</p>
+      <h4>Strengths</h4>
+      <ul>${philEval.strengths.map(s => `<li class="strength">${s}</li>`).join('')}</ul>
+      <h4>Weaknesses</h4>
+      <ul>${philEval.weaknesses.map(s => `<li class="weakness">${s}</li>`).join('')}</ul>
+    </div>
+
+    <div class="report-section">
+      <h3>ii · Pay Structure Evaluation</h3>
+      <h4>Your architectural choices</h4>
+      <p>${structEval.summary}</p>
+      <h4>Strengths</h4>
+      <ul>${structEval.strengths.map(s => `<li class="strength">${s}</li>`).join('')}</ul>
+      <h4>Weaknesses</h4>
+      <ul>${structEval.weaknesses.map(s => `<li class="weakness">${s}</li>`).join('')}</ul>
+    </div>
+
+    <div class="report-section">
+      <h3>iii · Stakeholder Management Evaluation</h3>
+      <h4>Your negotiation pattern</h4>
+      <p>${stakeEval.summary}</p>
+      <h4>Strengths</h4>
+      <ul>${stakeEval.strengths.map(s => `<li class="strength">${s}</li>`).join('')}</ul>
+      <h4>Weaknesses</h4>
+      <ul>${stakeEval.weaknesses.map(s => `<li class="weakness">${s}</li>`).join('')}</ul>
+    </div>
+
+    <div class="report-section">
+      <h3>iv · Risk Assessment</h3>
+      <p style="font-style: italic;">Risks identified in your design — in order of materiality. Each carries an action implication.</p>
+      <ul>${risks.map(r => `<li class="risk"><strong>${r.title}</strong> — ${r.text}</li>`).join('')}</ul>
+    </div>
+
+    <div class="report-section">
+      <h3>v · Final Dashboard State</h3>
+      <p style="margin-bottom: 14px;">Where the eight organisational metrics landed after your decisions and the unfolding of events:</p>
+      <div class="dashboard-bar" style="margin-bottom: 0;">
+        <div class="dashboard-bar-title">Closing Dashboard</div>
+        <div class="dashboard-gauges">
+          ${Object.keys({attraction:0,retention:0,fairness:0,costEfficiency:0,trust:0,motivation:0,compliance:0,performance:0}).map(k =>
+            renderGauge(k, ({attraction:'Attraction',retention:'Retention',fairness:'Fairness',costEfficiency:'Cost Efficiency',trust:'Trust',motivation:'Motivation',compliance:'Compliance',performance:'Performance'})[k], state.metrics[k])
+          ).join('')}
+        </div>
+      </div>
+    </div>
+
+    ${badges.length > 0 ? `
+    <div class="report-section">
+      <h3>vi · Badges Earned</h3>
+      <p>Distinctive strategic moves identified in your decisions.</p>
+      <div class="badge-grid">
+        ${badges.map(b => `
+          <div class="badge">
+            <div class="badge-mark">❦</div>
+            <div class="badge-name">${b.name}</div>
+            <div class="badge-desc">${b.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+
+    <div class="report-section">
+      <h3>vii · The Last Word</h3>
+      <p>${closingNote(score, philEval, structEval)}</p>
+    </div>
+  `;
+}
+
+function calculateStrategicScore() {
+  const m = state.metrics;
+  // Weighted average of the eight metrics
+  const weights = { attraction: 1, retention: 1.2, fairness: 1.2, costEfficiency: 1, trust: 1.1, motivation: 1, compliance: 0.8, performance: 1 };
+  let total = 0, weightSum = 0;
+  Object.keys(weights).forEach(k => {
+    total += m[k] * weights[k];
+    weightSum += weights[k];
+  });
+  // Bonus for balance (low variance = strategic coherence)
+  const values = Object.values(m);
+  const avg = values.reduce((a,b)=>a+b,0) / values.length;
+  const variance = values.reduce((a,b) => a + Math.pow(b - avg, 2), 0) / values.length;
+  const balanceBonus = Math.max(0, 10 - variance / 40);
+
+  return Math.max(0, Math.min(100, Math.round(total / weightSum + balanceBonus * 0.3)));
+}
+
+function scoreBand(score) {
+  if (score >= 85) return { title: 'Distinguished Strategist', narrative: 'A balanced, defensible, and strategically literate redesign. You held tensions rather than collapsing them — the mark of an executive thinker.' };
+  if (score >= 72) return { title: 'Strong Executive Judgement', narrative: 'A capable redesign with coherent philosophy and execution. The trade-offs you made are defensible; the gaps below identify where depth remains.' };
+  if (score >= 58) return { title: 'Competent Designer', narrative: 'A workable design with the structural elements in place. Strategic coherence — making every decision serve a stated philosophy — is the next layer to develop.' };
+  if (score >= 42) return { title: 'Partial Design', narrative: 'A redesign with promising elements but unresolved tensions. The dashboard shows where the system is straining; the report identifies which decisions caused the strain.' };
+  return { title: 'Foundational Effort', narrative: 'A starting position. The redesign carries internal contradictions that the dashboard has surfaced. Treat this as a diagnostic; run again with the lessons in hand.' };
+}
+
+function evaluatePhilosophy() {
+  const p = state.philosophy;
+  const strengths = [], weaknesses = [];
+  let summary = '';
+
+  const market = p.marketPosition;
+  const perf = p.basis.performance;
+  const seniority = p.basis.seniority;
+  const trans = p.transparency;
+  const equity = p.equityPriority;
+
+  // Summary
+  const marketWord = market === 'lead' ? 'lead-the-market' : market === 'match' ? 'match-the-market' : 'lag-the-market';
+  const transWord = trans === 'high' ? 'fully transparent' : trans === 'moderate' ? 'moderately transparent' : 'closed';
+  const equityWord = equity === 'high' ? 'with strong internal equity' : equity === 'medium' ? 'with balanced equity priority' : 'with low equity priority';
+  summary = `You chose a <strong>${marketWord}</strong> stance, <strong>${transWord}</strong> with employees, <strong>${equityWord}</strong>. Your basis of pay leans toward <strong>${perf >= 40 ? 'performance differentiation' : seniority >= 35 ? 'tenure-based stability' : 'a balanced mix'}</strong>.`;
+
+  // Strengths
+  if (market === 'lead' && perf >= 35) strengths.push('Aggressive market position paired with performance focus — coherent message to high performers.');
+  if (market === 'match' && equity === 'high') strengths.push('Match-market + high equity is the classic defensible stance — predictable, internally fair, externally credible.');
+  if (trans === 'high') strengths.push('High transparency builds trust and pre-empts the equity questions every modern firm eventually faces.');
+  if (perf >= 30 && perf <= 50 && seniority <= 30) strengths.push('Performance weighting is meaningful without being volatile — calibrated, not theatrical.');
+  if (seniority >= 35 && market !== 'lead') strengths.push('Honouring tenure with cost discipline reflects an organisation that values its institutional knowledge.');
+
+  // Weaknesses
+  if (market === 'lag' && perf < 30) weaknesses.push('Below-market pay with low performance differentiation gives strong performers no reason to stay — attrition risk is high.');
+  if (market === 'lead' && p.basis.performance < 25) weaknesses.push('Leading the market without performance differentiation pays mediocre and exceptional employees the same premium — strategically expensive.');
+  if (trans === 'low' && equity === 'low') weaknesses.push('Low transparency + low equity priority is the highest-risk combination — every internal complaint becomes a question the firm cannot answer.');
+  if (perf >= 60) weaknesses.push('Very heavy performance weighting (above 60%) creates volatility, calibration burden, and perceived arbitrariness — particularly in roles where individual measurement is hard.');
+  if (seniority >= 50) weaknesses.push('Heavy seniority weighting (above 50%) signals that tenure outweighs contribution — an attraction problem for ambitious early-career talent.');
+  if (market === 'match' && trans === 'low') weaknesses.push('Matching the market while staying opaque undersells the philosophy — employees will not believe a benchmark they cannot see.');
+
+  if (strengths.length === 0) strengths.push('Your philosophy choices are internally consistent — the foundation is in place.');
+  if (weaknesses.length === 0) weaknesses.push('No major structural concerns surface from the philosophy choices alone.');
+
+  return { summary, strengths, weaknesses };
+}
+
+function evaluateStructure() {
+  const s = state.structure;
+  const strengths = [], weaknesses = [];
+
+  const archWord = s.gradeArch === 'broad' ? 'broad bands' : s.gradeArch === 'narrow' ? 'narrow grades' : 'moderate grades';
+  const rangeWord = s.rangeWidth === 'wide' ? 'wide ranges' : s.rangeWidth === 'narrow' ? 'tight ranges' : 'moderate ranges';
+  const summary = `You designed the structure with <strong>${archWord}</strong>, <strong>${rangeWord}</strong>, and a <strong>${s.midpoint}% midpoint progression</strong>. The compensation mix sits at <strong>${s.mix.fixed}% fixed / ${s.mix.incentive}% incentive / ${s.mix.longterm}% long-term</strong>.`;
+
+  // Mix-based analysis
+  if (s.mix.longterm >= 15) strengths.push('Substantial long-term incentive component aligns critical talent with sustained organisational performance — particularly valuable for senior retention.');
+  if (s.mix.incentive >= 25 && s.mix.incentive <= 40) strengths.push('Incentive pay weight is meaningful but not destabilising — a credible performance signal.');
+  if (s.gradeArch === 'broad' && s.rangeWidth === 'wide') strengths.push('Broad bands with wide ranges enable lateral career growth without the political weight of frequent promotions.');
+  if (s.gradeArch === 'narrow' && s.rangeWidth === 'narrow') weaknesses.push('Narrow grades + narrow ranges create severe pay compression risk — promotions become the only growth lever, and small gaps generate large grievances.');
+  if (s.mix.longterm < 5) weaknesses.push('Long-term incentive is effectively absent — for a tech firm with senior retention concerns, this is a strategic gap.');
+  if (s.mix.incentive > 45) weaknesses.push('Incentive pay above 45% creates significant earnings volatility — protect against the years when payouts fall.');
+  if (s.midpoint === '10' && s.rangeWidth === 'narrow') weaknesses.push('Small promotion uplifts (10%) combined with narrow ranges leave employees with little headroom — flight risk rises in years 3–5.');
+  if (s.midpoint === '30' && s.gradeArch === 'narrow') weaknesses.push('Large promotion steps in a narrow-grade structure create extreme pay inequities between newly-promoted and pre-promotion employees doing similar work.');
+
+  // Benefits
+  if (s.benefits.learning >= 25) strengths.push('Significant L&D investment — the indirect compensation component most prized by ambitious mid-career talent.');
+  if (s.benefits.flex >= 18) strengths.push('Flexible work support allocation is above average — addresses a major retention factor for the mid-career segment.');
+  if (s.benefits.health < 20) weaknesses.push('Below-average health benefits allocation may underserve a key indirect compensation expectation — particularly visible to families.');
+  if (s.benefits.wellness >= 18 && s.benefits.learning >= 22) strengths.push('Strong wellness + learning balance — addresses both burnout risk and growth motivation simultaneously.');
+
+  if (strengths.length === 0) strengths.push('Structure is operationally workable — the foundation supports the philosophy chosen.');
+  if (weaknesses.length === 0) weaknesses.push('No major structural risks identified.');
+
+  return { summary, strengths, weaknesses };
+}
+
+function evaluateStakeholders() {
+  const responses = state.stakeholderResponses;
+  const correctCount = STAKEHOLDERS.filter(sh => responses[sh.id] === sh.correctIndex).length;
+  const strengths = [], weaknesses = [];
+
+  let summary = '';
+  if (correctCount >= 4) summary = 'You navigated the stakeholder conversation with executive judgement — engaging substantively rather than defensively, acknowledging concerns rather than dismissing them.';
+  else if (correctCount >= 2) summary = 'A mixed pattern. Some responses showed strategic awareness; others defaulted to defensive postures or transactional offers that erode trust over time.';
+  else summary = 'The negotiation pattern suggests room for development — several responses prioritised position-holding over genuine engagement with stakeholder concerns.';
+
+  // Specific stakeholder analysis
+  Object.keys(responses).forEach(shId => {
+    const sh = STAKEHOLDERS.find(s => s.id === shId);
+    const chosen = responses[shId];
+    if (chosen === sh.correctIndex) {
+      if (sh.id === 'cfo') strengths.push('CFO response — you came with modelled numbers, not assertions. The boardroom respects that.');
+      if (sh.id === 'chro') strengths.push('CHRO response — you recognised that structure without communication is incomplete.');
+      if (sh.id === 'emprep') strengths.push('Employee Representative response — committing to a representative review process turns a complaint into a partnership.');
+    }
+  });
+
+  // Defensive patterns
+  if (responses['cfo'] === 2) weaknesses.push('CFO response was philosophical rather than financial — the CFO needs models, not arguments.');
+  if (responses['chro'] === 3) weaknesses.push('CHRO response under-weighted the role of communication — structure alone does not build trust.');
+  if (responses['emprep'] === 3) weaknesses.push('Employee Representative response was dismissive — the absence of a process for employee voice is itself a design flaw.');
+
+  if (strengths.length === 0) strengths.push('You engaged with all stakeholders — the conversation took place rather than being avoided.');
+  if (weaknesses.length === 0) weaknesses.push('Negotiation pattern was substantively sound across stakeholders.');
+
+  return { summary, strengths, weaknesses };
+}
+
+function identifyRisks() {
+  const risks = [];
+  const m = state.metrics;
+  const p = state.philosophy;
+  const s = state.structure;
+
+  if (m.fairness < 50) risks.push({ title: 'Internal Equity Risk', text: 'Fairness has fallen below 50 — internal complaints will increase. A pay equity audit should be your next concrete commitment.' });
+  if (m.retention < 50) risks.push({ title: 'Retention Risk', text: 'Retention metric is in the danger zone. The combination of decisions has created flight risk among segments you can ill afford to lose.' });
+  if (m.costEfficiency < 45) risks.push({ title: 'Cost Escalation Risk', text: 'Cost efficiency is under pressure. Labour cost as a percentage of revenue will continue to rise without offsetting productivity gains.' });
+  if (m.compliance < 60) risks.push({ title: 'Compliance Risk', text: 'Compliance has slipped below comfort level. Audit, transparency, or grievance processes need strengthening.' });
+  if (m.motivation < 50) risks.push({ title: 'Motivation Risk', text: 'Motivation is weak. The reward design is not signalling what the organisation values clearly enough for employees to engage with.' });
+  if (m.trust < 50) risks.push({ title: 'Trust Deficit', text: 'Employee trust is below baseline. Trust, once lost, is more expensive to rebuild than any other metric on the dashboard.' });
+
+  // Structural risks
+  if (s.gradeArch === 'narrow' && s.rangeWidth === 'narrow') risks.push({ title: 'Pay Compression', text: 'Narrow grades + narrow ranges almost guarantee pay compression. Tenured employees will lag market hires within 18 months.' });
+  if (s.mix.longterm < 8 && p.marketPosition !== 'lag') risks.push({ title: 'Senior Retention Risk', text: 'Without a meaningful long-term incentive, your senior cohort will be vulnerable to equity-rich competitors.' });
+  if (p.basis.performance > 55) risks.push({ title: 'Calibration Burden', text: 'Heavy performance weighting requires near-perfect calibration. The administrative burden — and the consequences of bias — will grow.' });
+
+  // Always include at least one risk
+  if (risks.length === 0) risks.push({ title: 'No critical risks identified', text: 'Your design has weathered the simulation without surfacing major structural risks — a rare outcome.' });
+
+  return risks.slice(0, 6);
+}
+
+function awardBadges() {
+  const badges = [];
+  const m = state.metrics;
+  const p = state.philosophy;
+  const s = state.structure;
+
+  if (m.fairness >= 75) badges.push({ name: 'Equity Champion', desc: 'Fairness sustained through every stage.' });
+  if (m.costEfficiency >= 65) badges.push({ name: 'Cost Guardian', desc: 'Disciplined financial stewardship.' });
+  if (m.attraction >= 75) badges.push({ name: 'Talent Magnet', desc: 'Built a system the market wants to join.' });
+  if (m.retention >= 70 && m.fairness >= 65) badges.push({ name: 'Strategic Architect', desc: 'Designed a coherent, internally credible system.' });
+  if (s.gradeArch === 'broad' && s.mix.longterm >= 15 && p.transparency === 'high') badges.push({ name: 'Compensation Innovator', desc: 'Broke from convention with thoughtful intent.' });
+  if (m.trust >= 70 && m.fairness >= 70 && m.motivation >= 65) badges.push({ name: 'Future CHRO', desc: 'Balanced the irreducible tensions of the role.' });
+  const correctStakeholder = STAKEHOLDERS.filter(sh => state.stakeholderResponses[sh.id] === sh.correctIndex).length;
+  if (correctStakeholder >= 4) badges.push({ name: 'Executive Decision Maker', desc: 'Held the boardroom with substance.' });
+  if (calculateStrategicScore() >= 80) badges.push({ name: 'Distinguished Strategist', desc: 'Sustained excellence across the simulation.' });
+
+  return badges;
+}
+
+function closingNote(score, philEval, structEval) {
+  if (score >= 80) return 'You have demonstrated the rarest skill in compensation work — the ability to hold competing demands without collapsing them into a single answer. The trade-offs in your design are visible, defensible, and owned. That is what executive judgement looks like.';
+  if (score >= 65) return 'The design is workable, the philosophy coherent, and the structural choices defensible. Where it strains — and the dashboard shows where — the strain points to one or two decisions worth revisiting. The discipline of returning to those decisions is what separates good designers from accidental ones.';
+  if (score >= 50) return 'The simulation has done its work. You can now see, on the dashboard, what your decisions cost and what they bought. Whether the redesign was successful in business terms is a separate question from whether it was successful as learning. As learning, it is successful: the trade-offs are visible.';
+  return 'Compensation design rewards iteration. The first attempt rarely lands well — the system is too interdependent for any one set of decisions to be obviously right. Run the simulation again with what you now know about how the metrics move. The second attempt typically shifts the score by 15–20 points.';
+}
+
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ---------- CONCEPT MODAL ---------- */
+function openConcept(key) {
+  const c = CONCEPTS[key];
+  if (!c) return;
+  document.getElementById('modalCategory').textContent = c.category;
+  document.getElementById('modalTitle').textContent = c.label;
+  document.getElementById('modalDefinition').innerHTML = c.definition;
+  document.getElementById('modalWhy').innerHTML = c.why;
+  document.getElementById('modalExample').innerHTML = c.example;
+  document.getElementById('modalReflection').innerHTML = c.reflection;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget && !event.target.classList.contains('modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('active');
+});
+
+/* ---------- TOAST ---------- */
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+</script>
+</body>
+</html>
