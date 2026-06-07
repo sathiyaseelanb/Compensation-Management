@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Pay Model — A Strategic Matrix Simulation</title>
+<style>
+/* ==========================================================
+   THE PAY MODEL — MATRIX SIMULATION
+   Faithful to Milkovich, Newman, Gerhart (2023)
+   Single self-contained HTML file. No external dependencies.
+   ========================================================== */
+
+:root {
+  --bg: #f5f1e8;
+  --bg-warm: #ede4d2;
+  --bg-dark: #0d1929;
+  --bg-dark-soft: #16243a;
+  --ink: #1a1f2e;
+  --ink-soft: #3a4258;
+  --ink-faint: #6b7388;
+  --paper: #ffffff;
+  --paper-dim: #faf7ef;
+  --hbr-red: #c8102e;
+  --hbr-red-deep: #9d0a23;
+  --gold: #b8862a;
+  --green: #1f7a4d;
+  --green-soft: #e3f0e8;
+  --red-soft: #fbe5e8;
+  --rule: rgba(26, 31, 46, 0.15);
+  --rule-strong: rgba(26, 31, 46, 0.35);
+  --shadow-sm: 0 1px 3px rgba(13, 25, 41, 0.08);
+  --shadow-md: 0 4px 16px rgba(13, 25, 41, 0.1);
+  --shadow-lg: 0 12px 40px rgba(13, 25, 41, 0.18);
+
+  /* Milkovich-faithful policy band colours */
+  --policy-alignment: #2ea693;
+  --policy-competitiveness: #2d8aa8;
+  --policy-contributions: #2e5fa5;
+  --policy-management: #5a4f8a;
+  --objectives-band: #d8d8d6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 17px;
+  min-height: 100vh;
+}
+button { font-family: inherit; }
+
+/* ========== MASTHEAD ========== */
+.masthead {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 14px 20px;
+  border-bottom: 4px solid var(--hbr-red);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.masthead-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand-title {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--paper);
+  line-height: 1;
+}
+.brand-title .red { color: var(--hbr-red); font-style: normal; }
+.brand-sub {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.stage-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+}
+.stage-pips { display: flex; gap: 4px; }
+.stage-pip {
+  width: 28px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s;
+}
+.stage-pip.done { background: var(--hbr-red); }
+.stage-pip.current { background: var(--paper); }
+
+/* ========== CONTAINER ========== */
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* ========== SCREENS ========== */
+.screen { display: none; animation: screen-in 0.4s ease; }
+.screen.active { display: block; }
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4 {
+  font-family: Georgia, serif;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.eyebrow {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: var(--hbr-red);
+}
+.screen-header {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.screen-header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--hbr-red);
+}
+.screen-title {
+  font-size: clamp(28px, 4.5vw, 40px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.screen-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+.screen-deck {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  font-style: italic;
+  max-width: 760px;
+}
+
+/* ========== COVER ========== */
+.cover { padding: 24px 0 12px; }
+.cover-title {
+  font-size: clamp(36px, 6vw, 54px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+.cover-title em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+.cover-deck {
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-bottom: 28px;
+  padding-left: 18px;
+  border-left: 3px solid var(--hbr-red);
+  max-width: 740px;
+}
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 24px;
+}
+.cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.cover-meta-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.cover-meta-value { font-size: 15px; color: var(--ink); font-weight: 600; }
+
+.byline-block {
+  margin: 24px 0;
+  padding: 20px 22px;
+  background: var(--paper);
+  border-left: 3px solid var(--bg-dark);
+  border-top: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.byline-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 8px;
+}
+.byline-name {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.byline-role {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+/* Objectives card layout (explicit, no counters) */
+.objectives-block {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  margin: 24px 0;
+  border-left: 3px solid var(--hbr-red);
+}
+.objectives-block h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.objectives-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 720px) {
+  .objectives-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.objective-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--paper-dim);
+  border-top: 3px solid var(--hbr-red);
+}
+.objective-num {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+}
+.objective-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.objective-text strong { color: var(--ink); font-weight: 700; font-style: italic; }
+
+.cover-instructions {
+  background: var(--paper);
+  border-left: 3px solid var(--hbr-red);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.cover-instructions h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+.cover-instructions p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.cover-instructions p:last-child { margin-bottom: 0; }
+.cover-instructions strong { color: var(--ink); }
+
+/* ========== FORM ========== */
+.student-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (min-width: 540px) {
+  .student-form { grid-template-columns: 1fr 1fr; }
+}
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.field input {
+  padding: 13px 16px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  width: 100%;
+}
+.field input:focus { outline: none; border-color: var(--hbr-red); }
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.2;
+  text-align: center;
+  justify-content: center;
+}
+.btn-primary { background: var(--hbr-red); color: white; }
+.btn-primary:hover:not(:disabled) {
+  background: var(--hbr-red-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:disabled {
+  background: var(--ink-faint);
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+}
+.btn-secondary:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.btn .arrow { font-family: Georgia, serif; font-style: italic; font-size: 16px; }
+
+/* ========== WORKSPACE ========== */
+.workspace-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+@media (min-width: 720px) {
+  .workspace-stats { grid-template-columns: 1fr 1fr 1fr; }
+}
+.stage-stat {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  border-top: 3px solid var(--hbr-red);
+}
+.stage-stat-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+.stage-stat-value {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.stage-stat-detail {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.placement-guide {
+  background: var(--paper);
+  border-left: 3px solid var(--bg-dark);
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.placement-guide strong { color: var(--ink); font-weight: 700; }
+
+/* ========== LAYOUT: BANK ABOVE, MATRIX BELOW ========== */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+/* ========== BANK ========== */
+.card-bank {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.bank-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--hbr-red);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.bank-titlewrap { display: flex; flex-direction: column; gap: 4px; }
+.bank-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+}
+.bank-title {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.bank-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.bank-count strong { color: var(--hbr-red); font-weight: 700; font-style: normal; }
+
+.bank-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.bank-filter-btn {
+  padding: 8px 12px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', sans-serif;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bank-filter-btn:hover { border-color: var(--hbr-red); color: var(--hbr-red); }
+.bank-filter-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.selection-banner {
+  background: var(--hbr-red);
+  color: var(--paper);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  animation: screen-in 0.25s ease;
+}
+.selection-banner.active { display: flex; }
+.selection-banner-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  font-weight: 700;
+}
+.selection-banner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.selection-banner-text {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+  line-height: 1.3;
+}
+.selection-banner-cancel {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: var(--paper);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.selection-banner-cancel:hover { background: rgba(255,255,255,0.35); }
+
+/* Bank list — grid layout for cards */
+.bank-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  min-height: 60px;
+}
+@media (min-width: 540px) {
+  .bank-list { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 820px) {
+  .bank-list { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (min-width: 1100px) {
+  .bank-list { grid-template-columns: 1fr 1fr 1fr 1fr; }
+}
+
+/* ========== CARD (tile) ========== */
+.card {
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  line-height: 1.3;
+  color: var(--ink);
+  min-height: 44px;
+}
+.card:hover {
+  border-color: var(--hbr-red);
+  box-shadow: 0 2px 8px rgba(200, 16, 46, 0.15);
+  transform: translateY(-1px);
+}
+.card-text { flex: 1; word-break: break-word; }
+.card-info-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-faint);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.card-info-btn:hover {
+  background: var(--hbr-red);
+  border-color: var(--hbr-red);
+  color: var(--paper);
+}
+
+/* Card category tints in the bank (subtle left border) */
+.card[data-cat="policies"] { border-left: 3px solid var(--policy-alignment); }
+.card[data-cat="techniques"] { border-left: 3px solid var(--ink-faint); }
+.card[data-cat="objectives"] { border-left: 3px solid var(--gold); }
+
+/* Selected card */
+.card.highlight {
+  background: var(--hbr-red);
+  color: var(--paper);
+  border-color: var(--hbr-red);
+  box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.2);
+  transform: translateY(-1px) scale(1.02);
+}
+.card.highlight .card-info-btn {
+  border-color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.95);
+}
+.card.highlight .card-info-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* Placed cards */
+.card.placed { background: var(--paper); }
+
+/* Feedback states */
+.card.correct {
+  background: var(--green-soft);
+  border-color: var(--green);
+}
+.card.incorrect {
+  background: var(--red-soft);
+  border-color: var(--hbr-red);
+}
+.card-marker {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.card-marker.correct { color: var(--green); }
+.card-marker.incorrect { color: var(--hbr-red); }
+
+/* ========== MATRIX ========== */
+.matrix-shell {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.matrix-flow-header {
+  display: grid;
+  grid-template-columns: 200px 1fr 220px;
+  gap: 12px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+@media (max-width: 920px) {
+  .matrix-flow-header { display: none; }
+}
+.matrix-flow-label {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.matrix-flow-arrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+.matrix-flow-arrow::before {
+  content: '';
+  flex: 1;
+  height: 0;
+  border-top: 2px dashed var(--ink-faint);
+}
+.matrix-flow-arrow-icon {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid var(--hbr-red);
+  flex-shrink: 0;
+}
+
+/* The grid that forms the actual matrix */
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 220px;
+  gap: 0;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  overflow: hidden;
+}
+@media (max-width: 920px) {
+  .matrix-grid { grid-template-columns: 1fr; }
+}
+
+/* POLICY CELL (column 1) */
+.policy-cell {
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 110px;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.policy-cell:last-child { border-bottom: none; }
+.policy-cell[data-row="0"] { background: var(--policy-alignment); color: white; }
+.policy-cell[data-row="1"] { background: var(--policy-competitiveness); color: white; }
+.policy-cell[data-row="2"] { background: var(--policy-contributions); color: white; }
+.policy-cell[data-row="3"] { background: var(--policy-management); color: white; }
+
+.policy-cell-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+.policy-cell-content {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.2;
+  min-height: 28px;
+  width: 100%;
+}
+.policy-cell.empty .policy-cell-content {
+  font-style: italic;
+  opacity: 0.7;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+.policy-cell-correct-marker, .policy-cell-incorrect-marker {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* TECHNIQUES CELLS (column 2) — 4 sub-columns per row */
+.techniques-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.techniques-row:last-child { border-bottom: none; }
+.technique-cell {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 110px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--rule);
+  position: relative;
+}
+.technique-cell:last-child { border-right: none; }
+
+/* Each technique row inherits a faint band colour from its policy */
+.techniques-row[data-row="0"] .technique-cell { background: rgba(46, 166, 147, 0.07); }
+.techniques-row[data-row="1"] .technique-cell { background: rgba(45, 138, 168, 0.07); }
+.techniques-row[data-row="2"] .technique-cell { background: rgba(46, 95, 165, 0.07); }
+.techniques-row[data-row="3"] .technique-cell { background: rgba(90, 79, 138, 0.07); }
+
+.technique-cell-slot {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.technique-cell-content {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  width: 100%;
+}
+.technique-cell.empty .technique-cell-content {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--ink-faint);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+.technique-cell-marker {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+.technique-cell-marker.correct { color: var(--green); }
+.technique-cell-marker.incorrect { color: var(--hbr-red); }
+
+/* OBJECTIVES CELL (column 3) — spans all 4 rows */
+.objectives-cell {
+  grid-row: 1 / span 4;
+  grid-column: 3 / 4;
+  background: var(--objectives-band);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+  border-left: 1px solid var(--rule);
+}
+@media (max-width: 920px) {
+  .objectives-cell {
+    grid-row: auto;
+    grid-column: auto;
+    border-left: none;
+    border-top: 1px solid var(--rule);
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 18px;
+    gap: 12px;
+  }
+}
+.objectives-cell-header {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: 4px;
+}
+@media (max-width: 920px) {
+  .objectives-cell-header { display: none; }
+}
+.objective-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px dashed transparent;
+  min-height: 60px;
+  justify-content: center;
+}
+.objective-slot.empty {
+  border-color: var(--rule);
+  background: rgba(255,255,255,0.4);
+}
+.objective-slot-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.objective-slot-content {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.objective-slot.empty .objective-slot-content {
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+}
+.objective-slot-marker {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.objective-slot-marker.correct { color: var(--green); }
+.objective-slot-marker.incorrect { color: var(--hbr-red); }
+
+/* Ready-to-receive state */
+.policy-cell.ready-to-receive,
+.technique-cell.ready-to-receive,
+.objective-slot.ready-to-receive {
+  outline: 3px dashed var(--hbr-red);
+  outline-offset: -3px;
+  z-index: 2;
+}
+.policy-cell.ready-to-receive::after,
+.technique-cell.ready-to-receive::after,
+.objective-slot.ready-to-receive::after {
+  content: 'TAP TO PLACE';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  color: var(--hbr-red);
+  background: var(--paper);
+  padding: 2px 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.objective-slot.ready-to-receive {
+  position: relative;
+}
+.objective-slot.ready-to-receive::after {
+  bottom: 2px;
+}
+
+/* Removed/return-to-bank cursor on placed cells */
+.policy-cell:not(.empty),
+.technique-cell:not(.empty),
+.objective-slot:not(.empty) {
+  cursor: pointer;
+}
+
+/* Reveal hint when something is placed */
+.cell-return-hint {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.policy-cell:not(.empty):hover .cell-return-hint { opacity: 1; }
+.technique-cell:not(.empty):hover .cell-return-hint {
+  color: var(--ink-faint);
+  opacity: 1;
+}
+.objective-slot:not(.empty):hover .cell-return-hint {
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+/* ========== ACTION BAR ========== */
+.action-bar {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.action-bar-status {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.action-bar-status strong { color: var(--hbr-red); font-weight: 700; }
+.action-bar-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ========== FEEDBACK PANEL ========== */
+.feedback-panel {
+  display: none;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+}
+.feedback-panel.active { display: block; animation: screen-in 0.4s ease; }
+
+.feedback-results {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 24px;
+  border-left: 4px solid var(--hbr-red);
+  margin-bottom: 24px;
+}
+.feedback-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 12px;
+}
+.feedback-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.feedback-score {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--paper);
+  letter-spacing: -0.03em;
+}
+.feedback-score-total {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-style: italic;
+  color: rgba(255,255,255,0.6);
+}
+.feedback-band {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--paper);
+  font-weight: 500;
+}
+.feedback-narrative {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.feedback-breakdown {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+@media (min-width: 600px) {
+  .feedback-breakdown { grid-template-columns: 1fr 1fr 1fr; }
+}
+.feedback-stat {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  border-top: 3px solid var(--hbr-red);
+}
+.feedback-stat-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+.feedback-stat-value {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.feedback-stat-detail {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.feedback-errors {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px 24px;
+  margin-bottom: 22px;
+}
+.feedback-errors h3 {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--hbr-red);
+}
+.error-list {
+  display: grid;
+  gap: 10px;
+}
+.error-item {
+  padding: 12px 14px;
+  background: var(--red-soft);
+  border-left: 3px solid var(--hbr-red);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.error-item strong { color: var(--ink); }
+.error-item em { font-style: italic; color: var(--hbr-red); font-weight: 600; }
+
+/* ========== MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 25, 41, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+  animation: fade-in 0.25s ease;
+}
+.modal-overlay.active { display: flex; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--paper);
+  max-width: 600px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 22px 24px 18px;
+  border-bottom: 3px solid var(--hbr-red);
+  position: relative;
+}
+.modal-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+.modal-title {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1.2;
+  padding-right: 36px;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--paper);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.modal-close:hover { background: var(--hbr-red); border-color: var(--hbr-red); }
+.modal-body { padding: 22px 24px; }
+.modal-section { margin-bottom: 18px; }
+.modal-section:last-child { margin-bottom: 0; }
+.modal-section-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hbr-red);
+  margin-bottom: 6px;
+}
+.modal-section-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.modal-section-text em { font-style: italic; color: var(--ink); }
+.modal-section-text strong { color: var(--ink); font-weight: 700; }
+.modal-reflection {
+  background: var(--paper-dim);
+  border-left: 3px solid var(--hbr-red);
+  padding: 14px 16px;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--paper);
+  padding: 12px 22px;
+  border-left: 3px solid var(--hbr-red);
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  z-index: 300;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translate(-50%, -10px); }
+
+/* ========== REFLECTION ========== */
+.reflection-panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 26px 28px;
+  box-shadow: var(--shadow-sm);
+}
+.reflection-panel h3 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+.reflection-q {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.reflection-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 14px 16px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper-dim);
+  border: 1px solid var(--rule);
+  resize: vertical;
+}
+.reflection-textarea:focus {
+  outline: none;
+  border-color: var(--hbr-red);
+  background: var(--paper);
+}
+.reflection-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
+.word-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ========== PRINT ========== */
+@media print {
+  body { background: white; }
+  .masthead, .action-bar, .bank-filter, .selection-banner, .card-info-btn { display: none !important; }
+  .screen:not(.active) { display: none !important; }
+  .screen.active { display: block !important; }
+  .matrix-shell, .card-bank, .feedback-results, .feedback-errors, .reflection-panel { box-shadow: none !important; page-break-inside: avoid; }
+  .feedback-results { background: white; color: var(--ink); border: 2px solid var(--hbr-red); }
+  .feedback-score, .feedback-band, .feedback-narrative { color: var(--ink) !important; }
+}
+
+/* ========== MOBILE ========== */
+@media (max-width: 920px) {
+  .matrix-grid {
+    grid-template-columns: 1fr;
+  }
+  .policy-cell {
+    min-height: 70px;
+    text-align: left;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+  .policy-cell-content { font-size: 17px; min-height: auto; }
+  .techniques-row {
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 2px solid var(--ink);
+  }
+  .technique-cell {
+    min-height: 80px;
+    padding: 10px 8px;
+  }
+  .technique-cell:nth-child(2) { border-right: none; }
+  .technique-cell-content { font-size: 13px; }
+}
+@media (max-width: 720px) {
+  .container { padding: 18px 14px 60px; }
+  .matrix-shell { padding: 14px; }
+  .techniques-row { grid-template-columns: 1fr; }
+  .technique-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+  .technique-cell:last-child { border-bottom: none; }
+  .feedback-score { font-size: 42px; }
+}
+@media (max-width: 480px) {
+  .stage-pip { width: 18px; }
+  .stage-indicator { font-size: 10px; gap: 8px; }
+  .brand-title { font-size: 16px; }
+  .brand-sub { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-title">The Pay <span class="red">Model</span></span>
+      <span class="brand-sub">A Strategic Matrix Simulation</span>
+    </div>
+    <div class="stage-indicator" id="stageIndicator" style="display:none;">
+      <span id="stageLabel">Build the Matrix</span>
+      <div class="stage-pips" id="stagePips"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ========== SCREEN: INTRO ========== -->
+<section class="screen active" id="screen-intro">
+  <div class="cover">
+    <div class="eyebrow">Executive Classroom Exercise</div>
+    <h1 class="cover-title">Reconstruct the <em>Pay Model.</em></h1>
+    <p class="cover-deck">Build the strategic compensation matrix exactly as Milkovich, Newman and Gerhart present it. Four policy choices, sixteen techniques arranged in four sub-columns per row, and three objectives that span the system. There is no shortcut — the matrix has to be built one defensible cell at a time.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Format</div>
+        <div class="cover-meta-value">Matrix reconstruction</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Duration</div>
+        <div class="cover-meta-value">25–35 minutes</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Level</div>
+        <div class="cover-meta-value">MBA · Executive</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Source</div>
+        <div class="cover-meta-value">Milkovich, Newman &amp; Gerhart (2023)</div>
+      </div>
+    </div>
+
+    <div class="byline-block">
+      <div class="byline-label">Developed by</div>
+      <div class="byline-name">Dr. Sathiyaseelan B</div>
+      <div class="byline-role">Professor — Human Resources Management<br>MBA Programme · School of Business and Management · Christ University</div>
+    </div>
+
+    <div class="objectives-block">
+      <h3>Learning Objectives</h3>
+      <div class="objectives-grid">
+        <div class="objective-item">
+          <span class="objective-num">Objective 01</span>
+          <span class="objective-text">Reconstruct the <strong>four policy choices</strong> that shape any compensation system.</span>
+        </div>
+        <div class="objective-item">
+          <span class="objective-num">Objective 02</span>
+          <span class="objective-text">Map the <strong>sixteen techniques</strong> to the policy they operationalise.</span>
+        </div>
+        <div class="objective-item">
+          <span class="objective-num">Objective 03</span>
+          <span class="objective-text">Connect the matrix to the <strong>three objectives</strong> the system must serve.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-instructions">
+      <h3>How to build the matrix</h3>
+      <p><strong>The elements pool is randomised.</strong> Elements appear in no particular order — by design. The point of the exercise is to think, hypothesise, place, and revise. Use the <strong>↻ Shuffle</strong> button at any time to randomise the pool again if the current order is steering your thinking.</p>
+      <p><strong>Tap any tile</strong> in the pool to select it. The tile turns red and the matrix cells where it could legitimately go light up.</p>
+      <p><strong>Tap a cell</strong> to place the tile in that position. To move a placed tile, tap it to return it to the pool, then place it elsewhere.</p>
+      <p><strong>Tap the small "i"</strong> on any tile to open its concept card — definition, why it matters, an example, and a reflective question. Tiles are designed to be read, not just sorted.</p>
+      <p><strong>Filter the pool</strong> using the buttons at the top — Policies, Techniques, or Objectives — to work through the matrix one category at a time, or keep them all visible and decide as you go.</p>
+    </div>
+
+    <div class="student-form">
+      <div class="field">
+        <label for="studentName">Student Name</label>
+        <input id="studentName" type="text" autocomplete="name" placeholder="Enter your full name">
+      </div>
+      <div class="field">
+        <label for="registerNumber">Register Number</label>
+        <input id="registerNumber" type="text" autocomplete="off" placeholder="Enter your register number">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="beginBtn" disabled onclick="beginExercise()">Begin matrix reconstruction <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ========== SCREEN: MATRIX ========== -->
+<section class="screen" id="screen-matrix">
+  <div class="screen-header">
+    <div class="eyebrow">Phase 01 · Matrix Reconstruction</div>
+    <h2 class="screen-title">Build the <em>Pay Model.</em></h2>
+    <p class="screen-deck">Place each element in its rightful cell. Four policies down the left, four techniques in each row, three objectives across the spanning column on the right.</p>
+  </div>
+
+  <div class="workspace-stats">
+    <div class="stage-stat">
+      <div class="stage-stat-label">Total Cells</div>
+      <div class="stage-stat-value">23</div>
+      <div class="stage-stat-detail">4 policies + 16 techniques + 3 objectives</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stage-stat-label">Filled</div>
+      <div class="stage-stat-value" id="filledCount">0</div>
+      <div class="stage-stat-detail" id="filledDetail">no cells placed yet</div>
+    </div>
+    <div class="stage-stat">
+      <div class="stage-stat-label">Remaining</div>
+      <div class="stage-stat-value" id="remainingCount">23</div>
+      <div class="stage-stat-detail" id="remainingDetail">in the elements pool</div>
+    </div>
+  </div>
+
+  <div class="placement-guide">
+    <strong>How to place:</strong> Tap a tile in the pool to select it (it turns red and matching cells light up). Tap a highlighted cell to place. Tap a placed tile to return it to the pool. Use the filter buttons to focus on one category at a time.
+  </div>
+
+  <div class="workspace">
+
+    <!-- BANK / POOL -->
+    <aside class="card-bank">
+      <div class="bank-header">
+        <div class="bank-titlewrap">
+          <div class="bank-eyebrow">Elements Pool</div>
+          <div class="bank-title">Drag-free Tile Bank</div>
+        </div>
+        <div class="bank-count"><strong id="bankCount">23</strong> remaining</div>
+      </div>
+
+      <div class="bank-filter">
+        <button class="bank-filter-btn active" data-filter="all" onclick="filterBank('all', this)">All 23</button>
+        <button class="bank-filter-btn" data-filter="policies" onclick="filterBank('policies', this)">Policies (4)</button>
+        <button class="bank-filter-btn" data-filter="techniques" onclick="filterBank('techniques', this)">Techniques (16)</button>
+        <button class="bank-filter-btn" data-filter="objectives" onclick="filterBank('objectives', this)">Objectives (3)</button>
+        <button class="bank-filter-btn" onclick="shuffleBank()" style="margin-left: auto; background: var(--paper-dim);">↻ Shuffle</button>
+      </div>
+
+      <div class="selection-banner" id="selectionBanner">
+        <span class="selection-banner-label">Selected — tap a highlighted cell to place</span>
+        <div class="selection-banner-row">
+          <span class="selection-banner-text" id="selectionBannerText"></span>
+          <button class="selection-banner-cancel" onclick="clearSelection()" aria-label="Cancel selection">✕</button>
+        </div>
+      </div>
+
+      <div class="bank-list" id="bankList"></div>
+    </aside>
+
+    <!-- MATRIX -->
+    <div class="matrix-shell">
+      <div class="matrix-flow-header">
+        <div class="matrix-flow-label">Policy Choices</div>
+        <div class="matrix-flow-arrow">
+          <span class="matrix-flow-arrow-icon"></span>
+          <div class="matrix-flow-label" style="text-align: center; flex: 1;">Techniques</div>
+          <span class="matrix-flow-arrow-icon"></span>
+        </div>
+        <div class="matrix-flow-label" style="text-align: center;">Objectives</div>
+      </div>
+
+      <div class="matrix-grid" id="matrixGrid">
+        <!-- Built by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="matrixStatus">Place all 23 elements to enable submission.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-secondary" onclick="resetMatrix()">Reset Matrix</button>
+      <button class="btn btn-primary" id="submitMatrixBtn" disabled onclick="submitMatrix()">Submit Classification</button>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div class="feedback-panel" id="feedbackPanel"></div>
+</section>
+
+<!-- ========== SCREEN: REFLECTION ========== -->
+<section class="screen" id="screen-reflection">
+  <div class="screen-header">
+    <div class="eyebrow">Phase 02 · Reflection</div>
+    <h2 class="screen-title">Pause to <em>think.</em></h2>
+    <p class="screen-deck">A short written response to close the exercise. The matrix is a map; the reflection is what makes it yours.</p>
+  </div>
+
+  <div class="reflection-panel">
+    <p class="reflection-q">The Pay Model insists that <em>policies</em>, <em>techniques</em>, and <em>objectives</em> are connected. Pick one of the four policies and explain — in your own words — how a misalignment between its techniques and the objectives would show up in a real organisation.</p>
+    <textarea class="reflection-textarea" id="reflectionText" placeholder="Write a brief response · 60 words minimum…" oninput="updateReflectionWordCount()"></textarea>
+    <div class="word-count" id="reflectionWordCount">0 words · min 60</div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">A reflection of at least 60 words is required to finish.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-secondary" onclick="window.print()">Print or save as PDF</button>
+      <button class="btn btn-primary" id="finishBtn" disabled onclick="finishExercise()">Finish Exercise <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-eyebrow" id="modalCategory">Pay Model Element</div>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">Definition</div>
+        <div class="modal-section-text" id="modalDef"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Why it matters</div>
+        <div class="modal-section-text" id="modalMatters"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Example from practice</div>
+        <div class="modal-section-text" id="modalExample"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Reflective question</div>
+        <div class="modal-reflection">
+          <div class="modal-section-text" id="modalQuestion"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   THE PAY MODEL — Matrix Simulation Logic
+   Faithful to Milkovich, Newman & Gerhart (2023)
+   ========================================================== */
+
+/* ---------- DATA ---------- */
+// 4 Policies (rows of the matrix)
+const POLICIES = [
+  { id: 'pol-alignment', label: 'Alignment', row: 0,
+    def: 'The policy decision about how internal pay structure relates to the work itself and to the strategy of the firm — what is paid more, what is paid less, and on what logical basis.',
+    matters: 'Alignment is the firm\'s answer to "are we paying for the right things?" Without it, the pay system loses its internal logic.',
+    example: 'A consulting firm aligns pay to the depth of client-facing complexity rather than tenure, signalling that judgement under uncertainty is what the firm most values.',
+    q: 'If you stripped your firm\'s pay structure of all numbers, would the remaining hierarchy still tell a coherent strategic story?' },
+  { id: 'pol-competitiveness', label: 'Competitiveness', row: 1,
+    def: 'The policy choice about how the firm positions its pay against the external market — to lead, match, or lag.',
+    matters: 'This is the policy most visible to the labour market. A firm that has not consciously chosen a position is, by default, somewhere — and likely not where it would have chosen.',
+    example: 'A growth-stage technology firm explicitly chooses to lead the market on engineering pay but match it on operations roles — a deliberate, defensible asymmetry.',
+    q: 'Has your firm chosen its market position, or merely inherited it?' },
+  { id: 'pol-contributions', label: 'Contributions', row: 2,
+    def: 'The policy decision about how pay is differentiated among employees doing comparable work — whether by seniority, performance, skill, or some defensible blend.',
+    matters: 'This is where reward philosophy meets administration. The contributions policy determines whether the firm is, in practice, a meritocracy, a tenure system, or something more complicated.',
+    example: 'A bank with twenty-year veterans and three-year stars decides that fifty percent of variable pay is linked to performance, fifty percent to seniority — a structural compromise.',
+    q: 'If you doubled the weight on performance in your contributions policy tomorrow, who would leave first?' },
+  { id: 'pol-management', label: 'Management', row: 3,
+    def: 'The policy commitment to actively administer the pay system itself — its cost, its communication, its capacity to change, and its honest evaluation.',
+    matters: 'This is the policy most often invisible until it fails. A pay system without management discipline drifts; the original logic survives only in the memory of those who designed it.',
+    example: 'A manufacturing firm budgets one percent of total comp spend annually to evaluate whether its pay system still achieves its three objectives.',
+    q: 'Who, in your firm, is accountable for the pay system as a system — not just for executing it?' }
+];
+
+// 16 Techniques (4 per row, ordered left-to-right matching the Milkovich figure)
+const TECHNIQUES = [
+  // Alignment row
+  { id: 'tec-work-analysis', label: 'Work Analysis', row: 0, col: 0,
+    def: 'The systematic study of tasks, responsibilities, skills, and working conditions associated with a job.',
+    matters: 'It is the foundation. Job descriptions, evaluations, and pay decisions all rest on whether the work has been accurately understood in the first place.',
+    example: 'A hospital analyses nursing roles in detail before redesigning compensation bands, surfacing differences between ICU and ward responsibilities the old structure had ignored.',
+    q: 'How might inaccurate work analysis quietly distort every downstream pay decision?' },
+  { id: 'tec-description', label: 'Description', row: 0, col: 1,
+    def: 'The formal documentation of duties, requirements, and reporting relationships of a role — produced from work analysis.',
+    matters: 'A description is the contract between the role and the system. Pay structures evaluate descriptions; compliance defends them.',
+    example: 'A logistics firm rewrites driver descriptions to include safety leadership behaviours, which then become a basis for both pay and promotion criteria.',
+    q: 'When did your firm\'s job descriptions last reflect the work as it is actually performed?' },
+  { id: 'tec-evaluation-cert', label: 'Evaluation / Certification', row: 0, col: 2,
+    def: 'The technique by which jobs are systematically valued relative to one another — typically through point-factor, ranking, or classification methods.',
+    matters: 'Job evaluation is how the firm operationalises its alignment policy. It turns "is this work more valuable than that work?" into a defensible answer.',
+    example: 'An engineering firm uses point-factor evaluation to settle whether a senior structural engineer should be paid more than a senior project manager.',
+    q: 'What does your firm\'s evaluation method implicitly reward — and what does it punish?' },
+  { id: 'tec-internal-structure', label: 'Internal Structure', row: 0, col: 3,
+    def: 'The hierarchy of pay levels within the firm — the grades, bands, or families that result from work analysis, descriptions, and evaluation.',
+    matters: 'Internal structure is the visible architecture of the firm\'s alignment policy. Employees experience it daily; the firm defends it annually.',
+    example: 'A retail chain consolidates eighteen pay grades into eight broad bands, simplifying career progression but reducing the granularity of differentiation.',
+    q: 'Does your firm\'s internal structure reflect its current strategic logic, or its historical one?' },
+
+  // Competitiveness row
+  { id: 'tec-market-definition', label: 'Market Definition', row: 1, col: 0,
+    def: 'The deliberate identification of the labour markets a firm chooses to compete in for each type of role.',
+    matters: 'Market definition is where competitiveness policy begins. Without it, market surveys deliver answers to questions the firm never properly framed.',
+    example: 'A consulting firm defines its market for partners as global top-tier firms but its market for back-office staff as regional. The same firm, two different competitive arenas.',
+    q: 'Has your firm defined its labour markets, or has it merely accepted whichever benchmark its consultants supplied?' },
+  { id: 'tec-surveys', label: 'Surveys', row: 1, col: 1,
+    def: 'The systematic collection of compensation data from comparable employers and roles in the defined market.',
+    matters: 'Surveys turn market intent into market intelligence. Their integrity is a prerequisite for every downstream competitiveness decision.',
+    example: 'A pharmaceutical firm participates in three industry compensation surveys to triangulate market rates for its scientific roles.',
+    q: 'How recent and how representative are the surveys your firm relies on for compensation decisions?' },
+  { id: 'tec-policy-lines', label: 'Policy Lines', row: 1, col: 2,
+    def: 'The chosen lines (typically the 50th, 75th, or 25th percentile) at which the firm targets pay against the market data.',
+    matters: 'Policy lines are how a firm translates "lead, match, or lag" into specific numbers it can be held accountable to.',
+    example: 'A firm sets its policy line at the 60th percentile of market for engineering and the 50th for finance — a calibrated rather than uniform stance.',
+    q: 'Are your firm\'s policy lines a deliberate choice or the inertia of past decisions?' },
+  { id: 'tec-pay-structure', label: 'Pay Structure', row: 1, col: 3,
+    def: 'The resulting framework of pay grades, ranges, midpoints, and overlap — the operational expression of policy lines applied to the internal structure.',
+    matters: 'Pay structure is where competitiveness policy and alignment policy collide. It must work in both directions.',
+    example: 'A firm\'s pay structure includes fifteen grades, each with a 40% range and 15% overlap — choices that have implications for both promotion and retention.',
+    q: 'Does your pay structure invite mobility, or does it inadvertently lock people into their current band?' },
+
+  // Contributions row
+  { id: 'tec-seniority-based', label: 'Seniority Based', row: 2, col: 0,
+    def: 'A method of differentiating pay primarily on length of service — embedded in step systems and tenure-driven progression.',
+    matters: 'Seniority-based contributions provide predictability and reward loyalty; they can also calcify the system if used in isolation.',
+    example: 'A government agency uses a step system in which every employee progresses through ten salary points based on years of service.',
+    q: 'What does a purely seniority-based system implicitly say about the value of contribution versus the value of tenure?' },
+  { id: 'tec-performance-based', label: 'Performance Based', row: 2, col: 1,
+    def: 'A method of differentiating pay primarily on assessed performance — through ratings, calibration, and outcomes.',
+    matters: 'Performance-based contributions are the most direct alignment between reward and outcome — but require near-perfect measurement.',
+    example: 'A sales organisation pays seventy percent variable compensation based on quarterly performance against quota.',
+    q: 'How confident are you in your firm\'s ability to measure performance fairly across roles?' },
+  { id: 'tec-merit-guidelines', label: 'Merit Guidelines', row: 2, col: 2,
+    def: 'The formal rules that translate performance ratings and position-in-range into specific pay increases.',
+    matters: 'Merit guidelines are how a contributions policy resists manager-by-manager drift. Without them, performance ratings are inputs to a process that produces inconsistent outputs.',
+    example: 'A merit matrix maps performance rating × position-in-range to a percentage increase — top performers at the bottom of their range receive 10%; the same rating at the top, 4%.',
+    q: 'Do your firm\'s merit guidelines constrain manager discretion — or merely document it?' },
+  { id: 'tec-incentive-program', label: 'Incentive Program', row: 2, col: 3,
+    def: 'A structured plan for variable pay tied to defined performance outcomes — bonuses, commissions, or incentive payouts.',
+    matters: 'Incentive programs are the strongest behavioural signal in the contributions toolkit. They shape effort allocation more than any other technique.',
+    example: 'A software firm replaces a flat annual bonus with quarterly milestones tied to product launches — deliberately accelerating accountability.',
+    q: 'If a new employee studied only your incentive program, what would they conclude your firm rewards?' },
+
+  // Management row
+  { id: 'tec-cost', label: 'Cost', row: 3, col: 0,
+    def: 'The active management of total compensation expenditure within the firm\'s financial constraints.',
+    matters: 'Cost discipline is what keeps the pay system financially sustainable across business cycles. Without it, the system over-promises and eventually fails.',
+    example: 'A firm sets total compensation cost at 38% of revenue as a strategic guardrail, requiring trade-offs whenever a programme pushes that boundary.',
+    q: 'Is compensation cost in your firm a managed variable or a residual outcome?' },
+  { id: 'tec-communication', label: 'Communication', row: 3, col: 1,
+    def: 'The deliberate explanation of the pay system to employees, managers, and other stakeholders.',
+    matters: 'A well-communicated pay system is perceived as fairer than a poorly communicated one — even when they are structurally identical.',
+    example: 'A firm publishes a one-page philosophy statement explaining every component of total reward, refreshed annually.',
+    q: 'If an employee asked tomorrow how your pay system works, who could give them a clear, complete answer?' },
+  { id: 'tec-change', label: 'Change', row: 3, col: 2,
+    def: 'The capacity to revise the pay system in response to strategy shifts, market changes, or internal feedback.',
+    matters: 'Pay systems that cannot adapt become liabilities. Change capacity is what separates a living system from an inherited one.',
+    example: 'A firm conducts a structured pay system review every three years, with explicit decision points on what to retain and what to revise.',
+    q: 'When was the last meaningful structural change to your firm\'s pay system — and what prompted it?' },
+  { id: 'tec-evaluation', label: 'Evaluation', row: 3, col: 3,
+    def: 'The systematic assessment of whether the pay system is achieving its stated objectives — efficiency, fairness, and compliance.',
+    matters: 'Evaluation is what turns the pay system from a static design into a managed instrument. It is the technique most commonly skipped.',
+    example: 'A firm reviews three quantitative measures (cost ratio, attrition by segment, gender pay gap) and one qualitative measure (employee survey responses) annually.',
+    q: 'How does your firm know whether its pay system is succeeding or failing?' }
+];
+
+// 3 Objectives (the spanning column on the right)
+const OBJECTIVES = [
+  { id: 'obj-efficiency', label: 'Efficiency', slot: 0,
+    def: 'The objective that the pay system produces strong performance, quality, customer outcomes and shareholder value at sustainable cost.',
+    matters: 'Efficiency is the objective that ties the pay system to the firm\'s financial and operational outcomes — the bottom-line test of compensation design.',
+    example: 'A firm tracks revenue per employee, performance ratings distribution, and total compensation cost as joint indicators of pay system efficiency.',
+    q: 'What does efficiency mean for your pay system — and how is it measured?' },
+  { id: 'obj-fairness', label: 'Fairness', slot: 1,
+    def: 'The objective that the pay system is — and is perceived to be — just, both within the firm and against the external market.',
+    matters: 'Fairness is the perception test of the pay system. It is what determines whether employees engage with the structure or work around it.',
+    example: 'A firm conducts an annual pay-equity audit across gender, tenure, and grade, and publishes the closure plan when gaps emerge.',
+    q: 'How does your firm distinguish between fairness as a number and fairness as a felt experience?' },
+  { id: 'obj-compliance', label: 'Compliance', slot: 2,
+    def: 'The objective that the pay system meets legal, regulatory, and contractual obligations across every jurisdiction in which the firm operates.',
+    matters: 'Compliance is the floor. Without it, every other objective becomes unstable. With it, the firm has the right to design freely above the floor.',
+    example: 'A multinational firm maintains a compliance dashboard covering minimum wage, overtime, pay transparency, and gender pay gap reporting across twenty jurisdictions.',
+    q: 'Where is your firm closest to the compliance floor — and what is your plan if it shifts upward?' }
+];
+
+const ALL_ELEMENTS = [...POLICIES, ...TECHNIQUES, ...OBJECTIVES];
+
+// Determine category of an element by id
+function categoryOf(id) {
+  if (id.startsWith('pol-')) return 'policies';
+  if (id.startsWith('tec-')) return 'techniques';
+  if (id.startsWith('obj-')) return 'objectives';
+  return null;
+}
+
+/* ---------- STATE ---------- */
+const state = {
+  studentName: '',
+  registerNumber: '',
+  placements: {},
+  elementLocations: {},
+  selectedElementId: null,
+  bankFilter: 'all',
+  bankOrder: [],
+  score: null,
+  resultsCache: null,
+  reflection: ''
+};
+
+// Initialise: every element in bank, in shuffled order
+ALL_ELEMENTS.forEach(el => { state.elementLocations[el.id] = null; });
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Initial shuffle so elements never appear in the right sequence
+state.bankOrder = shuffleArray(ALL_ELEMENTS.map(el => el.id));
+
+/* ---------- INIT ---------- */
+function init() {
+  document.getElementById('studentName').addEventListener('input', checkGate);
+  document.getElementById('registerNumber').addEventListener('input', checkGate);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      clearSelection();
+    }
+  });
+}
+
+function checkGate() {
+  const name = document.getElementById('studentName').value.trim();
+  const reg = document.getElementById('registerNumber').value.trim();
+  document.getElementById('beginBtn').disabled = !(name.length >= 2 && reg.length >= 2);
+}
+
+/* ---------- SCREENS ---------- */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStageIndicator(stageNum) {
+  const indicator = document.getElementById('stageIndicator');
+  if (stageNum === 0) {
+    indicator.style.display = 'none';
+    return;
+  }
+  indicator.style.display = 'flex';
+  const labels = { 1: 'Build the Matrix', 2: 'Reflection', 3: 'Complete' };
+  document.getElementById('stageLabel').textContent = labels[stageNum];
+  const pips = document.getElementById('stagePips');
+  pips.innerHTML = '';
+  for (let i = 1; i <= 3; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'stage-pip';
+    if (i < stageNum) pip.classList.add('done');
+    else if (i === stageNum) pip.classList.add('current');
+    pips.appendChild(pip);
+  }
+}
+
+/* ---------- BEGIN ---------- */
+function beginExercise() {
+  state.studentName = document.getElementById('studentName').value.trim();
+  state.registerNumber = document.getElementById('registerNumber').value.trim();
+  updateStageIndicator(1);
+  renderMatrix();
+  renderBank();
+  updateCounters();
+  showScreen('matrix');
+}
+
+/* ---------- RENDER MATRIX ---------- */
+function renderMatrix() {
+  const grid = document.getElementById('matrixGrid');
+  grid.innerHTML = '';
+
+  // Build 4 rows of (policy-cell + techniques-row)
+  for (let row = 0; row < 4; row++) {
+    // POLICY CELL
+    const policyCell = document.createElement('div');
+    policyCell.className = 'policy-cell empty';
+    policyCell.dataset.cell = 'policy-' + row;
+    policyCell.dataset.row = row;
+    policyCell.dataset.accepts = 'policies';
+    policyCell.innerHTML = `
+      <div class="policy-cell-label">Policy ${String(row+1).padStart(2,'0')}</div>
+      <div class="policy-cell-content">(empty)</div>
+      <span class="cell-return-hint">TAP TO RETURN</span>
+    `;
+    policyCell.addEventListener('click', (e) => onCellClick('policy-' + row));
+    grid.appendChild(policyCell);
+
+    // TECHNIQUES ROW (contains 4 cells)
+    const techRow = document.createElement('div');
+    techRow.className = 'techniques-row';
+    techRow.dataset.row = row;
+    for (let col = 0; col < 4; col++) {
+      const techCell = document.createElement('div');
+      techCell.className = 'technique-cell empty';
+      const cellKey = `tech-${row}-${col}`;
+      techCell.dataset.cell = cellKey;
+      techCell.dataset.row = row;
+      techCell.dataset.col = col;
+      techCell.dataset.accepts = 'techniques';
+      techCell.innerHTML = `
+        <div class="technique-cell-slot">Technique ${col+1}</div>
+        <div class="technique-cell-content">(empty)</div>
+        <span class="cell-return-hint">TAP TO RETURN</span>
+      `;
+      techCell.addEventListener('click', (e) => onCellClick(cellKey));
+      techRow.appendChild(techCell);
+    }
+    grid.appendChild(techRow);
+  }
+
+  // OBJECTIVES CELL (spans all 4 rows, column 3)
+  const objCell = document.createElement('div');
+  objCell.className = 'objectives-cell';
+  objCell.innerHTML = `
+    <div class="objectives-cell-header">Objectives · spans all rows</div>
+    <div class="objective-slot empty" data-cell="obj-0" data-accepts="objectives">
+      <div class="objective-slot-label">Objective 01</div>
+      <div class="objective-slot-content">(empty)</div>
+    </div>
+    <div class="objective-slot empty" data-cell="obj-1" data-accepts="objectives">
+      <div class="objective-slot-label">Objective 02</div>
+      <div class="objective-slot-content">(empty)</div>
+    </div>
+    <div class="objective-slot empty" data-cell="obj-2" data-accepts="objectives">
+      <div class="objective-slot-label">Objective 03</div>
+      <div class="objective-slot-content">(empty)</div>
+    </div>
+  `;
+  objCell.querySelectorAll('.objective-slot').forEach(slot => {
+    slot.addEventListener('click', () => onCellClick(slot.dataset.cell));
+  });
+  grid.appendChild(objCell);
+}
+
+/* ---------- RENDER BANK ---------- */
+function renderBank() {
+  const list = document.getElementById('bankList');
+  list.innerHTML = '';
+  // Use bankOrder (shuffled) instead of ALL_ELEMENTS source order
+  const orderedInBank = state.bankOrder
+    .map(id => ALL_ELEMENTS.find(e => e.id === id))
+    .filter(el => el && state.elementLocations[el.id] === null);
+  // Apply filter
+  const filtered = state.bankFilter === 'all'
+    ? orderedInBank
+    : orderedInBank.filter(el => categoryOf(el.id) === state.bankFilter);
+  filtered.forEach(el => {
+    const cat = categoryOf(el.id);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.id = el.id;
+    card.dataset.cat = cat;
+    card.innerHTML = `
+      <span class="card-text">${escapeHtml(el.label)}</span>
+      <button class="card-info-btn" onclick="event.stopPropagation(); openModal('${el.id}')" aria-label="Concept card">i</button>
+    `;
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('card-info-btn')) return;
+      selectElement(el.id);
+    });
+    list.appendChild(card);
+  });
+  const inBankTotal = ALL_ELEMENTS.filter(el => state.elementLocations[el.id] === null).length;
+  document.getElementById('bankCount').textContent = inBankTotal;
+}
+
+function shuffleBank() {
+  state.bankOrder = shuffleArray(state.bankOrder);
+  renderBank();
+  showToast('Pool shuffled — fresh order');
+}
+
+/* ---------- SELECT ---------- */
+function selectElement(id) {
+  // Toggle off if same
+  if (state.selectedElementId === id) { clearSelection(); return; }
+  // Clear prior
+  document.querySelectorAll('.card.highlight').forEach(c => c.classList.remove('highlight'));
+  state.selectedElementId = id;
+  const el = getElement(id);
+  const cat = categoryOf(id);
+
+  // Highlight the card in the bank
+  const cardEl = document.querySelector(`.card[data-id="${id}"]`);
+  if (cardEl) cardEl.classList.add('highlight');
+
+  // Banner
+  const banner = document.getElementById('selectionBanner');
+  document.getElementById('selectionBannerText').textContent = el.label;
+  banner.classList.add('active');
+
+  // Light up appropriate matrix cells (only empty ones that accept this category)
+  document.querySelectorAll('.policy-cell, .technique-cell, .objective-slot').forEach(cell => {
+    cell.classList.remove('ready-to-receive');
+    if (cell.classList.contains('empty') && cell.dataset.accepts === cat) {
+      cell.classList.add('ready-to-receive');
+    }
+  });
+}
+
+function clearSelection() {
+  state.selectedElementId = null;
+  document.querySelectorAll('.card.highlight').forEach(c => c.classList.remove('highlight'));
+  document.querySelectorAll('.ready-to-receive').forEach(c => c.classList.remove('ready-to-receive'));
+  document.getElementById('selectionBanner').classList.remove('active');
+}
+
+/* ---------- CELL CLICK ---------- */
+function onCellClick(cellKey) {
+  const cellEl = document.querySelector(`[data-cell="${cellKey}"]`);
+  if (!cellEl) return;
+  const accepts = cellEl.dataset.accepts;
+
+  // Case A: cell is empty and a tile is selected → place it
+  if (cellEl.classList.contains('empty') && state.selectedElementId) {
+    const cat = categoryOf(state.selectedElementId);
+    if (cat !== accepts) {
+      showToast(`This cell accepts only ${accepts}`);
+      return;
+    }
+    placeElement(state.selectedElementId, cellKey);
+    clearSelection();
+    return;
+  }
+
+  // Case B: cell is filled → return its contents to bank
+  if (!cellEl.classList.contains('empty')) {
+    const elementId = state.placements[cellKey];
+    if (elementId) {
+      returnElementToBank(elementId);
+    }
+    return;
+  }
+
+  // Case C: cell empty, no selection → no-op
+}
+
+/* ---------- PLACEMENT ---------- */
+function placeElement(elementId, cellKey) {
+  // If element was elsewhere, clear it
+  const prior = state.elementLocations[elementId];
+  if (prior) clearCell(prior);
+
+  state.placements[cellKey] = elementId;
+  state.elementLocations[elementId] = cellKey;
+  renderCell(cellKey);
+  renderBank();
+  updateCounters();
+  showToast(`Placed: ${getElement(elementId).label}`);
+}
+
+function returnElementToBank(elementId) {
+  const loc = state.elementLocations[elementId];
+  if (!loc) return;
+  clearCell(loc);
+  state.elementLocations[elementId] = null;
+  renderBank();
+  updateCounters();
+  showToast('Returned to pool');
+}
+
+function clearCell(cellKey) {
+  delete state.placements[cellKey];
+  const cellEl = document.querySelector(`[data-cell="${cellKey}"]`);
+  if (!cellEl) return;
+  cellEl.classList.add('empty');
+  cellEl.classList.remove('correct', 'incorrect');
+  if (cellKey.startsWith('policy-')) {
+    const row = cellKey.split('-')[1];
+    cellEl.innerHTML = `
+      <div class="policy-cell-label">Policy ${String(parseInt(row)+1).padStart(2,'0')}</div>
+      <div class="policy-cell-content">(empty)</div>
+      <span class="cell-return-hint">TAP TO RETURN</span>
+    `;
+  } else if (cellKey.startsWith('tech-')) {
+    const parts = cellKey.split('-');
+    const col = parts[2];
+    cellEl.innerHTML = `
+      <div class="technique-cell-slot">Technique ${parseInt(col)+1}</div>
+      <div class="technique-cell-content">(empty)</div>
+      <span class="cell-return-hint">TAP TO RETURN</span>
+    `;
+  } else if (cellKey.startsWith('obj-')) {
+    const slot = cellKey.split('-')[1];
+    cellEl.innerHTML = `
+      <div class="objective-slot-label">Objective ${String(parseInt(slot)+1).padStart(2,'0')}</div>
+      <div class="objective-slot-content">(empty)</div>
+    `;
+  }
+}
+
+function renderCell(cellKey) {
+  const elementId = state.placements[cellKey];
+  if (!elementId) return;
+  const el = getElement(elementId);
+  const cellEl = document.querySelector(`[data-cell="${cellKey}"]`);
+  if (!cellEl) return;
+  cellEl.classList.remove('empty');
+  cellEl.classList.remove('correct', 'incorrect');
+
+  if (cellKey.startsWith('policy-')) {
+    const row = cellKey.split('-')[1];
+    cellEl.innerHTML = `
+      <div class="policy-cell-label">Policy ${String(parseInt(row)+1).padStart(2,'0')}</div>
+      <div class="policy-cell-content">${escapeHtml(el.label)}</div>
+      <span class="cell-return-hint">TAP TO RETURN</span>
+    `;
+  } else if (cellKey.startsWith('tech-')) {
+    const parts = cellKey.split('-');
+    const col = parts[2];
+    cellEl.innerHTML = `
+      <div class="technique-cell-slot">Technique ${parseInt(col)+1}</div>
+      <div class="technique-cell-content">${escapeHtml(el.label)}</div>
+      <span class="cell-return-hint">TAP TO RETURN</span>
+    `;
+  } else if (cellKey.startsWith('obj-')) {
+    const slot = cellKey.split('-')[1];
+    cellEl.innerHTML = `
+      <div class="objective-slot-label">Objective ${String(parseInt(slot)+1).padStart(2,'0')}</div>
+      <div class="objective-slot-content">${escapeHtml(el.label)}</div>
+    `;
+  }
+}
+
+/* ---------- COUNTERS ---------- */
+function updateCounters() {
+  const placed = Object.keys(state.placements).length;
+  const total = ALL_ELEMENTS.length;
+  const remaining = total - placed;
+  document.getElementById('filledCount').textContent = placed;
+  document.getElementById('remainingCount').textContent = remaining;
+
+  const filledDetail = document.getElementById('filledDetail');
+  if (placed === 0) filledDetail.textContent = 'no cells placed yet';
+  else if (placed === total) filledDetail.textContent = 'matrix complete';
+  else filledDetail.textContent = `${Math.round(placed/total*100)}% complete`;
+
+  const remainingDetail = document.getElementById('remainingDetail');
+  if (remaining === 0) remainingDetail.textContent = 'ready to submit';
+  else remainingDetail.textContent = `in the elements pool`;
+
+  document.getElementById('submitMatrixBtn').disabled = remaining > 0;
+  document.getElementById('matrixStatus').innerHTML = remaining > 0
+    ? `Place <strong>${remaining}</strong> more element${remaining === 1 ? '' : 's'} to enable submission.`
+    : 'All 23 elements placed — ready to submit.';
+}
+
+/* ---------- FILTER ---------- */
+function filterBank(filter, btn) {
+  state.bankFilter = filter;
+  document.querySelectorAll('.bank-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBank();
+}
+
+/* ---------- RESET ---------- */
+function resetMatrix() {
+  if (Object.keys(state.placements).length === 0) return;
+  if (!confirm('Reset the matrix? All placed elements will be returned to the pool.')) return;
+  state.placements = {};
+  ALL_ELEMENTS.forEach(el => { state.elementLocations[el.id] = null; });
+  state.bankOrder = shuffleArray(ALL_ELEMENTS.map(el => el.id));
+  clearSelection();
+  renderMatrix();
+  renderBank();
+  updateCounters();
+  document.getElementById('feedbackPanel').classList.remove('active');
+  document.getElementById('submitMatrixBtn').style.display = '';
+  showToast('Matrix reset · pool reshuffled');
+}
+
+/* ---------- SUBMIT / GRADE ---------- */
+function submitMatrix() {
+  // Compute correctness for each placement
+  const results = [];
+  Object.keys(state.placements).forEach(cellKey => {
+    const elementId = state.placements[cellKey];
+    const el = getElement(elementId);
+    const expectedKey = expectedCellFor(el);
+    const correct = cellKey === expectedKey;
+    results.push({ cellKey, elementId, el, expectedKey, correct });
+
+    const cellEl = document.querySelector(`[data-cell="${cellKey}"]`);
+    if (cellEl) {
+      cellEl.classList.add(correct ? 'correct' : 'incorrect');
+      // Add marker icon
+      const existing = cellEl.querySelector('.policy-cell-correct-marker, .policy-cell-incorrect-marker, .technique-cell-marker, .objective-slot-marker');
+      if (existing) existing.remove();
+      const marker = document.createElement('span');
+      const tag = cellKey.startsWith('policy-') ? 'policy-cell-' : cellKey.startsWith('tech-') ? 'technique-cell-' : 'objective-slot-';
+      marker.className = (cellKey.startsWith('tech-') || cellKey.startsWith('obj-')) ? `${tag}marker ${correct ? 'correct' : 'incorrect'}` : `${tag}${correct ? 'correct' : 'incorrect'}-marker`;
+      marker.textContent = correct ? '✓' : '✗';
+      cellEl.appendChild(marker);
+    }
+  });
+
+  const correctCount = results.filter(r => r.correct).length;
+  const total = results.length;
+  const score = Math.round(correctCount / total * 100);
+  state.score = score;
+  state.resultsCache = results;
+
+  renderFeedback(score, correctCount, results);
+  document.getElementById('submitMatrixBtn').style.display = 'none';
+  setTimeout(() => {
+    document.getElementById('feedbackPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+function expectedCellFor(el) {
+  if (categoryOf(el.id) === 'policies') return 'policy-' + el.row;
+  if (categoryOf(el.id) === 'techniques') return `tech-${el.row}-${el.col}`;
+  if (categoryOf(el.id) === 'objectives') return 'obj-' + el.slot;
+  return null;
+}
+
+/* ---------- FEEDBACK ---------- */
+function renderFeedback(score, correctCount, results) {
+  const total = results.length;
+  const incorrect = results.filter(r => !r.correct);
+  const policyCorrect = results.filter(r => r.correct && categoryOf(r.elementId) === 'policies').length;
+  const techCorrect = results.filter(r => r.correct && categoryOf(r.elementId) === 'techniques').length;
+  const objCorrect = results.filter(r => r.correct && categoryOf(r.elementId) === 'objectives').length;
+
+  const band = scoreBand(score);
+  const narrative = scoreNarrative(score, incorrect);
+
+  const errorsHtml = incorrect.length === 0
+    ? '<div class="error-item"><strong>No errors.</strong> Every element is in its correct cell. The matrix is fully aligned with the Pay Model.</div>'
+    : incorrect.map(r => {
+        const placedAt = formatCellName(r.cellKey);
+        const shouldBe = formatCellName(r.expectedKey);
+        return `<div class="error-item"><strong>${escapeHtml(r.el.label)}</strong> — placed at <em>${escapeHtml(placedAt)}</em>; should be at <em>${escapeHtml(shouldBe)}</em>.</div>`;
+      }).join('');
+
+  document.getElementById('feedbackPanel').innerHTML = `
+    <div class="feedback-results">
+      <div class="feedback-eyebrow">Matrix · Result</div>
+      <div class="feedback-score-row">
+        <span class="feedback-score">${score}</span>
+        <span class="feedback-score-total">/ 100</span>
+        <span class="feedback-band">— ${band}</span>
+      </div>
+      <div class="feedback-narrative">${narrative}</div>
+    </div>
+
+    <div class="feedback-breakdown">
+      <div class="feedback-stat">
+        <div class="feedback-stat-label">Policies</div>
+        <div class="feedback-stat-value">${policyCorrect} / 4</div>
+        <div class="feedback-stat-detail">${policyCorrect === 4 ? 'all correct' : (4-policyCorrect) + ' to review'}</div>
+      </div>
+      <div class="feedback-stat">
+        <div class="feedback-stat-label">Techniques</div>
+        <div class="feedback-stat-value">${techCorrect} / 16</div>
+        <div class="feedback-stat-detail">${techCorrect === 16 ? 'all correct' : (16-techCorrect) + ' to review'}</div>
+      </div>
+      <div class="feedback-stat">
+        <div class="feedback-stat-label">Objectives</div>
+        <div class="feedback-stat-value">${objCorrect} / 3</div>
+        <div class="feedback-stat-detail">${objCorrect === 3 ? 'all correct' : (3-objCorrect) + ' to review'}</div>
+      </div>
+    </div>
+
+    <div class="feedback-errors">
+      <h3>${incorrect.length === 0 ? 'Verdict' : 'Misplacements to Review'}</h3>
+      <div class="error-list">${errorsHtml}</div>
+    </div>
+
+    <div class="action-bar">
+      <div class="action-bar-status">Review the verdict, then continue to reflection.</div>
+      <div class="action-bar-buttons">
+        <button class="btn btn-secondary" onclick="retryMatrix()">Retry Matrix</button>
+        <button class="btn btn-primary" onclick="goToReflection()">Continue to Reflection <span class="arrow">→</span></button>
+      </div>
+    </div>
+  `;
+  document.getElementById('feedbackPanel').classList.add('active');
+}
+
+function formatCellName(cellKey) {
+  if (cellKey.startsWith('policy-')) {
+    const row = parseInt(cellKey.split('-')[1]);
+    return `Policy ${row+1} (${POLICIES[row].label})`;
+  }
+  if (cellKey.startsWith('tech-')) {
+    const parts = cellKey.split('-');
+    const row = parseInt(parts[1]);
+    const col = parseInt(parts[2]);
+    return `${POLICIES[row].label} row, Technique ${col+1}`;
+  }
+  if (cellKey.startsWith('obj-')) {
+    const slot = parseInt(cellKey.split('-')[1]);
+    return `Objective slot ${slot+1}`;
+  }
+  return cellKey;
+}
+
+function scoreBand(score) {
+  if (score === 100) return 'Distinguished — flawless reconstruction';
+  if (score >= 90) return 'Strong — near-perfect mastery';
+  if (score >= 75) return 'Competent — solid grasp of the model';
+  if (score >= 60) return 'Developing — core structure in place';
+  return 'Foundational — the model needs review';
+}
+
+function scoreNarrative(score, incorrect) {
+  if (score === 100) return 'A complete reconstruction of the Pay Model. You can map any compensation choice to its rightful place in the framework — the mark of a confident reward strategist.';
+  if (score >= 90) return 'Near-perfect placement. The few misplacements below are at the edges of the framework — exactly the cases that test understanding rather than recall.';
+  if (score >= 75) {
+    const techErrors = incorrect.filter(r => categoryOf(r.elementId) === 'techniques').length;
+    return techErrors >= 3
+      ? 'A capable reconstruction. The policies and objectives are confidently placed; the technique-to-policy mapping is where the next layer of mastery lies.'
+      : 'A capable reconstruction. The model is in clear view; review the rationale below before moving on.';
+  }
+  if (score >= 60) {
+    return 'A working reconstruction. The shape of the model is visible, but several elements are misplaced. Use the rationale below as a teaching tool, then retry the matrix.';
+  }
+  return 'A foundational attempt. A meaningful share of elements is yet to find its right cell. Re-read the model framework, then retry — the second attempt typically shifts the score by 20 points or more.';
+}
+
+/* ---------- RETRY / ADVANCE ---------- */
+function retryMatrix() {
+  if (!confirm('Retry the matrix? Your current placements and result will be cleared.')) return;
+  state.placements = {};
+  ALL_ELEMENTS.forEach(el => { state.elementLocations[el.id] = null; });
+  state.bankOrder = shuffleArray(ALL_ELEMENTS.map(el => el.id));
+  state.score = null;
+  state.resultsCache = null;
+  clearSelection();
+  renderMatrix();
+  renderBank();
+  updateCounters();
+  document.getElementById('feedbackPanel').classList.remove('active');
+  document.getElementById('submitMatrixBtn').style.display = '';
+  showToast('Matrix cleared · pool reshuffled — try again');
+}
+
+function goToReflection() {
+  updateStageIndicator(2);
+  showScreen('reflection');
+}
+
+/* ---------- REFLECTION ---------- */
+function updateReflectionWordCount() {
+  const ta = document.getElementById('reflectionText');
+  const wc = document.getElementById('reflectionWordCount');
+  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  wc.textContent = `${words} word${words === 1 ? '' : 's'} · min 60`;
+  state.reflection = ta.value.trim();
+  document.getElementById('finishBtn').disabled = words < 60;
+}
+
+function finishExercise() {
+  updateStageIndicator(3);
+  showToast('Exercise complete · ready to print');
+  setTimeout(() => {
+    if (confirm('Print or save your exercise as a PDF for submission?')) {
+      window.print();
+    }
+  }, 500);
+}
+
+/* ---------- MODAL ---------- */
+function openModal(id) {
+  const el = getElement(id);
+  if (!el) return;
+  const cat = categoryOf(id);
+  const catLabel = cat === 'policies' ? 'Policy Choice' : cat === 'techniques' ? 'Technique' : 'Objective';
+  document.getElementById('modalCategory').textContent = catLabel;
+  document.getElementById('modalTitle').textContent = el.label;
+  document.getElementById('modalDef').innerHTML = escapeHtml(el.def);
+  document.getElementById('modalMatters').innerHTML = escapeHtml(el.matters);
+  document.getElementById('modalExample').innerHTML = escapeHtml(el.example);
+  document.getElementById('modalQuestion').innerHTML = escapeHtml(el.q);
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget && !event.target.classList.contains('modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+/* ---------- UTILITIES ---------- */
+function getElement(id) { return ALL_ELEMENTS.find(e => e.id === id); }
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+init();
+</script>
+</body>
+</html>
