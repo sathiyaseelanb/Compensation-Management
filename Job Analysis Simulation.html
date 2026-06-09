@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Mystery Job — A Work Analysis Investigation</title>
+<style>
+/* ==========================================================
+   THE MYSTERY JOB — A WORK ANALYSIS SIMULATION
+   HBS-style consulting interface. Single self-contained file.
+   No external dependencies.
+   ========================================================== */
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #fafaf8;
+  --bg-warm: #f5f3ee;
+  --ink: #0a0a0a;
+  --ink-soft: #2a2a2a;
+  --ink-medium: #4a4a4a;
+  --ink-faint: #7a7a7a;
+  --ink-light: #9a9a9a;
+  --rule: #e0ddd6;
+  --rule-strong: #c4c0b5;
+  --rule-dark: #2a2a2a;
+  --accent: #8b0000;
+  --accent-soft: #f5e6e6;
+  --gold: #806020;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: Georgia, 'Times New Roman', 'Liberation Serif', serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: 18px;
+  min-height: 100vh;
+}
+
+button, input, textarea { font-family: inherit; }
+
+/* ========== MASTHEAD ========== */
+.masthead {
+  background: var(--bg);
+  border-bottom: 1px solid var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.brand-mark {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.brand-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--rule-strong);
+}
+.brand-sub {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.phase-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-medium);
+}
+.phase-progress-label {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.phase-pips { display: flex; gap: 6px; }
+.phase-pip {
+  width: 24px;
+  height: 2px;
+  background: var(--rule);
+  transition: background 0.3s;
+}
+.phase-pip.done { background: var(--ink); }
+.phase-pip.current { background: var(--accent); height: 3px; }
+
+/* ========== CONTAINER ========== */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 28px 80px;
+}
+
+/* ========== SCREENS ========== */
+.screen { display: none; animation: screen-in 0.5s ease; }
+.screen.active { display: block; }
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== TYPOGRAPHY ========== */
+.eyebrow {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-medium);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.eyebrow::before {
+  content: '';
+  width: 36px;
+  height: 1px;
+  background: var(--ink-medium);
+}
+
+.phase-header {
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.phase-title {
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 4.5vw, 44px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+.phase-title em {
+  font-style: italic;
+  font-weight: 500;
+}
+.phase-deck {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-medium);
+  font-style: italic;
+  max-width: 760px;
+}
+
+h3 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+h4 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-medium);
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.2;
+  text-align: center;
+}
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+}
+.btn-primary:hover:not(:disabled) {
+  background: #000;
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  background: var(--ink-light);
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.btn-secondary:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-medium);
+  border: 1px solid var(--rule-strong);
+  font-size: 11px;
+  padding: 10px 18px;
+}
+.btn-ghost:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.btn .arrow {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+/* ========== COVER ========== */
+.cover-intro {
+  padding: 32px 0 24px;
+}
+.cover-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+.cover-meta-cell {
+  padding: 0 24px;
+  border-right: 1px solid var(--rule);
+}
+.cover-meta-cell:last-child { border-right: none; }
+.cover-meta-cell:first-child { padding-left: 0; }
+.cover-meta-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+.cover-meta-value {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.cover-title {
+  font-family: Georgia, serif;
+  font-size: clamp(42px, 7vw, 68px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  color: var(--ink);
+}
+.cover-title em {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.cover-deck {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--ink-medium);
+  font-style: italic;
+  margin-bottom: 36px;
+  max-width: 740px;
+  padding-left: 20px;
+  border-left: 2px solid var(--ink);
+}
+
+.cover-section {
+  margin: 32px 0;
+}
+.cover-section h4 {
+  margin-bottom: 14px;
+}
+.cover-section p {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-medium);
+  margin-bottom: 12px;
+  max-width: 720px;
+}
+.cover-section p strong { color: var(--ink); }
+
+.cover-phase-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+@media (min-width: 720px) {
+  .cover-phase-list { grid-template-columns: 1fr 1fr; }
+}
+.cover-phase-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule);
+}
+.cover-phase-num {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cover-phase-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cover-phase-name {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.cover-phase-desc {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: var(--ink-medium);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.byline-block {
+  margin: 32px 0;
+  padding: 22px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+.byline-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+.byline-name {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.byline-role {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-medium);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.consultant-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (min-width: 540px) {
+  .consultant-form { grid-template-columns: 1fr 1fr; }
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-medium);
+}
+.field input, .field textarea, .field select {
+  padding: 13px 16px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+/* ========== PHASE 1: BRIEFING ========== */
+.brief-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  padding: 36px 40px;
+  margin: 28px 0;
+  position: relative;
+}
+.brief-letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.brief-letterhead-org {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.brief-letterhead-ref {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+.brief-recipient {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-medium);
+  margin-bottom: 18px;
+}
+.brief-recipient strong { color: var(--ink); }
+.brief-subject {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 22px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.brief-body p {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+.brief-body p:last-child { margin-bottom: 0; }
+.brief-body strong { color: var(--ink); font-weight: 700; }
+.brief-body em { font-style: italic; color: var(--ink); }
+
+.brief-mandate {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: var(--ink);
+  color: var(--bg);
+}
+.brief-mandate-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.brief-mandate-text {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--bg);
+}
+
+.brief-signature {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-strong);
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: var(--ink-medium);
+  line-height: 1.5;
+}
+.brief-signature strong {
+  display: block;
+  color: var(--ink);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+/* ========== PHASE 2: EVIDENCE ========== */
+.evidence-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 980px) {
+  .evidence-layout { grid-template-columns: 260px 1fr; }
+}
+
+.evidence-nav {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 18px;
+}
+@media (min-width: 980px) {
+  .evidence-nav {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+  }
+}
+.evidence-nav h4 {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+}
+.evidence-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.evidence-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+  font-weight: 500;
+}
+.evidence-nav-item:hover {
+  background: var(--bg-warm);
+  border-left-color: var(--ink-light);
+}
+.evidence-nav-item.viewed {
+  color: var(--ink);
+  font-weight: 600;
+  border-left-color: var(--ink);
+}
+.evidence-nav-count {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  background: var(--bg-warm);
+  padding: 2px 6px;
+}
+.evidence-nav-item.viewed .evidence-nav-count {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.evidence-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.evidence-card {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 24px 26px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.evidence-card:hover {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+.evidence-card.viewed::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.evidence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.evidence-type {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+}
+.evidence-meta {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+.evidence-title {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.evidence-source {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+  letter-spacing: 0.03em;
+}
+.evidence-source strong { color: var(--ink-soft); font-weight: 600; }
+.evidence-body {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+.evidence-body p { margin-bottom: 10px; }
+.evidence-body p:last-child { margin-bottom: 0; }
+.evidence-body em { font-style: italic; color: var(--ink); }
+.evidence-body ul {
+  list-style: none;
+  margin: 6px 0;
+}
+.evidence-body ul li {
+  padding: 4px 0 4px 18px;
+  position: relative;
+}
+.evidence-body ul li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  top: 4px;
+}
+
+.evidence-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  flex-wrap: wrap;
+}
+.evidence-learning-hint {
+  font-style: italic;
+  color: var(--ink-medium);
+}
+
+.evidence-progress {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  padding: 18px 22px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.evidence-progress-text {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  color: var(--ink-medium);
+  letter-spacing: 0.02em;
+}
+.evidence-progress-text strong { color: var(--accent); font-weight: 700; }
+.evidence-progress-bar {
+  flex: 1;
+  min-width: 140px;
+  height: 4px;
+  background: var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.evidence-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--progress, 0%);
+  background: var(--ink);
+  transition: width 0.4s;
+}
+
+/* ========== PHASE 3: WORK ANALYSIS WORKSPACE ========== */
+.workspace-intro {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+.workspace-intro p {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.workspace-intro p:last-child { margin-bottom: 0; }
+.workspace-intro strong { color: var(--ink); font-weight: 700; }
+
+.selection-banner {
+  display: none;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 12px 18px;
+  margin-bottom: 22px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: screen-in 0.25s ease;
+  flex-wrap: wrap;
+}
+.selection-banner.active { display: flex; }
+.selection-banner-info {
+  flex: 1;
+  min-width: 200px;
+}
+.selection-banner-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.selection-banner-text {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.3;
+}
+.selection-banner-cancel {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: var(--bg);
+  padding: 6px 14px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.selection-banner-cancel:hover { background: rgba(255,255,255,0.3); }
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 980px) {
+  .workspace-grid { grid-template-columns: 320px 1fr; }
+}
+
+.evidence-pool {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 20px;
+}
+@media (min-width: 980px) {
+  .evidence-pool {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+  }
+}
+.evidence-pool-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.evidence-pool-header h4 {
+  margin-bottom: 4px;
+}
+.evidence-pool-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+.evidence-pool-count strong { color: var(--accent); font-weight: 700; }
+
+.evidence-pool-filter {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.evidence-pool-filter button {
+  padding: 6px 10px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.evidence-pool-filter button:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.evidence-pool-filter button.active {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.evidence-pool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.evidence-chip {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  user-select: none;
+}
+.evidence-chip:hover {
+  border-color: var(--ink);
+  background: var(--bg);
+}
+.evidence-chip-type {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+.evidence-chip-text {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.evidence-chip.selected {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.evidence-chip.selected .evidence-chip-type { color: rgba(255,255,255,0.7); }
+.evidence-chip.selected .evidence-chip-text { color: var(--bg); }
+.evidence-chip.placed {
+  opacity: 0.4;
+  background: var(--bg-warm);
+}
+.evidence-chip.placed::after {
+  content: 'PLACED';
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.workspace-categories {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .workspace-categories { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1200px) {
+  .workspace-categories { grid-template-columns: 1fr 1fr; }
+}
+
+.category-zone {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 16px 18px;
+  min-height: 140px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.category-zone.ready {
+  border-color: var(--ink);
+  background: var(--bg-soft);
+  cursor: pointer;
+}
+.category-zone.ready::after {
+  content: 'TAP TO PLACE HERE';
+  display: block;
+  margin-top: 12px;
+  padding: 8px;
+  text-align: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: var(--ink);
+  border: 1px dashed var(--ink);
+  background: var(--bg);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+}
+.category-name {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.category-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.category-count strong { color: var(--accent); }
+
+.category-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.category-item {
+  background: var(--bg-warm);
+  border-left: 2px solid var(--ink);
+  padding: 8px 10px;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.category-item:hover { background: var(--accent-soft); }
+.category-item-text { flex: 1; word-break: break-word; }
+.category-item-remove {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+.category-empty {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-light);
+  padding: 8px 0;
+  text-align: center;
+}
+
+/* ========== PHASE 4: RECONSTRUCTION FORM ========== */
+.reconstruction-intro {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--ink);
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+.reconstruction-intro p {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.reconstruction-intro strong { color: var(--ink); }
+
+.recon-form {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 32px;
+}
+@media (max-width: 600px) { .recon-form { padding: 22px 20px; } }
+
+.recon-field {
+  margin-bottom: 26px;
+}
+.recon-field:last-child { margin-bottom: 0; }
+.recon-field-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.recon-field-num {
+  color: var(--accent);
+  font-size: 11px;
+}
+.recon-field-hint {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-medium);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.recon-field input, .recon-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  background: var(--bg-soft);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  transition: all 0.2s;
+}
+.recon-field textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.recon-field input:focus, .recon-field textarea:focus {
+  outline: none;
+  border-color: var(--ink);
+  background: var(--bg);
+}
+
+.recon-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.recon-confidence-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.recon-confidence-slider {
+  -webkit-appearance: none;
+  flex: 1;
+  height: 4px;
+  background: var(--rule);
+  outline: none;
+  cursor: pointer;
+}
+.recon-confidence-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.recon-confidence-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+.recon-confidence-value {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 70px;
+  text-align: right;
+}
+.recon-confidence-value .percent {
+  font-size: 16px;
+  color: var(--ink-faint);
+}
+
+/* ========== PHASE 5: DEBRIEF ========== */
+.debrief-summary {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 36px 40px;
+  margin-bottom: 32px;
+  position: relative;
+}
+@media (max-width: 600px) { .debrief-summary { padding: 28px 22px; } }
+.debrief-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 16px;
+}
+.debrief-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.debrief-score-big {
+  font-family: Georgia, serif;
+  font-size: 72px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.debrief-score-total {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.55);
+}
+.debrief-band {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-style: italic;
+  color: var(--bg);
+  font-weight: 500;
+}
+.debrief-narrative {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.88);
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: 760px;
+}
+
+.dimension-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+.dimension-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: center;
+}
+@media (max-width: 600px) {
+  .dimension-row { grid-template-columns: 1fr 70px; }
+  .dimension-row .dimension-bar-wrap { display: none; }
+}
+.dimension-label {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.dimension-score {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+.dimension-score .percent {
+  font-size: 14px;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.dimension-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: var(--rule);
+  position: relative;
+}
+.dimension-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--ink);
+  transition: width 0.6s ease;
+}
+
+.reveal-block {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  padding: 32px 36px;
+  margin-bottom: 32px;
+  position: relative;
+}
+@media (max-width: 600px) { .reveal-block { padding: 24px 22px; } }
+.reveal-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.reveal-title {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+.reveal-title em { font-style: italic; }
+.reveal-body p {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+.reveal-body p:last-child { margin-bottom: 0; }
+.reveal-body strong { color: var(--ink); }
+.reveal-body em { font-style: italic; color: var(--ink); }
+.reveal-titles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 22px 0;
+}
+@media (min-width: 540px) {
+  .reveal-titles { grid-template-columns: 1fr 1fr; }
+}
+.reveal-title-card {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 14px 18px;
+}
+.reveal-title-name {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.reveal-title-note {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: var(--ink-medium);
+  font-style: italic;
+  line-height: 1.5;
+}
+.reveal-key-insight {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 22px 26px;
+  margin-top: 22px;
+}
+.reveal-key-insight p {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--bg);
+}
+.reveal-key-insight p strong {
+  color: var(--bg);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ========== PHASE 6: REFLECTION ========== */
+.reflection-intro {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--ink);
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+.reflection-intro p {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.reflection-q {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  padding: 22px 26px;
+  margin-bottom: 16px;
+}
+.reflection-q-header {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: baseline;
+}
+.reflection-q-num {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.reflection-q-text {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.reflection-q textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  font-size: 15.5px;
+  line-height: 1.6;
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  resize: vertical;
+}
+.reflection-q textarea:focus {
+  outline: none;
+  border-color: var(--ink);
+  background: var(--bg);
+}
+.word-count {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+.word-count strong { color: var(--ink); }
+
+/* ========== EXECUTIVE DASHBOARD ========== */
+.dashboard {
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) { .dashboard { padding: 22px; } }
+.dashboard-header {
+  text-align: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 28px;
+}
+.dashboard-org {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.dashboard-title {
+  font-family: Georgia, serif;
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.dashboard-subtitle {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink-medium);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-bottom: 28px;
+}
+@media (max-width: 600px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+.dashboard-stat {
+  padding: 18px 22px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.dashboard-stat:nth-child(2n) { border-right: none; }
+@media (max-width: 600px) {
+  .dashboard-stat { border-right: none; }
+}
+.dashboard-stat-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+.dashboard-stat-value {
+  font-family: Georgia, serif;
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.dashboard-stat-value .percent {
+  font-size: 18px;
+  color: var(--ink-faint);
+}
+.dashboard-stat-detail {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-medium);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.dashboard-overall {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 28px 32px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.dashboard-overall-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 12px;
+}
+.dashboard-overall-value {
+  font-family: Georgia, serif;
+  font-size: clamp(54px, 10vw, 84px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+.dashboard-overall-value .percent {
+  font-size: 0.4em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.dashboard-overall-band {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-style: italic;
+  color: var(--bg);
+}
+
+.dashboard-narrative {
+  padding: 20px 0;
+  border-top: 1px solid var(--rule);
+  font-family: Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.dashboard-narrative strong { color: var(--ink); }
+
+/* ========== LEARNING MODAL ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; animation: fade-in 0.2s ease; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--bg);
+  max-width: 540px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 22px 28px 20px;
+  position: relative;
+}
+.modal-eyebrow {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.modal-title {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  padding-right: 36px;
+  letter-spacing: -0.01em;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--bg);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.modal-close:hover { background: rgba(255,255,255,0.15); border-color: var(--bg); }
+.modal-body { padding: 24px 28px; }
+.modal-section { margin-bottom: 20px; }
+.modal-section:last-child { margin-bottom: 0; }
+.modal-section-label {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.modal-section-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+.modal-section-text strong { color: var(--ink); font-weight: 700; }
+.modal-section-text em { font-style: italic; color: var(--ink); }
+
+/* ========== ACTION BAR ========== */
+.action-bar {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.action-bar-status {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-medium);
+  flex: 1;
+  min-width: 200px;
+}
+.action-bar-status strong { color: var(--accent); font-style: normal; font-weight: 700; }
+.action-bar-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 12px 22px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  z-index: 300;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translate(-50%, -10px); }
+
+/* ========== MOBILE ========== */
+@media (max-width: 720px) {
+  body { font-size: 17px; }
+  .container { padding: 22px 18px 60px; }
+  .masthead-inner { padding: 14px 18px; }
+  .brand-mark { font-size: 14px; }
+  .brand-sub { font-size: 9px; }
+  .phase-progress { font-size: 10px; gap: 10px; }
+  .phase-pip { width: 18px; }
+  .cover-meta-strip { grid-template-columns: 1fr 1fr; }
+  .cover-meta-cell { padding: 12px; border-right: none; border-bottom: 1px solid var(--rule); }
+  .cover-meta-cell:nth-child(even) { border-left: 1px solid var(--rule); }
+  .cover-deck { font-size: 18px; }
+  .brief-card { padding: 24px 22px; }
+  .brief-subject { font-size: 19px; }
+  .debrief-score-big { font-size: 56px; }
+}
+@media (max-width: 480px) {
+  .cover-meta-strip { grid-template-columns: 1fr; }
+  .cover-meta-cell:nth-child(even) { border-left: none; }
+}
+
+/* ========== PRINT ========== */
+@media print {
+  body { background: white; }
+  .masthead, .action-bar, .selection-banner, .evidence-pool-filter, .evidence-progress { display: none !important; }
+  .screen:not(.active) { display: none !important; }
+  .screen.active { display: block !important; }
+  .brief-card, .reveal-block, .dashboard, .reflection-q, .recon-form { page-break-inside: avoid; box-shadow: none; }
+  .debrief-summary, .dashboard-overall, .reveal-key-insight { background: white !important; color: var(--ink) !important; border: 2px solid var(--ink); }
+  .debrief-score-big, .debrief-band, .debrief-narrative, .dashboard-overall-value, .dashboard-overall-band, .reveal-key-insight p { color: var(--ink) !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-mark">The Mystery Job</span>
+      <span class="brand-divider"></span>
+      <span class="brand-sub">A Work Analysis Investigation</span>
+    </div>
+    <div class="phase-progress" id="phaseProgress" style="display: none;">
+      <span class="phase-progress-label" id="phaseProgressLabel">Phase 1 of 6</span>
+      <div class="phase-pips" id="phasePips"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ============ SCREEN: COVER ============ -->
+<section class="screen active" id="screen-cover">
+  <div class="cover-intro">
+    <div class="eyebrow">Executive Classroom Simulation</div>
+    <h1 class="cover-title">The Mystery <em>Job.</em></h1>
+    <p class="cover-deck">A work analysis investigation. You are a compensation consultant. A role exists, work is being performed, but the title has been removed from organisational records. Your task is not to guess the title. Your task is to understand the work.</p>
+
+    <div class="cover-meta-strip">
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Format</div>
+        <div class="cover-meta-value">Six phases · investigative</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Duration</div>
+        <div class="cover-meta-value">50–70 minutes</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Level</div>
+        <div class="cover-meta-value">MBA · Executive</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Replayable</div>
+        <div class="cover-meta-value">Three mystery cases</div>
+      </div>
+    </div>
+
+    <div class="cover-section">
+      <h4>The Pedagogical Intent</h4>
+      <p>Compensation professionals make decisions about work, not about titles. Yet most learners arrive in a compensation course assuming the title is the unit of analysis. This simulation is designed to disrupt that assumption — to make visible the discipline of looking at evidence first, naming the work, and only then considering what the role might be called.</p>
+      <p>The simulation does not test memory. It develops a way of seeing. By the end, learners should understand <strong>why work analysis is the foundation of compensation management</strong> — and why job descriptions, job evaluation, internal pay structure, and pay equity all rest on it.</p>
+    </div>
+
+    <div class="cover-section">
+      <h4>The Six Phases</h4>
+      <ul class="cover-phase-list">
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">01</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Case Briefing</span>
+            <span class="cover-phase-desc">Receive the consulting mandate from the client.</span>
+          </div>
+        </li>
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">02</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Evidence Collection</span>
+            <span class="cover-phase-desc">Review the digital case file — emails, calendar, messages, feedback.</span>
+          </div>
+        </li>
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">03</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Work Analysis</span>
+            <span class="cover-phase-desc">Organise evidence into the eight building blocks of work.</span>
+          </div>
+        </li>
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">04</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Job Reconstruction</span>
+            <span class="cover-phase-desc">Produce a structured work analysis report.</span>
+          </div>
+        </li>
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">05</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Expert Debrief</span>
+            <span class="cover-phase-desc">Compare your analysis to an expert model.</span>
+          </div>
+        </li>
+        <li class="cover-phase-item">
+          <span class="cover-phase-num">06</span>
+          <div class="cover-phase-content">
+            <span class="cover-phase-name">Reflection</span>
+            <span class="cover-phase-desc">Six written questions that close the loop.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="byline-block">
+      <div class="byline-label">Developed by</div>
+      <div class="byline-name">Dr. Sathiyaseelan B</div>
+      <div class="byline-role">Professor — Human Resources Management<br>MBA Programme · School of Business and Management · Christ University</div>
+    </div>
+
+    <h4 style="margin-bottom: 14px;">Consultant Identification</h4>
+    <div class="consultant-form">
+      <div class="field">
+        <label for="consultantName">Your Name</label>
+        <input id="consultantName" type="text" autocomplete="name" placeholder="Enter your full name">
+      </div>
+      <div class="field">
+        <label for="consultantRef">Register / Reference Number</label>
+        <input id="consultantRef" type="text" autocomplete="off" placeholder="Enter your reference">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="enterBtn" disabled onclick="enterSimulation()">Receive the brief <span class="arrow">→</span></button>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 1 BRIEFING ============ -->
+<section class="screen" id="screen-briefing">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 01 · Case Briefing</div>
+    <h2 class="phase-title">The <em>mandate.</em></h2>
+    <p class="phase-deck">A consulting engagement letter from your client. Read it carefully — every assumption you make from here onward must be defensible against the evidence in the case file.</p>
+  </div>
+
+  <div class="brief-card" id="briefCard">
+    <!-- Populated by JS based on selected case -->
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Read the brief carefully. The investigation begins on the next screen.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" onclick="goToPhase('evidence')">Begin investigation <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 2 EVIDENCE ============ -->
+<section class="screen" id="screen-evidence">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 02 · Evidence Collection</div>
+    <h2 class="phase-title">The <em>case file.</em></h2>
+    <p class="phase-deck">Eight categories of evidence have been recovered from Employee X's working files. Review every item. Click any evidence card to open a learning panel that explains what type of information it provides.</p>
+  </div>
+
+  <div class="evidence-progress">
+    <div class="evidence-progress-text"><strong id="evidenceViewedCount">0</strong> of <span id="evidenceTotalCount">0</span> evidence items reviewed</div>
+    <div class="evidence-progress-bar" id="evidenceProgressBar"></div>
+  </div>
+
+  <div class="evidence-layout">
+    <aside class="evidence-nav">
+      <h4>Evidence Categories</h4>
+      <div class="evidence-nav-list" id="evidenceNavList"></div>
+    </aside>
+
+    <div class="evidence-stream" id="evidenceStream"></div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="evidenceStatus">Review at least 70% of the evidence before proceeding to work analysis.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" id="toAnalysisBtn" disabled onclick="goToPhase('analysis')">Proceed to work analysis <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 3 WORK ANALYSIS ============ -->
+<section class="screen" id="screen-analysis">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 03 · Work Analysis</div>
+    <h2 class="phase-title">Organise the <em>evidence.</em></h2>
+    <p class="phase-deck">Compensation professionals analyse work along eight dimensions. Tap any evidence item in the pool to select it, then tap a category to place it. The same evidence can be reconsidered and moved — work analysis is an iterative discipline, not a one-shot sort.</p>
+  </div>
+
+  <div class="workspace-intro">
+    <p><strong>What you are doing:</strong> Each evidence item points to one or more dimensions of work. Some are clear; some require judgement. There is no single correct sort — but there are <strong>defensible</strong> sorts.</p>
+    <p><strong>How to think:</strong> Ask of each piece of evidence — does this tell me <em>what is done</em> (task), <em>what must be achieved</em> (responsibility), <em>what gets produced</em> (output), <em>who is interacted with</em> (stakeholder), <em>what must be known</em> (knowledge), <em>what skill is exercised</em> (skill), <em>what is used</em> (tool), or <em>what is decided</em> (decision)?</p>
+  </div>
+
+  <div class="selection-banner" id="analysisSelectionBanner">
+    <div class="selection-banner-info">
+      <div class="selection-banner-label">Evidence selected — tap a category to place</div>
+      <div class="selection-banner-text" id="analysisSelectionText"></div>
+    </div>
+    <button class="selection-banner-cancel" onclick="clearAnalysisSelection()">Cancel</button>
+  </div>
+
+  <div class="workspace-grid">
+    <aside class="evidence-pool">
+      <div class="evidence-pool-header">
+        <h4>Evidence Pool</h4>
+        <div class="evidence-pool-count"><strong id="poolRemaining">0</strong> unplaced · multiple categories permitted</div>
+      </div>
+      <div class="evidence-pool-filter">
+        <button class="active" data-filter="all" onclick="filterPool('all', this)">All</button>
+        <button data-filter="unplaced" onclick="filterPool('unplaced', this)">Unplaced</button>
+        <button data-filter="placed" onclick="filterPool('placed', this)">Placed</button>
+      </div>
+      <div class="evidence-pool-list" id="evidencePoolList"></div>
+    </aside>
+
+    <div class="workspace-categories" id="workspaceCategories"></div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="analysisStatus">Place at least one piece of evidence in each of the eight categories before proceeding.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-secondary" onclick="resetAnalysis()">Reset Analysis</button>
+      <button class="btn btn-primary" id="toReconBtn" disabled onclick="goToPhase('reconstruction')">Build the work analysis report <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 4 RECONSTRUCTION ============ -->
+<section class="screen" id="screen-reconstruction">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 04 · Job Reconstruction</div>
+    <h2 class="phase-title">The work analysis <em>report.</em></h2>
+    <p class="phase-deck">Convert your analysis into a formal report. This is the artefact you would deliver to a client — every field below is what a compensation team would need before designing a job description, evaluating the job, or setting its pay.</p>
+  </div>
+
+  <div class="reconstruction-intro">
+    <p><strong>Note on the job title field:</strong> the title is the last thing you write, not the first. Resist the temptation to start there. Write the work first. The title will follow — and in many cases, more than one title will fit.</p>
+  </div>
+
+  <div class="recon-form">
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">i</span> Proposed Job Title</div>
+      <div class="recon-field-hint">What would you call this role, based on the work you have seen? Choose a title that reflects the work, not your guess at the industry standard.</div>
+      <input id="reconTitle" type="text" placeholder="e.g., Marketing Insights Analyst" oninput="checkReconReady()">
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">ii</span> Job Purpose Statement</div>
+      <div class="recon-field-hint">In two or three sentences — what does this role exist to do? What is the result the organisation expects?</div>
+      <textarea id="reconPurpose" placeholder="The role exists to..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">iii</span> Top Five Responsibilities</div>
+      <div class="recon-field-hint">The recurring outcomes this role is accountable for. One per line. Use active verbs.</div>
+      <textarea id="reconResponsibilities" placeholder="1. ..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">iv</span> Key Outputs</div>
+      <div class="recon-field-hint">The tangible artefacts this role produces — reports, dashboards, decisions, recommendations.</div>
+      <textarea id="reconOutputs" placeholder="The role produces..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">v</span> Key Stakeholders</div>
+      <div class="recon-field-hint">Who this role interacts with — upward, sideways, and external.</div>
+      <textarea id="reconStakeholders" placeholder="This role interacts with..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">vi</span> Knowledge Requirements</div>
+      <div class="recon-field-hint">What must the person know to perform the role well? Domain knowledge, frameworks, organisational context.</div>
+      <textarea id="reconKnowledge" placeholder="The role requires knowledge of..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">vii</span> Skills Required</div>
+      <div class="recon-field-hint">What the person must be able to do — analytical, technical, interpersonal.</div>
+      <textarea id="reconSkills" placeholder="The role requires the ability to..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">viii</span> Tools Used</div>
+      <div class="recon-field-hint">Systems, platforms, software, and methods the role uses daily or weekly.</div>
+      <textarea id="reconTools" placeholder="The role uses..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">ix</span> Decisions Influenced</div>
+      <div class="recon-field-hint">What organisational decisions does this role shape or inform? This is often the truest signal of role value.</div>
+      <textarea id="reconDecisions" placeholder="The role influences decisions about..." oninput="checkReconReady()"></textarea>
+    </div>
+
+    <div class="recon-field">
+      <div class="recon-field-label"><span class="recon-field-num">x</span> Confidence Level</div>
+      <div class="recon-field-hint">How confident are you in the analysis above? Be honest — overconfidence in work analysis leads to overpriced or underpriced jobs.</div>
+      <div class="recon-confidence">
+        <div class="recon-confidence-row">
+          <input type="range" id="reconConfidence" class="recon-confidence-slider" min="0" max="100" value="50" oninput="updateConfidence()">
+          <span class="recon-confidence-value"><span id="confidenceVal">50</span><span class="percent">%</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="reconStatus">Complete all fields with a thoughtful response — short answers are acceptable, but every field must contain substance.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" id="toDebriefBtn" disabled onclick="goToPhase('debrief')">Submit for expert review <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 5 DEBRIEF ============ -->
+<section class="screen" id="screen-debrief">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 05 · Expert Debrief</div>
+    <h2 class="phase-title">The expert's <em>view.</em></h2>
+    <p class="phase-deck">Your analysis has been compared against an expert work analysis model. The comparison is not about matching wording — it is about conceptual coverage across the eight dimensions of work.</p>
+  </div>
+
+  <div id="debriefContent"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Read the expert model carefully. The reveal that follows is the central learning of this simulation.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" onclick="goToPhase('reflection')">Continue to reflection <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: PHASE 6 REFLECTION ============ -->
+<section class="screen" id="screen-reflection">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 06 · Reflection</div>
+    <h2 class="phase-title">Pause to <em>think.</em></h2>
+    <p class="phase-deck">Six questions to close the loop. Write briefly but honestly. The dashboard that follows draws on the substance of your reflections, not just the words on the screen.</p>
+  </div>
+
+  <div class="reflection-intro">
+    <p>The reflections are not graded for length, but each must contain at least <strong>30 words</strong> of substantive response.</p>
+  </div>
+
+  <div id="reflectionList"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status" id="reflectionStatus">Six reflections remaining. At least 30 words each.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-primary" id="toDashboardBtn" disabled onclick="goToPhase('dashboard')">Generate executive dashboard <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN: DASHBOARD ============ -->
+<section class="screen" id="screen-dashboard">
+  <div class="phase-header">
+    <div class="eyebrow">Executive Dashboard</div>
+    <h2 class="phase-title">Investigation <em>complete.</em></h2>
+    <p class="phase-deck">A summary of your work analysis capability across the four scoring dimensions, plus narrative feedback on the patterns visible in your investigation.</p>
+  </div>
+
+  <div id="dashboardContent"></div>
+
+  <div class="action-bar">
+    <div class="action-bar-status">Print or save your dashboard as a record of the investigation.</div>
+    <div class="action-bar-buttons">
+      <button class="btn btn-secondary" onclick="window.print()">Print or save as PDF</button>
+      <button class="btn btn-primary" onclick="restartSimulation()">Investigate a new case <span class="arrow">↻</span></button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- LEARNING MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-eyebrow" id="modalEyebrow">Evidence Type</div>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   THE MYSTERY JOB — Application Logic
+   ========================================================== */
+
+/* ---------- CATEGORIES (the eight dimensions of work) ---------- */
+const CATEGORIES = [
+  { id: 'tasks',        label: 'Tasks',                    desc: 'What is done — recurring activities and discrete units of work.' },
+  { id: 'responsibilities', label: 'Responsibilities',     desc: 'What must be achieved — ongoing accountability for outcomes.' },
+  { id: 'outputs',      label: 'Outputs',                  desc: 'What gets produced — tangible artefacts and deliverables.' },
+  { id: 'stakeholders', label: 'Stakeholders',             desc: 'Who is interacted with — internal and external relationships.' },
+  { id: 'knowledge',    label: 'Knowledge Requirements',   desc: 'What must be known — domain expertise and contextual understanding.' },
+  { id: 'skills',       label: 'Skills',                   desc: 'What must be done well — analytical, technical, interpersonal capabilities.' },
+  { id: 'tools',        label: 'Tools',                    desc: 'What is used — systems, platforms, methods, and software.' },
+  { id: 'decisions',    label: 'Decisions Influenced',     desc: 'What is decided — organisational outcomes the role shapes.' }
+];
+
+/* ---------- LEARNING PANEL CONTENT ---------- */
+const LEARNING_PANELS = {
+  email: {
+    label: 'Task & Output Information',
+    desc: 'Emails reveal what is being asked of the role and what outputs are expected.',
+    why: 'In work analysis, emails are dense signals. The verbs in the request ("consolidate", "validate", "draft") often map directly to tasks. The artefacts mentioned ("report", "dashboard", "deck") often map directly to outputs.',
+    example: 'When a CEO writes "please consolidate the sales numbers before Friday", the work being asked for is task-level (consolidation) and the output is implied (a consolidated dataset).',
+    question: 'What is the difference between the task described in an email and the responsibility behind it?'
+  },
+  calendar: {
+    label: 'Stakeholder & Task Information',
+    desc: 'Calendar entries reveal who the role meets with and what activities occupy time.',
+    why: 'A calendar is a behavioural log. Who appears in meetings repeatedly indicates primary stakeholders; the meeting subjects often indicate the role\'s recurring activities and the cadence of its responsibilities.',
+    example: 'If the calendar shows weekly meetings with the marketing team and a monthly review with the VP, the role is structurally embedded in marketing operations and visible to leadership.',
+    question: 'How might a role\'s calendar mislead an analyst who relied only on it?'
+  },
+  teams: {
+    label: 'Task & Decision Information',
+    desc: 'Instant messages reveal short-cycle work and the decisions the role influences.',
+    why: 'Teams or Slack messages capture the texture of daily work — the validations, the questions, the quick checks. These reveal both micro-tasks and the role\'s position in the decision chain.',
+    example: 'A message that says "please validate before I share" reveals that this role is a checkpoint for accuracy — a decision-quality function, not just a producer of data.',
+    question: 'What does it suggest when a role is repeatedly asked to validate the work of others?'
+  },
+  performance: {
+    label: 'Responsibility & Output Information',
+    desc: 'Performance objectives are management\'s formal statement of what the role is for.',
+    why: 'Performance objectives are the most explicit articulation of responsibilities. They are also negotiated — meaning they often understate the actual work, but they are reliable indicators of priority.',
+    example: 'An objective like "improve reporting quality" indicates that quality of output is a measured dimension — the role is accountable for it, not just engaged with it.',
+    question: 'Why might performance objectives understate the full scope of a role?'
+  },
+  stakeholder: {
+    label: 'Stakeholder & Skills Information',
+    desc: 'Feedback from colleagues reveals how the role is experienced from outside.',
+    why: 'Stakeholder feedback is the closest you get to behavioural observation in a desk-based analysis. What people thank the role for, complain about, or rely on for is highly informative about skills exercised in practice.',
+    example: '"Frequently translates complex data into actionable recommendations" tells you the role exercises both analytical and communication skills, and that it is positioned as an advisor, not just a producer.',
+    question: 'What is the difference between what a role does and how others experience it?'
+  },
+  manager: {
+    label: 'Decision & Responsibility Information',
+    desc: 'Manager comments reveal what the role is trusted with and what is at stake.',
+    why: 'Manager comments are the clearest indicator of organisational reliance on the role. Phrases about "quality of analysis" or "influence on decisions" reveal both the depth of responsibility and the nature of the decisions influenced.',
+    example: '"The quality of this person\'s analysis influences several business decisions" tells you the role is in the decision-support category — not just analytical, but consequential.',
+    question: 'How does a role\'s influence on decisions affect its value in a compensation evaluation?'
+  },
+  artifact: {
+    label: 'Output & Skills Information',
+    desc: 'Work product samples reveal the technical depth and shape of the role\'s outputs.',
+    why: 'A finished artefact — a dashboard, a report, a brief — shows you the resolution at which the role works, the audience it writes for, and the analytical depth it brings. Two roles can produce "reports" of vastly different sophistication.',
+    example: 'A monthly performance report with executive narrative and recommendations indicates a role that synthesises and advises — a different role from one that produces raw data tables.',
+    question: 'How would you adjust your work analysis if the artefacts showed sophistication beyond what the emails suggested?'
+  }
+};
+
+/* ---------- MYSTERY JOBS (three replayable cases) ---------- */
+const MYSTERY_JOBS = {
+  A: {
+    name: 'Business / Marketing Analyst',
+    client: 'NovaEdge Consulting',
+    clientType: 'professional services',
+    sector: 'marketing analytics function inside a growth-stage consulting firm',
+    brief: `<p><strong>NovaEdge Consulting</strong> has retained your firm to support a compensation architecture redesign. Several roles inside our marketing analytics function have grown organically over the past two years and now lack formal documentation. Before any compensation decisions can be made — pay band, market benchmark, internal equity comparison — we need the work to be understood.</p>
+<p>One role in particular is causing internal debate. Different leaders describe the role differently. The role's manager has left the firm. The job title was removed from organisational records during a recent HRIS migration and cannot be reliably recovered.</p>
+<p><em>Your task is to investigate Employee X and determine — based on evidence, not inference about title — what work is actually being performed.</em></p>
+<p>We have provided the case file: email traffic, calendar entries, instant messages, performance objectives, stakeholder feedback, manager comments, and a small set of work-product samples. Please proceed with the work analysis and submit a structured report.</p>`,
+    mandate: 'Determine what work is being performed by Employee X. The title is unknown and is not the unit of analysis.',
+    fromName: 'Anuradha Pillai',
+    fromRole: 'Chief People Officer · NovaEdge Consulting',
+    expert: {
+      tasks: ['Consolidate sales, customer acquisition, and campaign performance data', 'Update and maintain marketing dashboards', 'Validate data quality before sharing with stakeholders', 'Review campaign performance trends', 'Translate data into recommendations'],
+      responsibilities: ['Provide accurate business insights for decision-making', 'Support strategic decisions through analysis', 'Improve reporting quality and timeliness', 'Maintain dashboard reliability'],
+      outputs: ['Monthly business review consolidations', 'Performance dashboards', 'Trend analyses and recommendation documents', 'Validated data summaries for senior management'],
+      stakeholders: ['Marketing team', 'Sales team', 'Finance team', 'VP / senior management', 'Analytics team'],
+      knowledge: ['Marketing analytics frameworks', 'Customer acquisition and retention metrics', 'Conversion-rate logic and funnel concepts', 'Business reporting standards', 'Data validation methods'],
+      skills: ['Data analysis and synthesis', 'Translating complex data into actionable recommendations', 'Cross-functional collaboration', 'Written communication of analytical findings', 'Attention to data quality'],
+      tools: ['Spreadsheets / Excel', 'Business intelligence dashboards', 'Reporting platforms', 'Email and Teams', 'Calendar / scheduling'],
+      decisions: ['Marketing campaign continuation or revision', 'Customer retention investments', 'Senior-management presentations and reviews', 'Reporting cadence and content', 'Strategic direction informed by data']
+    },
+    plausibleTitles: [
+      { name: 'Business Analyst', note: 'A broad title — analysis across business functions including marketing and sales.' },
+      { name: 'Data Analyst', note: 'Emphasises the data-handling and dashboard work; understates the advisory dimension.' },
+      { name: 'Marketing Analyst', note: 'Centres on the marketing focus; understates cross-functional reach.' },
+      { name: 'Business Intelligence Analyst', note: 'Emphasises the dashboard and reporting infrastructure; understates strategic interpretation.' }
+    ],
+    evidence: [
+      { type: 'email', source: 'From: Vikram Rao, CEO · 14:22', title: 'Subject: Monthly Business Review',
+        body: '<p>Hi Employee X,</p><p>Please consolidate sales, customer acquisition, and campaign performance data before Friday\'s review with the VP. I\'d like a single deck that shows month-on-month trends and flags anything that\'s moving unexpectedly.</p><p>Add a brief narrative on what you think is driving the numbers — three or four lines per major movement. The VP wants your read, not just the data.</p><p>Thanks,<br>Vikram</p>',
+        learning: 'email' },
+      { type: 'email', source: 'From: Sunita Krishnan, Marketing Lead · 09:48', title: 'Subject: Dashboard Update',
+        body: '<p>Hi,</p><p>The marketing team has requested additional metrics on customer retention and conversion rates. Could you add these to the dashboard by end of week? Specifically:</p><ul><li>30/60/90-day retention curves by acquisition channel</li><li>Funnel conversion at three key stages</li><li>Cohort comparison vs. prior quarter</li></ul><p>Let me know if any of this is harder than it looks.</p><p>Best,<br>Sunita</p>',
+        learning: 'email' },
+      { type: 'email', source: 'From: Rajesh Menon, Finance Director · 11:05', title: 'Subject: Quick check on Q3 attribution numbers',
+        body: '<p>Hi,</p><p>Finance is closing the quarter and I want to make sure the marketing-attributed revenue numbers reconcile with what your dashboard shows. Could you walk me through the attribution model briefly, and flag any reconciliation differences?</p><p>Rajesh</p>',
+        learning: 'email' },
+      { type: 'calendar', source: 'Calendar · This week', title: 'Recurring entries from the consultant\'s calendar',
+        body: '<ul><li><strong>Mon 10:00</strong> — Review campaign performance trends (recurring, weekly)</li><li><strong>Tue 14:00</strong> — Marketing team weekly sync</li><li><strong>Wed 11:00</strong> — Sales pipeline review (recurring, weekly)</li><li><strong>Thu 16:00</strong> — Present findings to senior management (monthly)</li><li><strong>Fri 09:30</strong> — Analytics team standup</li><li><strong>Fri 15:00</strong> — Block: dashboard updates and validation</li></ul>',
+        learning: 'calendar' },
+      { type: 'teams', source: 'Teams · This morning', title: 'Recent direct messages',
+        body: '<p><em>From the Marketing Lead:</em> "Please validate the numbers before I share them with the agency — last time there was a discrepancy."</p><p><em>From the Sales Director:</em> "Can you update the dashboard before tomorrow\'s review? The board\'s asking."</p><p><em>From a peer analyst:</em> "Could you double-check my retention cohorts before I send out the deck? You\'re the one everyone trusts on this."</p>',
+        learning: 'teams' },
+      { type: 'performance', source: 'Performance Plan · current year', title: 'Annual performance objectives',
+        body: '<ul><li>Provide accurate business insights to support marketing, sales, and finance decision-making.</li><li>Support strategic decision-making through timely and well-structured analysis.</li><li>Improve reporting quality — accuracy, clarity, and turnaround.</li><li>Strengthen the dashboard infrastructure — fewer manual workarounds, more automated refreshes.</li></ul>',
+        learning: 'performance' },
+      { type: 'stakeholder', source: 'Stakeholder feedback · 360 review excerpts', title: 'Selected feedback comments',
+        body: '<p>"Frequently translates complex data into actionable recommendations — I\'ve started copying [X] on decisions before I make them."</p><p>"Works closely with marketing, finance, and sales teams. Has become the connective tissue across our reporting."</p><p>"Pushes back when the data doesn\'t support what people want to conclude — politely, but firmly. That matters."</p>',
+        learning: 'stakeholder' },
+      { type: 'manager', source: 'Manager comment · semi-annual review', title: 'Manager assessment',
+        body: '<p>"The quality of this person\'s analysis influences several business decisions — campaign continuation, retention investment, and how we present performance to the board. The technical work is competent; the judgement layer above it is what makes the role valuable."</p>',
+        learning: 'manager' },
+      { type: 'artifact', source: 'Work product · sampled from shared drive', title: 'Sample artefacts',
+        body: '<ul><li><em>Monthly Performance Report (28 pages)</em> — combines data tables, charts, and an executive narrative with recommendations.</li><li><em>Customer Retention Dashboard</em> — interactive, with filters by channel, segment, and time period.</li><li><em>Campaign Post-Mortem Memo</em> — three-page analytical memo with conclusions and recommendations on a recent campaign.</li><li><em>Data Validation Checklist</em> — internal document showing the consultant\'s personal QA routine before sharing numbers.</li></ul>',
+        learning: 'artifact' }
+    ]
+  },
+  B: {
+    name: 'HR Business Partner',
+    client: 'Aerion Industrial Group',
+    clientType: 'manufacturing',
+    sector: 'people function inside a multi-plant industrial firm',
+    brief: `<p><strong>Aerion Industrial Group</strong> has engaged your firm to conduct a compensation review across our people function. One role — embedded in a specific business unit — has expanded considerably since it was created three years ago, but the original job description was never updated.</p>
+<p>The current incumbent reports formally to the central HR director, but works daily with the business unit head. Different parts of the organisation describe this role differently — "HR person", "advisor", "fixer". The title was retired during a recent restructuring.</p>
+<p><em>Your task is to investigate Employee X and determine what work is actually being performed.</em></p>
+<p>The case file includes correspondence, calendar entries, messages, performance objectives, peer feedback, the line manager\'s view, and a sample of artefacts produced by the role.</p>`,
+    mandate: 'Determine what work is being performed by Employee X. The title is unknown and is not the unit of analysis.',
+    fromName: 'Devika Ramachandran',
+    fromRole: 'Director, Compensation & Organisation Design · Aerion Industrial Group',
+    expert: {
+      tasks: ['Advise business unit leaders on people matters', 'Coach managers through difficult employee conversations', 'Interpret HR policy in unit-specific contexts', 'Investigate and resolve employee grievances', 'Facilitate workforce planning conversations'],
+      responsibilities: ['Translate central HR policy into business unit reality', 'Build managerial capability in people decisions', 'Maintain employee relations health in the business unit', 'Align talent strategy with business unit priorities'],
+      outputs: ['Manager coaching summaries and notes', 'Grievance investigation reports', 'Workforce plan inputs for the BU', 'Policy interpretation memos', 'Performance calibration recommendations'],
+      stakeholders: ['Business unit head', 'Line managers in the BU', 'Central HR / compensation / talent teams', 'Employees in the BU', 'Plant leadership'],
+      knowledge: ['Employment law and HR policy', 'Organisational design principles', 'Employee relations frameworks', 'Industrial / manufacturing context', 'Performance management systems'],
+      skills: ['Coaching and influencing senior managers', 'Listening and empathic enquiry', 'Conflict mediation', 'Confidential investigation', 'Translating policy into context-appropriate practice'],
+      tools: ['HRIS / people systems', 'Case management tracking', 'Calendar and email', 'Workforce planning templates', 'Confidential note-keeping'],
+      decisions: ['Hiring authorisations within the BU', 'Disciplinary outcomes', 'Performance calibration', 'Workforce structure changes', 'Pay equity adjustments in the BU']
+    },
+    plausibleTitles: [
+      { name: 'HR Business Partner', note: 'Emphasises the strategic-partner positioning with the business unit.' },
+      { name: 'Senior HR Advisor', note: 'Emphasises the advisory and coaching dimension; understates strategic reach.' },
+      { name: 'People Business Partner', note: 'Modern variant; same scope, different naming convention.' },
+      { name: 'Employee Relations Manager', note: 'Centres on the ER and grievance work; understates the broader partnership.' }
+    ],
+    evidence: [
+      { type: 'email', source: 'From: Arjun Sethi, BU Head · 08:14', title: 'Subject: Need your read on a tricky conversation',
+        body: '<p>Hi,</p><p>I need to have a hard conversation with one of my line managers this week — performance concerns, attitude in team meetings, and a recent informal complaint from a junior team member. Can you sit with me for 30 minutes before I do it? I want to make sure I\'m walking in with the right framing.</p><p>Thanks,<br>Arjun</p>',
+        learning: 'email' },
+      { type: 'email', source: 'From: Central HR Policy Team · 12:00', title: 'Subject: Updated leave policy — interpretation for plant context',
+        body: '<p>Hi,</p><p>The updated leave policy goes live next week. Several of the plant managers in your BU have asked how it applies to shift workers vs. salaried staff. Could you prepare a one-page interpretation memo for your BU and run it past us before circulating?</p><p>Thanks.</p>',
+        learning: 'email' },
+      { type: 'calendar', source: 'Calendar · This week', title: 'Recurring entries from the consultant\'s calendar',
+        body: '<ul><li><strong>Mon 09:00</strong> — Weekly 1:1 with BU Head (recurring)</li><li><strong>Tue 11:00</strong> — Line manager coaching slot (rotating)</li><li><strong>Wed 14:00</strong> — Grievance investigation: confidential meeting</li><li><strong>Thu 10:00</strong> — Workforce planning review (monthly)</li><li><strong>Thu 15:00</strong> — Central HR sync (weekly)</li><li><strong>Fri 13:00</strong> — Plant leadership team meeting</li></ul>',
+        learning: 'calendar' },
+      { type: 'teams', source: 'Teams · This morning', title: 'Recent direct messages',
+        body: '<p><em>From a line manager:</em> "Can I run something past you before I respond to my team member? Sensitive — would rather not put it in writing."</p><p><em>From the BU Head:</em> "Headcount conversation got tense in the leadership meeting. Want to debrief?"</p><p><em>From central HR:</em> "Two grievance cases this month from your BU — both look fine on paper, but check the tone? I trust your read more than the paperwork."</p>',
+        learning: 'teams' },
+      { type: 'performance', source: 'Performance Plan · current year', title: 'Annual performance objectives',
+        body: '<ul><li>Build managerial capability in people decisions across the BU — measured via 360 feedback and manager confidence scores.</li><li>Maintain employee relations health — fewer escalations to central HR, faster resolution times.</li><li>Translate central HR policies into unit-appropriate practice without compromising compliance.</li><li>Support workforce planning and structural change with credible advisory input.</li></ul>',
+        learning: 'performance' },
+      { type: 'stakeholder', source: 'Stakeholder feedback · 360 review excerpts', title: 'Selected feedback comments',
+        body: '<p>"When I have a difficult conversation to lead, this is the person I think with before I do it. Saves me from a lot of mistakes."</p><p>"Reads the room better than anyone else in the HR function. Knows when to push, when to wait."</p><p>"Manages a tightrope — central HR rules vs. business unit reality — without dropping either."</p>',
+        learning: 'stakeholder' },
+      { type: 'manager', source: 'Manager comment · semi-annual review', title: 'Manager assessment',
+        body: '<p>"The visible work is meetings, memos, and grievances. The actual value is judgement — knowing when an issue is a one-off and when it\'s a pattern, knowing when to coach a manager and when to escalate. This role has prevented at least two significant employee relations incidents this year that I know of, and probably others I don\'t."</p>',
+        learning: 'manager' },
+      { type: 'artifact', source: 'Work product · sampled from shared drive', title: 'Sample artefacts',
+        body: '<ul><li><em>Manager Coaching Memo</em> — three-page summary of a coaching engagement with a line manager, including the underlying performance issue and the recommended approach.</li><li><em>Grievance Investigation Report</em> — confidential, with findings, recommendation, and policy citations.</li><li><em>Workforce Plan Input Document</em> — analysis of the BU\'s headcount, skill gaps, and proposed structural moves.</li><li><em>Policy Interpretation Memo</em> — one page, written for the BU\'s plant managers, on a specific HR policy in the manufacturing context.</li></ul>',
+        learning: 'artifact' }
+    ]
+  },
+  C: {
+    name: 'Product Manager',
+    client: 'Lumin Software',
+    clientType: 'technology',
+    sector: 'product organisation inside a B2B software firm',
+    brief: `<p><strong>Lumin Software</strong> has engaged your firm to conduct a compensation review across our product organisation. One role — sitting between engineering, design, and go-to-market — has been a recurring source of debate. Different leaders position it differently. The job title was changed twice during recent restructurings and currently cannot be reliably identified in our systems.</p>
+<p>The incumbent works closely with engineering leads, the design lead, marketing, sales, and senior leadership. The original job description, written four years ago, no longer reflects the work.</p>
+<p><em>Your task is to investigate Employee X and determine what work is actually being performed.</em></p>
+<p>The case file includes emails, calendar entries, messages, performance objectives, peer feedback, the line manager\'s comments, and sample artefacts.</p>`,
+    mandate: 'Determine what work is being performed by Employee X. The title is unknown and is not the unit of analysis.',
+    fromName: 'Kavya Subramanian',
+    fromRole: 'VP, Talent & Organisation · Lumin Software',
+    expert: {
+      tasks: ['Define product priorities and roadmap', 'Write product specifications and acceptance criteria', 'Run discovery interviews with customers', 'Coordinate engineering, design, and go-to-market handoffs', 'Triage incoming feature requests and bugs'],
+      responsibilities: ['Own the product roadmap and trade-off decisions', 'Translate customer needs into engineering work', 'Align cross-functional teams around a single product strategy', 'Measure and communicate product outcomes'],
+      outputs: ['Product roadmap documents', 'Feature specifications and PRDs', 'Customer interview synthesis notes', 'Launch plans and go-to-market briefs', 'Product performance dashboards'],
+      stakeholders: ['Engineering leads', 'Design lead', 'Marketing and sales teams', 'Customer success', 'Senior leadership (VP / CEO)', 'Customers'],
+      knowledge: ['Product management frameworks (jobs-to-be-done, OKRs, north-star metrics)', 'B2B software market dynamics', 'Technical fundamentals (APIs, architecture, data models)', 'User research and discovery methods', 'Business case construction'],
+      skills: ['Strategic prioritisation and trade-off judgement', 'Cross-functional influence without authority', 'Customer empathy and discovery interviewing', 'Written communication (specs, memos, narratives)', 'Quantitative analysis of product metrics'],
+      tools: ['Roadmap / product management software', 'Issue trackers (Jira / Linear)', 'Analytics platforms', 'Customer feedback tools', 'Wireframing / collaboration tools', 'Calendar and async communication'],
+      decisions: ['What to build next and what not to build', 'Engineering capacity allocation', 'Pricing and packaging changes', 'Launch timing and positioning', 'Feature deprecation decisions']
+    },
+    plausibleTitles: [
+      { name: 'Product Manager', note: 'Standard title for the role described — full ownership across discovery, definition, and delivery.' },
+      { name: 'Senior Product Manager', note: 'Same scope, more autonomy and seniority; depends on scale.' },
+      { name: 'Product Owner', note: 'Agile-context variant; often narrower in strategic remit, but used interchangeably in some firms.' },
+      { name: 'Group Product Manager', note: 'If the role covers a portfolio of products with junior PMs reporting in — possible from the evidence but not certain.' }
+    ],
+    evidence: [
+      { type: 'email', source: 'From: Engineering Lead · 09:11', title: 'Subject: Need clarity on Q3 build priorities',
+        body: '<p>Hi,</p><p>The team is uncertain whether to start on the multi-tenancy work or the reporting upgrades next sprint. Two different customers have asked for both, but our capacity allows for one. Could you make the call this week and document it in the roadmap so everyone\'s aligned?</p><p>Thanks.</p>',
+        learning: 'email' },
+      { type: 'email', source: 'From: Head of Sales · 13:40', title: 'Subject: Pricing change for Enterprise tier',
+        body: '<p>Hi,</p><p>Sales is losing deals on the Enterprise tier — feedback consistently points to packaging confusion. Can we discuss potential changes to the tier structure? I\'d like your read on what we can do without disrupting the existing customer base.</p><p>Thanks.</p>',
+        learning: 'email' },
+      { type: 'calendar', source: 'Calendar · This week', title: 'Recurring entries from the consultant\'s calendar',
+        body: '<ul><li><strong>Mon 10:00</strong> — Sprint planning with engineering (recurring)</li><li><strong>Mon 14:00</strong> — Customer discovery interview (one of three this week)</li><li><strong>Tue 11:00</strong> — Design review with the design lead</li><li><strong>Wed 09:30</strong> — Cross-functional roadmap sync (weekly)</li><li><strong>Wed 15:00</strong> — Product analytics review</li><li><strong>Thu 11:00</strong> — Customer advisory board prep</li><li><strong>Fri 10:00</strong> — Senior leadership product review (monthly)</li></ul>',
+        learning: 'calendar' },
+      { type: 'teams', source: 'Teams · This morning', title: 'Recent direct messages',
+        body: '<p><em>From an engineer:</em> "Spec for the export feature — is this what you meant by \'configurable\'? Want to make sure before we start coding."</p><p><em>From the design lead:</em> "Quick gut-check on the new onboarding flow — does it match what you heard from the customer interviews last week?"</p><p><em>From marketing:</em> "Need the positioning angle for the launch by Thursday. What\'s the one-line on why we\'re shipping this?"</p>',
+        learning: 'teams' },
+      { type: 'performance', source: 'Performance Plan · current year', title: 'Annual performance objectives',
+        body: '<ul><li>Own the product roadmap for the Enterprise tier — quarterly publication, monthly reviews, transparent trade-offs.</li><li>Increase activation rate among new Enterprise customers from 42% to 60%.</li><li>Launch three major features on agreed timelines with cross-functional alignment.</li><li>Conduct at least 24 customer discovery interviews and synthesise findings into product strategy.</li></ul>',
+        learning: 'performance' },
+      { type: 'stakeholder', source: 'Stakeholder feedback · 360 review excerpts', title: 'Selected feedback comments',
+        body: '<p>"Makes hard trade-off calls and explains them clearly. We don\'t always agree, but we know why."</p><p>"Knows the customers better than anyone in our function. Brings their voice into the room without theatricality."</p><p>"The roadmap is finally something I can show to a customer without flinching."</p>',
+        learning: 'stakeholder' },
+      { type: 'manager', source: 'Manager comment · semi-annual review', title: 'Manager assessment',
+        body: '<p>"The visible artefacts — specs, roadmaps, launch plans — are the tip of the iceberg. The actual job is making thousands of small judgement calls about what to build, what not to build, what to defer, and how to align five functions that don\'t naturally cohere. This role determines what gets built. Cost of error is high; cost of indecision is higher."</p>',
+        learning: 'manager' },
+      { type: 'artifact', source: 'Work product · sampled from shared drive', title: 'Sample artefacts',
+        body: '<ul><li><em>Q3 Roadmap Document</em> — 12 pages, prioritised list with rationale, trade-offs, and key dependencies.</li><li><em>Customer Discovery Synthesis</em> — themes from 16 customer interviews with verbatim quotes and pattern analysis.</li><li><em>Feature Specification (PRD)</em> — eight-page detailed spec with user stories, acceptance criteria, and edge-case discussion.</li><li><em>Launch Plan</em> — go-to-market sequencing across product, marketing, sales, and customer success.</li></ul>',
+        learning: 'artifact' }
+    ]
+  }
+};
+
+/* ---------- REFLECTION QUESTIONS ---------- */
+const REFLECTION_QUESTIONS = [
+  'What information was easiest to identify in the evidence — and why do you think it was easy?',
+  'What information was hardest to identify — and what made it hard?',
+  'What assumptions did you make during your investigation that you could not fully verify from the evidence?',
+  'What additional information would have improved your analysis — and how would you have obtained it in a real engagement?',
+  'Why might inaccurate work analysis lead to poor compensation decisions in practice? Be specific.',
+  'Why should compensation professionals focus on the work being performed rather than on job titles?'
+];
+
+/* ---------- STATE ---------- */
+const state = {
+  consultantName: '',
+  consultantRef: '',
+  caseId: null,
+  case: null,
+  currentPhase: 'cover',
+  evidenceViewed: new Set(),
+  evidenceTagged: {}, // evidenceIndex -> array of category ids
+  selectedEvidenceIndex: null,
+  poolFilter: 'all',
+  recon: { title: '', purpose: '', responsibilities: '', outputs: '', stakeholders: '', knowledge: '', skills: '', tools: '', decisions: '', confidence: 50 },
+  reflections: ['', '', '', '', '', ''],
+  scores: null
+};
+
+const PHASE_MAP = { briefing: 1, evidence: 2, analysis: 3, reconstruction: 4, debrief: 5, reflection: 6, dashboard: 7 };
+
+/* ==========================================================
+   NAVIGATION
+   ========================================================== */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  state.currentPhase = name;
+  updateProgressIndicator();
+}
+
+function updateProgressIndicator() {
+  const wrap = document.getElementById('phaseProgress');
+  const phaseNum = PHASE_MAP[state.currentPhase];
+  if (!phaseNum) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  const labels = { 1: 'Phase 1 · Briefing', 2: 'Phase 2 · Evidence', 3: 'Phase 3 · Analysis', 4: 'Phase 4 · Reconstruction', 5: 'Phase 5 · Debrief', 6: 'Phase 6 · Reflection', 7: 'Executive Dashboard' };
+  document.getElementById('phaseProgressLabel').textContent = labels[phaseNum] || '';
+  const pips = document.getElementById('phasePips');
+  pips.innerHTML = '';
+  for (let i = 1; i <= 6; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'phase-pip';
+    if (i < phaseNum) pip.classList.add('done');
+    else if (i === phaseNum) pip.classList.add('current');
+    pips.appendChild(pip);
+  }
+}
+
+function goToPhase(phase) {
+  if (phase === 'evidence') { renderEvidence(); }
+  if (phase === 'analysis') { renderAnalysisWorkspace(); }
+  if (phase === 'reconstruction') { /* form already in DOM */ checkReconReady(); }
+  if (phase === 'debrief') { computeAndRenderDebrief(); }
+  if (phase === 'reflection') { renderReflection(); }
+  if (phase === 'dashboard') { renderDashboard(); }
+  showScreen(phase);
+}
+
+/* ==========================================================
+   INIT / ENTRY GATE
+   ========================================================== */
+function init() {
+  document.getElementById('consultantName').addEventListener('input', checkGate);
+  document.getElementById('consultantRef').addEventListener('input', checkGate);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); clearAnalysisSelection(); }
+  });
+}
+
+function checkGate() {
+  const name = document.getElementById('consultantName').value.trim();
+  const ref = document.getElementById('consultantRef').value.trim();
+  document.getElementById('enterBtn').disabled = !(name.length >= 2 && ref.length >= 2);
+}
+
+function enterSimulation() {
+  state.consultantName = document.getElementById('consultantName').value.trim();
+  state.consultantRef = document.getElementById('consultantRef').value.trim();
+  // Random case selection
+  const cases = Object.keys(MYSTERY_JOBS);
+  state.caseId = cases[Math.floor(Math.random() * cases.length)];
+  state.case = MYSTERY_JOBS[state.caseId];
+  renderBriefing();
+  goToPhase('briefing');
+}
+
+/* ==========================================================
+   PHASE 1: BRIEFING
+   ========================================================== */
+function renderBriefing() {
+  const c = state.case;
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('briefCard').innerHTML = `
+    <div class="brief-letterhead">
+      <div class="brief-letterhead-org">${escapeHtml(c.client)}</div>
+      <div class="brief-letterhead-ref">Engagement ref · MJ-${state.caseId} · ${today}</div>
+    </div>
+    <div class="brief-recipient">To <strong>${escapeHtml(state.consultantName)}</strong> · Lead Consultant, Work Analysis Engagement</div>
+    <div class="brief-subject">Compensation Architecture: Work Analysis for Undocumented Role</div>
+    <div class="brief-body">
+      ${c.brief}
+    </div>
+    <div class="brief-mandate">
+      <div class="brief-mandate-label">The Mandate</div>
+      <div class="brief-mandate-text">${escapeHtml(c.mandate)}</div>
+    </div>
+    <div class="brief-signature">
+      <strong>${escapeHtml(c.fromName)}</strong>
+      ${escapeHtml(c.fromRole)}
+    </div>
+  `;
+}
+
+/* ==========================================================
+   PHASE 2: EVIDENCE COLLECTION
+   ========================================================== */
+function renderEvidence() {
+  const stream = document.getElementById('evidenceStream');
+  const nav = document.getElementById('evidenceNavList');
+  const c = state.case;
+  document.getElementById('evidenceTotalCount').textContent = c.evidence.length;
+
+  // Group evidence by type for navigation
+  const grouped = {};
+  c.evidence.forEach((ev, i) => {
+    if (!grouped[ev.type]) grouped[ev.type] = [];
+    grouped[ev.type].push({ ev, i });
+  });
+
+  // Nav
+  const typeLabels = {
+    email: 'Email Evidence', calendar: 'Calendar Entries', teams: 'Teams Messages',
+    performance: 'Performance Objectives', stakeholder: 'Stakeholder Feedback',
+    manager: 'Manager Comments', artifact: 'Work Product Samples'
+  };
+  nav.innerHTML = Object.keys(grouped).map(type => {
+    const items = grouped[type];
+    const viewed = items.filter(({ i }) => state.evidenceViewed.has(i)).length;
+    return `
+      <button class="evidence-nav-item${viewed === items.length ? ' viewed' : ''}" onclick="scrollToEvidenceType('${type}')">
+        <span>${escapeHtml(typeLabels[type] || type)}</span>
+        <span class="evidence-nav-count">${viewed}/${items.length}</span>
+      </button>
+    `;
+  }).join('');
+
+  // Stream
+  stream.innerHTML = c.evidence.map((ev, i) => `
+    <article class="evidence-card${state.evidenceViewed.has(i) ? ' viewed' : ''}" id="evidence-${i}" data-type="${ev.type}" onclick="openLearningPanel(${i})">
+      <div class="evidence-header">
+        <span class="evidence-type">${escapeHtml(typeLabels[ev.type] || ev.type)}</span>
+        <span class="evidence-meta">Evidence ${String(i+1).padStart(2,'0')} of ${c.evidence.length}</span>
+      </div>
+      <div class="evidence-title">${escapeHtml(ev.title)}</div>
+      <div class="evidence-source">${ev.source}</div>
+      <div class="evidence-body">${ev.body}</div>
+      <div class="evidence-footer">
+        <span class="evidence-learning-hint">Tap for learning panel</span>
+        <span>${state.evidenceViewed.has(i) ? 'Reviewed' : 'Click to review'}</span>
+      </div>
+    </article>
+  `).join('');
+
+  updateEvidenceProgress();
+}
+
+function scrollToEvidenceType(type) {
+  const first = document.querySelector(`.evidence-card[data-type="${type}"]`);
+  if (first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openLearningPanel(evidenceIndex) {
+  const ev = state.case.evidence[evidenceIndex];
+  state.evidenceViewed.add(evidenceIndex);
+  const lp = LEARNING_PANELS[ev.learning];
+  if (!lp) return;
+
+  document.getElementById('modalEyebrow').textContent = 'Learning Panel';
+  document.getElementById('modalTitle').textContent = lp.label;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-label">What this tells you</div>
+      <div class="modal-section-text">${escapeHtml(lp.desc)}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">Why it matters in work analysis</div>
+      <div class="modal-section-text">${escapeHtml(lp.why)}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">An example</div>
+      <div class="modal-section-text"><em>${escapeHtml(lp.example)}</em></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">A question to sit with</div>
+      <div class="modal-section-text"><strong>${escapeHtml(lp.question)}</strong></div>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('active');
+
+  // Mark card viewed
+  const card = document.getElementById('evidence-' + evidenceIndex);
+  if (card) card.classList.add('viewed');
+  updateEvidenceProgress();
+  renderEvidence(); // refresh nav counts
+}
+
+function updateEvidenceProgress() {
+  const viewed = state.evidenceViewed.size;
+  const total = state.case.evidence.length;
+  document.getElementById('evidenceViewedCount').textContent = viewed;
+  const pct = (viewed / total) * 100;
+  document.getElementById('evidenceProgressBar').style.setProperty('--progress', pct + '%');
+  const pctRound = Math.round(pct);
+  const status = document.getElementById('evidenceStatus');
+  if (pct >= 70) {
+    status.innerHTML = `<strong>${pctRound}%</strong> reviewed — ready to proceed to work analysis.`;
+    document.getElementById('toAnalysisBtn').disabled = false;
+  } else {
+    status.innerHTML = `<strong>${pctRound}%</strong> reviewed. Review at least 70% before proceeding to work analysis.`;
+    document.getElementById('toAnalysisBtn').disabled = true;
+  }
+}
+
+/* ==========================================================
+   PHASE 3: WORK ANALYSIS WORKSPACE
+   ========================================================== */
+function renderAnalysisWorkspace() {
+  // Initialise evidenceTagged if empty
+  if (Object.keys(state.evidenceTagged).length === 0) {
+    state.case.evidence.forEach((_, i) => { state.evidenceTagged[i] = []; });
+  }
+  renderEvidencePool();
+  renderCategories();
+  updateAnalysisStatus();
+}
+
+function renderEvidencePool() {
+  const list = document.getElementById('evidencePoolList');
+  const filter = state.poolFilter;
+  list.innerHTML = state.case.evidence.map((ev, i) => {
+    const isPlaced = state.evidenceTagged[i] && state.evidenceTagged[i].length > 0;
+    if (filter === 'placed' && !isPlaced) return '';
+    if (filter === 'unplaced' && isPlaced) return '';
+    const isSelected = state.selectedEvidenceIndex === i;
+    const shortText = stripHtml(ev.body).slice(0, 80);
+    const typeLabels = {
+      email: 'Email', calendar: 'Calendar', teams: 'Teams',
+      performance: 'Performance', stakeholder: 'Feedback', manager: 'Manager', artifact: 'Artefact'
+    };
+    return `
+      <div class="evidence-chip${isSelected ? ' selected' : ''}${isPlaced ? ' placed' : ''}" onclick="selectEvidence(${i})">
+        <div class="evidence-chip-type">${escapeHtml(typeLabels[ev.type] || ev.type)} · ${String(i+1).padStart(2,'0')}</div>
+        <div class="evidence-chip-text">${escapeHtml(ev.title)}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Update remaining count
+  const unplaced = state.case.evidence.filter((_, i) => !state.evidenceTagged[i] || state.evidenceTagged[i].length === 0).length;
+  document.getElementById('poolRemaining').textContent = unplaced;
+}
+
+function filterPool(filter, btn) {
+  state.poolFilter = filter;
+  document.querySelectorAll('.evidence-pool-filter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderEvidencePool();
+}
+
+function renderCategories() {
+  const wrap = document.getElementById('workspaceCategories');
+  wrap.innerHTML = CATEGORIES.map(cat => {
+    const placedItems = [];
+    Object.keys(state.evidenceTagged).forEach(idxStr => {
+      const idx = parseInt(idxStr);
+      if (state.evidenceTagged[idx].includes(cat.id)) {
+        placedItems.push({ idx, ev: state.case.evidence[idx] });
+      }
+    });
+    const itemsHtml = placedItems.length === 0
+      ? `<div class="category-empty">No evidence placed yet</div>`
+      : placedItems.map(({ idx, ev }) => `
+          <div class="category-item" onclick="removeFromCategory(${idx}, '${cat.id}')">
+            <span class="category-item-text">${escapeHtml(ev.title)}</span>
+            <span class="category-item-remove">REMOVE</span>
+          </div>
+        `).join('');
+    return `
+      <div class="category-zone" data-cat="${cat.id}" onclick="placeInCategory('${cat.id}')">
+        <div class="category-header">
+          <span class="category-name">${escapeHtml(cat.label)}</span>
+          <span class="category-count"><strong>${placedItems.length}</strong> placed</span>
+        </div>
+        <div class="category-items">${itemsHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectEvidence(idx) {
+  if (state.selectedEvidenceIndex === idx) {
+    clearAnalysisSelection();
+    return;
+  }
+  state.selectedEvidenceIndex = idx;
+  const ev = state.case.evidence[idx];
+  document.getElementById('analysisSelectionText').textContent = ev.title;
+  document.getElementById('analysisSelectionBanner').classList.add('active');
+  // Light up all categories
+  document.querySelectorAll('.category-zone').forEach(z => z.classList.add('ready'));
+  renderEvidencePool();
+}
+
+function clearAnalysisSelection() {
+  state.selectedEvidenceIndex = null;
+  document.getElementById('analysisSelectionBanner').classList.remove('active');
+  document.querySelectorAll('.category-zone').forEach(z => z.classList.remove('ready'));
+  renderEvidencePool();
+}
+
+function placeInCategory(catId) {
+  if (state.selectedEvidenceIndex === null) return;
+  const idx = state.selectedEvidenceIndex;
+  if (!state.evidenceTagged[idx]) state.evidenceTagged[idx] = [];
+  if (!state.evidenceTagged[idx].includes(catId)) {
+    state.evidenceTagged[idx].push(catId);
+    showToast(`Placed in ${CATEGORIES.find(c => c.id === catId).label}`);
+  } else {
+    showToast('Already in this category');
+  }
+  clearAnalysisSelection();
+  renderEvidencePool();
+  renderCategories();
+  updateAnalysisStatus();
+}
+
+function removeFromCategory(idx, catId) {
+  state.evidenceTagged[idx] = (state.evidenceTagged[idx] || []).filter(c => c !== catId);
+  renderEvidencePool();
+  renderCategories();
+  updateAnalysisStatus();
+  showToast('Removed from category');
+}
+
+function resetAnalysis() {
+  if (!confirm('Reset the work analysis? All category placements will be cleared.')) return;
+  state.case.evidence.forEach((_, i) => { state.evidenceTagged[i] = []; });
+  clearAnalysisSelection();
+  renderEvidencePool();
+  renderCategories();
+  updateAnalysisStatus();
+  showToast('Analysis reset');
+}
+
+function updateAnalysisStatus() {
+  // Count categories with at least one piece of evidence
+  const catsWithEvidence = CATEGORIES.filter(cat =>
+    Object.values(state.evidenceTagged).some(tags => tags.includes(cat.id))
+  ).length;
+  const totalPlacements = Object.values(state.evidenceTagged).reduce((a, b) => a + b.length, 0);
+  const status = document.getElementById('analysisStatus');
+  if (catsWithEvidence === CATEGORIES.length) {
+    status.innerHTML = `All eight dimensions populated · <strong>${totalPlacements}</strong> total placements. Ready to build the report.`;
+    document.getElementById('toReconBtn').disabled = false;
+  } else {
+    status.innerHTML = `<strong>${catsWithEvidence}</strong> of 8 dimensions populated · ${totalPlacements} placements. Populate all eight to continue.`;
+    document.getElementById('toReconBtn').disabled = true;
+  }
+}
+
+/* ==========================================================
+   PHASE 4: RECONSTRUCTION
+   ========================================================== */
+function updateConfidence() {
+  const val = document.getElementById('reconConfidence').value;
+  document.getElementById('confidenceVal').textContent = val;
+  state.recon.confidence = parseInt(val);
+}
+
+function checkReconReady() {
+  const fields = ['Title', 'Purpose', 'Responsibilities', 'Outputs', 'Stakeholders', 'Knowledge', 'Skills', 'Tools', 'Decisions'];
+  const minLengths = { Title: 3, Purpose: 20, Responsibilities: 30, Outputs: 15, Stakeholders: 15, Knowledge: 20, Skills: 20, Tools: 10, Decisions: 20 };
+  let allFilled = true;
+  let filledCount = 0;
+  fields.forEach(f => {
+    const el = document.getElementById('recon' + f);
+    if (el) {
+      const val = el.value.trim();
+      state.recon[f.toLowerCase()] = val;
+      if (val.length >= minLengths[f]) filledCount++;
+      else allFilled = false;
+    }
+  });
+  document.getElementById('toDebriefBtn').disabled = !allFilled;
+  const status = document.getElementById('reconStatus');
+  if (allFilled) status.textContent = 'All fields completed with substance. Ready to submit for expert review.';
+  else status.innerHTML = `<strong>${filledCount} of 9</strong> fields completed with sufficient detail. Each requires a substantive response.`;
+}
+
+/* ==========================================================
+   PHASE 5: DEBRIEF & SCORING
+   ========================================================== */
+function computeAndRenderDebrief() {
+  // Score each dimension against expert model
+  const expert = state.case.expert;
+  const dimensions = [
+    { id: 'tasks', label: 'Understanding Tasks', expertKey: 'tasks', reconKey: 'responsibilities' }, // tasks often described in responsibilities text
+    { id: 'responsibilities', label: 'Understanding Responsibilities', expertKey: 'responsibilities', reconKey: 'responsibilities' },
+    { id: 'outputs', label: 'Understanding Outputs', expertKey: 'outputs', reconKey: 'outputs' },
+    { id: 'stakeholders', label: 'Understanding Stakeholders', expertKey: 'stakeholders', reconKey: 'stakeholders' },
+    { id: 'knowledge', label: 'Understanding Knowledge', expertKey: 'knowledge', reconKey: 'knowledge' },
+    { id: 'skills', label: 'Understanding Skills', expertKey: 'skills', reconKey: 'skills' }
+  ];
+  const dimensionScores = {};
+  dimensions.forEach(dim => {
+    const expertTerms = expert[dim.expertKey];
+    const studentText = (state.recon[dim.reconKey] || '').toLowerCase();
+    let matched = 0;
+    expertTerms.forEach(term => {
+      // Score on keyword presence: extract significant words from each expert term, look for any in the student text
+      const keywords = extractKeywords(term);
+      const found = keywords.some(kw => studentText.includes(kw));
+      if (found) matched++;
+    });
+    dimensionScores[dim.id] = Math.round((matched / expertTerms.length) * 100);
+  });
+
+  // Overall work analysis capability — average of dimensions
+  const overallWAS = Math.round(Object.values(dimensionScores).reduce((a, b) => a + b, 0) / dimensions.length);
+
+  state.scores = { dimensions: dimensionScores, dimensionsLabels: dimensions, overallWAS };
+
+  // Build narrative
+  const strengths = dimensions.filter(d => dimensionScores[d.id] >= 70).map(d => d.label.replace('Understanding ', '').toLowerCase());
+  const weaknesses = dimensions.filter(d => dimensionScores[d.id] < 50).map(d => d.label.replace('Understanding ', '').toLowerCase());
+
+  let narrative = '';
+  if (strengths.length > 0 && weaknesses.length > 0) {
+    narrative = `Your analysis was strongest on <strong>${strengths.join(', ')}</strong>. The dimensions that need more work are <strong>${weaknesses.join(', ')}</strong>. The pattern suggests you read the visible evidence well but inferred less from the indirect signals.`;
+  } else if (strengths.length === dimensions.length) {
+    narrative = 'A comprehensive analysis across all dimensions. Every aspect of the work was identified with reasonable conceptual coverage. The next layer of mastery is the qualitative depth within each dimension.';
+  } else if (weaknesses.length === dimensions.length) {
+    narrative = 'A foundational attempt. The dimensions of work analysis are visible to you but not yet inhabited. Re-read the evidence with the eight categories actively in mind — work analysis is a discipline of seeing.';
+  } else {
+    narrative = `Your analysis was broadly coherent. ${strengths.length > 0 ? `Strengths emerged in <strong>${strengths.join(', ')}</strong>. ` : ''}${weaknesses.length > 0 ? `The dimensions that would benefit from another pass are <strong>${weaknesses.join(', ')}</strong>.` : ''}`;
+  }
+
+  const band = scoreBand(overallWAS);
+
+  // Render debrief content
+  document.getElementById('debriefContent').innerHTML = `
+    <div class="debrief-summary">
+      <div class="debrief-eyebrow">Expert Comparison · Work Analysis Capability</div>
+      <div class="debrief-score-row">
+        <span class="debrief-score-big">${overallWAS}</span>
+        <span class="debrief-score-total">/ 100</span>
+        <span class="debrief-band">— ${band.title}</span>
+      </div>
+      <div class="debrief-narrative">${narrative}</div>
+    </div>
+
+    <h3 style="margin-bottom: 14px;">Dimensional Scores</h3>
+    <div class="dimension-grid">
+      ${dimensions.map(dim => {
+        const score = dimensionScores[dim.id];
+        return `
+          <div class="dimension-row">
+            <div class="dimension-label">${dim.label}</div>
+            <div class="dimension-bar-wrap"><div class="dimension-bar-fill" style="width: ${score}%;"></div></div>
+            <div class="dimension-score">${score}<span class="percent">%</span></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    ${renderRevealBlock()}
+  `;
+}
+
+function renderRevealBlock() {
+  const c = state.case;
+  return `
+    <div class="reveal-block">
+      <div class="reveal-eyebrow">The Reveal · The Central Insight</div>
+      <h3 class="reveal-title">The work you described is what matters. The <em>title</em> is the easier question.</h3>
+      <div class="reveal-body">
+        <p>Your investigation has surfaced a coherent picture of the work. The proposed title in your report — <strong>${escapeHtml(state.recon.title || 'your proposed title')}</strong> — is one of several titles that could legitimately fit the evidence you saw.</p>
+        <p>Here are titles that compensation professionals could reasonably assign to this work:</p>
+      </div>
+      <div class="reveal-titles">
+        ${c.plausibleTitles.map(t => `
+          <div class="reveal-title-card">
+            <div class="reveal-title-name">${escapeHtml(t.name)}</div>
+            <div class="reveal-title-note">${escapeHtml(t.note)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="reveal-body">
+        <p>Notice that the titles differ. Yet the work is the same. If you evaluated <strong>the title</strong> for compensation purposes, you would arrive at different pay outcomes depending on which title you used. If you evaluated <strong>the work</strong>, you would arrive at the same outcome regardless of what the role is called.</p>
+        <p><em>This is why work analysis is the foundation of compensation management.</em> Job descriptions, job evaluations, internal pay structures, and external benchmarking all rest on the integrity of the work analysis beneath them. When that foundation is weak, every downstream decision inherits the weakness.</p>
+      </div>
+      <div class="reveal-key-insight">
+        <p><strong>Compensation professionals evaluate work, not titles.</strong> The title is an organisational convenience — a label that allows people to be referred to in conversation. The work is the substance the firm pays for. The two are related, but they are not the same.</p>
+      </div>
+    </div>
+  `;
+}
+
+function scoreBand(score) {
+  if (score >= 85) return { title: 'Distinguished Analyst' };
+  if (score >= 70) return { title: 'Strong Analyst' };
+  if (score >= 55) return { title: 'Competent Analyst' };
+  if (score >= 40) return { title: 'Developing Analyst' };
+  return { title: 'Foundational Attempt' };
+}
+
+function extractKeywords(term) {
+  // Strip stopwords and extract meaningful tokens
+  const stopwords = new Set(['the', 'and', 'or', 'of', 'to', 'a', 'an', 'in', 'on', 'for', 'with', 'by', 'from', 'as', 'is', 'be', 'are', 'this', 'that', 'these', 'those', 'into', 'about', 'through', 'across', 'between']);
+  return term.toLowerCase()
+    .replace(/[^a-z\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 4 && !stopwords.has(w));
+}
+
+/* ==========================================================
+   PHASE 6: REFLECTION
+   ========================================================== */
+function renderReflection() {
+  const wrap = document.getElementById('reflectionList');
+  wrap.innerHTML = REFLECTION_QUESTIONS.map((q, i) => `
+    <div class="reflection-q">
+      <div class="reflection-q-header">
+        <span class="reflection-q-num">R${String(i+1).padStart(2,'0')}</span>
+        <span class="reflection-q-text">${escapeHtml(q)}</span>
+      </div>
+      <textarea id="refl-${i}" placeholder="Write a brief but honest response…" oninput="updateReflection(${i})">${escapeHtml(state.reflections[i])}</textarea>
+      <div class="word-count" id="refl-wc-${i}"><strong>0</strong> of 30 words minimum</div>
+    </div>
+  `).join('');
+  checkReflectionReady();
+}
+
+function updateReflection(i) {
+  const ta = document.getElementById('refl-' + i);
+  state.reflections[i] = ta.value.trim();
+  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('refl-wc-' + i).innerHTML = `<strong>${words}</strong> of 30 words minimum`;
+  checkReflectionReady();
+}
+
+function checkReflectionReady() {
+  const counts = state.reflections.map(r => r.split(/\s+/).filter(Boolean).length);
+  const done = counts.filter(c => c >= 30).length;
+  document.getElementById('toDashboardBtn').disabled = done < 6;
+  const status = document.getElementById('reflectionStatus');
+  if (done === 6) status.textContent = 'All six reflections completed. Ready to generate the executive dashboard.';
+  else status.innerHTML = `<strong>${6 - done}</strong> reflections remaining at the 30-word minimum.`;
+}
+
+/* ==========================================================
+   EXECUTIVE DASHBOARD
+   ========================================================== */
+function renderDashboard() {
+  // Compute the four sub-scores plus overall
+  const investigationScore = Math.round((state.evidenceViewed.size / state.case.evidence.length) * 100);
+
+  // Work analysis score = average dimension score
+  const dimScores = Object.values(state.scores.dimensions);
+  const workAnalysisScore = Math.round(dimScores.reduce((a, b) => a + b, 0) / dimScores.length);
+
+  // Evidence interpretation = how many categories had at least one piece of evidence placed, plus depth
+  const totalTags = Object.values(state.evidenceTagged).reduce((a, b) => a + b.length, 0);
+  const expectedTags = state.case.evidence.length * 1.5; // rough heuristic
+  const evidenceInterpretation = Math.min(100, Math.round((totalTags / expectedTags) * 100));
+
+  // Job reconstruction = average depth across reconstruction fields
+  const reconFields = ['purpose', 'responsibilities', 'outputs', 'stakeholders', 'knowledge', 'skills', 'tools', 'decisions'];
+  const reconLengths = reconFields.map(f => (state.recon[f] || '').split(/\s+/).filter(Boolean).length);
+  const avgLen = reconLengths.reduce((a, b) => a + b, 0) / reconLengths.length;
+  const reconScore = Math.min(100, Math.round((avgLen / 25) * 100)); // 25 words per field = 100%
+
+  // Reflection completion = average word count vs 50
+  const reflWords = state.reflections.map(r => r.split(/\s+/).filter(Boolean).length);
+  const avgReflWords = reflWords.reduce((a, b) => a + b, 0) / reflWords.length;
+  const reflScore = Math.min(100, Math.round((avgReflWords / 50) * 100));
+
+  const overall = Math.round((investigationScore + workAnalysisScore + evidenceInterpretation + reconScore + reflScore) / 5);
+  const band = scoreBand(overall);
+
+  // Narrative
+  const narrative = generateOverallNarrative(investigationScore, workAnalysisScore, evidenceInterpretation, reconScore, reflScore, overall);
+
+  document.getElementById('dashboardContent').innerHTML = `
+    <div class="dashboard">
+      <div class="dashboard-header">
+        <div class="dashboard-org">${escapeHtml(state.case.client)} · Engagement MJ-${state.caseId}</div>
+        <div class="dashboard-title">${escapeHtml(state.consultantName)} — Investigation Summary</div>
+        <div class="dashboard-subtitle">Reference ${escapeHtml(state.consultantRef)} · ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+      </div>
+
+      <div class="dashboard-overall">
+        <div class="dashboard-overall-label">Overall Capability Score</div>
+        <div class="dashboard-overall-value">${overall}<span class="percent">%</span></div>
+        <div class="dashboard-overall-band">— ${band.title}</div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Investigation Score</div>
+          <div class="dashboard-stat-value">${investigationScore}<span class="percent">%</span></div>
+          <div class="dashboard-stat-detail">Evidence reviewed and engaged with</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Work Analysis Score</div>
+          <div class="dashboard-stat-value">${workAnalysisScore}<span class="percent">%</span></div>
+          <div class="dashboard-stat-detail">Conceptual coverage vs. expert model</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Evidence Interpretation</div>
+          <div class="dashboard-stat-value">${evidenceInterpretation}<span class="percent">%</span></div>
+          <div class="dashboard-stat-detail">Depth of evidence classification</div>
+        </div>
+        <div class="dashboard-stat">
+          <div class="dashboard-stat-label">Job Reconstruction</div>
+          <div class="dashboard-stat-value">${reconScore}<span class="percent">%</span></div>
+          <div class="dashboard-stat-detail">Substantiveness of structured report</div>
+        </div>
+        <div class="dashboard-stat" style="grid-column: 1 / -1; border-right: none;">
+          <div class="dashboard-stat-label">Reflection Completion</div>
+          <div class="dashboard-stat-value">${reflScore}<span class="percent">%</span></div>
+          <div class="dashboard-stat-detail">Depth and substance of written reflections</div>
+        </div>
+      </div>
+
+      <div class="dashboard-narrative">${narrative}</div>
+    </div>
+  `;
+}
+
+function generateOverallNarrative(inv, was, ei, recon, refl, overall) {
+  const parts = [];
+  if (was >= 70) parts.push('You accurately identified the major dimensions of the work, with clear coverage of responsibilities, outputs, and stakeholders.');
+  else if (was >= 50) parts.push('You identified the major shape of the work but some dimensions remained underdeveloped — particularly the indirect signals from feedback and manager comments.');
+  else parts.push('Your work analysis read the surface of the evidence well but missed the deeper signals — especially the ways stakeholder feedback and manager comments reveal what the role is actually trusted with.');
+
+  if (recon >= 70) parts.push('Your reconstruction report had substantive depth across most fields, suggesting you can produce a usable artefact for downstream compensation work.');
+  else parts.push('The reconstruction report contained the right structure but would benefit from greater depth — especially in the knowledge and decisions-influenced fields, which often distinguish strong work analyses from weak ones.');
+
+  if (state.recon.confidence > 80 && was < 60) {
+    parts.push('A note on confidence: your self-rated confidence was high, but the dimensional analysis suggests the certainty was not fully warranted. In compensation practice, calibrated confidence — knowing what you do and do not know — is itself a professional skill.');
+  } else if (state.recon.confidence < 40 && was > 70) {
+    parts.push('A note on confidence: your self-rated confidence was modest, but your analysis was stronger than your confidence suggested. In professional practice, well-calibrated humility is a strength; here, you may have been more capable than you allowed yourself to believe.');
+  }
+
+  parts.push('<strong>The central lesson</strong> — the work you analysed is the unit of compensation, not the title. Job descriptions, evaluations, and pay structures all rest on the integrity of what you have just practised. The next time you encounter a job title in a compensation context, the discipline to ask "what is the work behind this?" is what will distinguish your judgement from a less careful analyst.');
+
+  return parts.join(' ');
+}
+
+/* ==========================================================
+   RESTART
+   ========================================================== */
+function restartSimulation() {
+  if (!confirm('Begin a new investigation? This will load a new mystery case and clear all current work.')) return;
+  window.location.reload();
+}
+
+/* ==========================================================
+   MODAL
+   ========================================================== */
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget && !event.target.classList.contains('modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function stripHtml(s) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = s || '';
+  return tmp.textContent || tmp.innerText || '';
+}
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+init();
+</script>
+</body>
+</html>
